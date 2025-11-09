@@ -1,16 +1,7 @@
 {
-    "STATUE": {
-        "key": "STATUE",
-        "solid": true,
-        "name": "una estatua enorme",
-        "collisionBox": { "width": 120, "height": 40, "offsetY": 160 }
-    },
-    "PLAYER": {
-        "key": "PLAYER",
-        "solid": true,
-        "name": "jugador",
-        "collisionBox": { "width": 40, "height": 20, "offsetY": 40 }
-    },
+    "//--- DEFINICIONES DE TERRENO ---//": {},
+    "//--- (Las entidades ahora se definen en entity_definitions.js) ---//": {},
+
     "STONE_GROUND": {
         "key": "STONE_GROUND",
         "solid": false,
@@ -32,32 +23,29 @@
         "name": "un muro",
         "collisionBox": { "width": 80, "height": 40, "offsetY": 80 }
     },
-    "TREE": {
-        "key": "TREE",
-        "solid": true,
-        "name": "un árbol",
-        "collisionBox": { "width": 40, "height": 20, "offsetY": 60 }
-    },
-    "ROCK": {
-        "key": "ROCK",
-        "solid": true,
-        "name": "una roca",
-        "collisionBox": { "width": 60, "height": 30, "offsetY": 30 }
-    },
     "WATER": {
         "key": "WATER",
         "solid": true,
         "name": "agua"
     },
-    "NPC": {
-        "key": "NPC",
-        "solid": true,
-        "name": "una persona",
-        "collisionBox": { "width": 40, "height": 20, "offsetY": 40 }
-    },
-    "ITEM": {
-        "key": "ITEM",
+    "SAND": {
+        "key": "SAND",
         "solid": false,
-        "name": "un objeto brillante"
+        "name": "arena"
+    },
+    "SAVANNA_GRASS": {
+        "key": "SAVANNA_GRASS",
+        "solid": false,
+        "name": "hierba de savana"
+    },
+    "JUNGLE_GRASS": {
+        "key": "JUNGLE_GRASS",
+        "solid": false,
+        "name": "hierba de jungla"
+    },
+    "SNOW": {
+        "key": "SNOW",
+        "solid": false,
+        "name": "nieve"
     }
 }

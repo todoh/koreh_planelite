@@ -6,9 +6,18 @@ import {
     initializeMetadata, 
     getOrGenerateChunk, 
     saveFusedChunk, 
-    TILES as Metadata, 
     IMAGES as AssetImages 
 } from './generation.js';
+// --- ¡NUEVA IMPORTACIÓN! ---
+import { initializeInventory, addItem } from './inventory.js';
+// --- ¡NUEVAS IMPORTACIONES DE ENTIDADES! ---
+import { 
+    getTerrainDefinitions, 
+    getEntityDefinitions, 
+    createEntity 
+} from './entity_components.js';
+import { ITEM_DEFINITIONS } from './items.js';
+
 
 // --- CONFIGURACIÓN DEL JUEGO ---
 export const TILE_PX_WIDTH = 70;
@@ -30,7 +39,6 @@ export const player = {
 export const stats = {
     vida: 1000, vidamax: 1000,
     energia: 1000, energiamax: 1000,
-    oro: 0, madera: 0, piedra: 0,
 };
 
 // --- MUNDO ACTIVO (RAM) ---
@@ -38,95 +46,68 @@ let activeChunks = new Map(); // K: "x,y", V: { terrain: [...], entities: [...] 
 let pendingChunkLoads = new Set(); // Evita cargas duplicadas
 let dirtyChunks = new Set(); // Chunks modificados que deben guardarse.
 
-// ¡NUEVO! Almacén para otros jugadores
 let otherPlayers = new Map(); // K: profileName, V: { x, y, stats, name }
 
-// --- ASSETS (RE-EXPORTADOS) ---
-export const TILES = Metadata;
+// --- ¡MODIFICADO! ASSETS Y DEFINICIONES ---
+export let TERRAIN_DATA = {}; // Rellenado por initializeGameLogic
+export let ENTITY_DATA = {}; // Rellenado por initializeGameLogic
 export const IMAGES = AssetImages;
 
-// --- REGLAS DEL JUEGO (COMPORTAMIENTOS) ---
-const TILE_BEHAVIORS = {
-    TREE: {
-        onInteract: (entity) => {
-            stats.madera++;
-            stats.energia -= 2;
-            recordDeltaFromEntity(entity, {
-                type: 'REMOVE_ENTITY',
-                uid: entity.uid
-            });
-            return `Has talado un árbol. Tienes ${stats.madera} de madera.`;
-        }
-    },
-    ROCK: {
-        onInteract: (entity) => {
-            stats.piedra++;
-            stats.energia--;
-             recordDeltaFromEntity(entity, {
-                type: 'REMOVE_ENTITY',
-                uid: entity.uid
-            });
-            return `Has picado una roca. Tienes ${stats.piedra} de piedra.`;
-        }
-    },
-    NPC: {
-        onInteract: () => '¡Este mundo es procedural!'
-    },
-    ITEM: {
-        onEnter: (entity) => {
-            stats.oro += 10;
-             recordDeltaFromEntity(entity, {
-                type: 'REMOVE_ENTITY',
-                uid: entity.uid
-            });
-            return '¡Has encontrado 10 de oro!';
-        }
-    },
-    STATUE: {
-        onInteract: () => 'Una estatua imponente. Marca el spawn (0,0).'
-    }
+// --- ¡NUEVO! Callback para abrir menús ---
+let openMenuCallback = (menuId) => {
+    console.warn(`openMenuCallback no inicializado. Se intentó abrir: ${menuId}`);
 };
+
+
+// --- ¡COMPORTAMIENTOS ELIMINADOS! ---
+// const TILE_BEHAVIORS = { ... }; // <-- ELIMINADO
+
 
 // --- INICIALIZACIÓN ---
 
-export async function initializeGameLogic() {
-    // 0. Comprobar si hay un estado de jugador para cargar
+export async function initializeGameLogic(callbacks) {
+    // Recibir callbacks de main.js
+    if (callbacks && callbacks.openMenu) {
+        openMenuCallback = callbacks.openMenu;
+    }
+
+    // 0. Cargar estado del jugador (sin cambios)
     try {
         const loadedStateJSON = localStorage.getItem("GAME_STATE_LOAD");
         if (loadedStateJSON) {
             console.log("Detectado estado de jugador cargado. Aplicando...");
             const loadedState = JSON.parse(loadedStateJSON);
-            // Si el estado cargado es null (raro, pero posible si no había playerState)
+            
             if (loadedState) {
                 player.x = loadedState.x;
                 player.y = loadedState.y;
                 Object.assign(stats, loadedState.stats);
+                initializeInventory(loadedState.inventory);
             } else {
                 throw new Error("El estado del jugador cargado era nulo.");
             }
             localStorage.removeItem("GAME_STATE_LOAD");
         } else {
             console.log("No hay estado de jugador. Empezando en spawn por defecto.");
-            player.x = (0.5 * CHUNK_GRID_WIDTH) * TILE_PX_WIDTH;
-            player.y = (0.5 * CHUNK_GRID_HEIGHT) * TILE_PX_HEIGHT;
+            player.x = (30.5 * TILE_PX_WIDTH);
+            player.y = (30.5 * TILE_PX_HEIGHT);
+            initializeInventory(null);
         }
     } catch (e) {
         console.error("Error al procesar estado de jugador cargado. Usando spawn por defecto.", e);
-        player.x = (0.5 * CHUNK_GRID_WIDTH) * TILE_PX_WIDTH;
-        player.y = (0.5 * CHUNK_GRID_HEIGHT) * TILE_PX_HEIGHT;
+        player.x = (30.5 * TILE_PX_WIDTH);
+        player.y = (30.5 * TILE_PX_HEIGHT);
         localStorage.removeItem("GAME_STATE_LOAD");
+        initializeInventory(null);
     }
 
-    // 1. Cargar metadata e imágenes
-    await initializeMetadata();
-
-    // 2. Adjuntar comportamientos a la metadata
-    for (const key in TILE_BEHAVIORS) {
-        if (TILES[key]) {
-            TILES[key].onInteract = TILE_BEHAVIORS[key].onInteract;
-            TILES[key].onEnter = TILE_BEHAVIORS[key].onEnter;
-        }
-    }
+    // 1. ¡MODIFICADO! Cargar metadata (imágenes y definiciones)
+    // initializeMetadata ahora solo carga imágenes y sprites.json
+    await initializeMetadata(); 
+    
+    // 2. ¡NUEVO! Obtener las definiciones procesadas desde entity.js
+    TERRAIN_DATA = getTerrainDefinitions();
+    ENTITY_DATA = getEntityDefinitions();
     
     // 3. Cargar los primeros chunks
     console.log("Cargando área de spawn inicial...");
@@ -149,16 +130,13 @@ export async function initializeGameLogic() {
 }
 
 // --- GESTIÓN DE CHUNKS ---
-
-/**
- * Asegura que los chunks alrededor del jugador estén cargados.
- */
+// ... (Sin cambios en updateActiveChunks, flushDirtyChunks) ...
 export function updateActiveChunks(playerX, playerY) {
     const playerChunkX = Math.floor(playerX / CHUNK_PX_WIDTH);
     const playerChunkY = Math.floor(playerY / CHUNK_PX_HEIGHT);
 
     // 1. Cargar área activa (3x3 chunks)
-    for (let y = playerChunkY - 1; y <= playerChunkY + 1; y++) {
+for (let y = playerChunkY - 1; y <= playerChunkY + 1; y++) {
         for (let x = playerChunkX - 1; x <= playerChunkX + 1; x++) {
             const chunkKey = `${x},${y}`;
             
@@ -166,15 +144,26 @@ export function updateActiveChunks(playerX, playerY) {
                 pendingChunkLoads.add(chunkKey);
                 console.log(`Pidiendo chunk: ${chunkKey}`);
                 
+                // --- INICIO DE MODIFICACIÓN ---
                 getOrGenerateChunk(x, y, chunkKey)
-                    .then(chunkData => {
-                        activeChunks.set(chunkKey, chunkData);
+                    .then(result => { // 'chunkData' ahora es 'result'
+                        activeChunks.set(chunkKey, result.chunkData);
+                        
+                        // ¡LA SOLUCIÓN!
+                        // Si el chunk es nuevo, marcarlo como sucio
+                        // para que se guarde en localStorage.
+                        if (result.isNew) {
+                            dirtyChunks.add(chunkKey);
+                            console.log(`Chunk ${chunkKey} marcado como 'dirty' (nuevo).`);
+                        }
+                        
                         pendingChunkLoads.delete(chunkKey);
                     })
                     .catch(err => {
                         console.error(`Error al cargar chunk ${chunkKey}:`, err);
                         pendingChunkLoads.delete(chunkKey);
                     });
+                // --- FIN DE MODIFICACIÓN ---
             }
         }
     }
@@ -197,11 +186,6 @@ export function updateActiveChunks(playerX, playerY) {
         }
     }
 }
-
-/**
- * ¡NUEVO! Fuerza el guardado de todos los chunks sucios en RAM.
- * Se llama antes de guardar la partida (guardado LOCAL).
- */
 export async function flushDirtyChunks() {
     console.log(`Guardando ${dirtyChunks.size} chunks sucios...`);
     const promises = [];
@@ -217,13 +201,9 @@ export async function flushDirtyChunks() {
     console.log("Chunks sucios guardados.");
 }
 
-// --- ¡NUEVO! GESTIÓN DE OTROS JUGADORES ---
 
-/**
- * ¡NUEVO! Actualiza la lista interna de otros jugadores.
- * @param {object} playersData - El objeto completo de /playerStates_v2
- * @param {string} myProfileName - Nuestro nombre, para excluirnos
- */
+// --- GESTIÓN DE OTROS JUGADORES ---
+// ... (Sin cambios en updateAllPlayers) ...
 export function updateAllPlayers(playersData, myProfileName) {
     otherPlayers.clear();
     if (!playersData) return;
@@ -243,17 +223,8 @@ export function updateAllPlayers(playersData, myProfileName) {
 }
 
 
-// --- ¡FIN DE GESTIÓN DE OTROS JUGADORES! ---
-
-
-// --- ¡INICIO DE NUEVAS FUNCIONES PARA LA NUBE! ---
-
-/**
- * ¡NUEVO! Obtiene los datos de los chunks sucios en RAM
- * sin limpiarlos ni guardarlos en local.
- * Usado por cloud.js
- * @returns {Map<string, object>} Un mapa de { chunkKey: chunkData }
- */
+// --- GESTIÓN DE DATOS EN LA NUBE ---
+// ... (Sin cambios en getDirtyChunksData, clearDirtyChunks) ...
 export function getDirtyChunksData() {
     const dirtyData = new Map();
     for (const chunkKey of dirtyChunks) {
@@ -266,23 +237,13 @@ export function getDirtyChunksData() {
     console.log(`getDirtyChunksData: Encontrados ${dirtyData.size} chunks sucios en RAM.`);
     return dirtyData;
 }
-
-/**
- * ¡NUEVO! Limpia el set de chunks sucios.
- * Se llama después de un guardado exitoso en la nube.
- */
 export function clearDirtyChunks() {
     console.log(`clearDirtyChunks: Limpiando ${dirtyChunks.size} chunks sucios.`);
     dirtyChunks.clear();
 }
-// --- ¡FIN DE NUEVAS FUNCIONES PARA LA NUBE! ---
 
-
-/**
- * Registra un cambio en la RAM y MARCA el chunk como sucio.
- * @param {string} chunkKey 
- * @param {object} deltaInfo (Info sobre qué cambiar)
- */
+// --- GESTIÓN DE DELTAS ---
+// --- ¡MODIFICADO! ---
 function recordDelta(chunkKey, deltaInfo) {
     // 1. Aplicar cambio a la RAM
     const liveChunk = activeChunks.get(chunkKey);
@@ -300,24 +261,39 @@ function recordDelta(chunkKey, deltaInfo) {
         case 'ADD_ENTITY':
             liveChunk.entities.push(deltaInfo.entity);
             break;
+        // --- ¡NUEVO! ---
+        case 'REPLACE_ENTITY':
+            const index = liveChunk.entities.findIndex(e => e.uid === deltaInfo.uid);
+            if (index !== -1) {
+                liveChunk.entities[index] = deltaInfo.newEntity;
+                console.log(`Entidad ${deltaInfo.uid} reemplazada (ej: crecimiento).`);
+            } else {
+                console.warn(`No se pudo reemplazar la entidad ${deltaInfo.uid}: no encontrada.`);
+                // Por si acaso, la añadimos para evitar que desaparezca
+                liveChunk.entities.push(deltaInfo.newEntity);
+            }
+            break;
         case 'CHANGE_TILE':
             const [x, y] = deltaInfo.localCoord.split(',').map(Number);
              if (liveChunk.terrain[y]) {
                 liveChunk.terrain[y][x] = deltaInfo.tileKey;
              }
             break;
+        // --- ¡NUEVO! ---
+        case 'MOVE_ENTITY':
+             const entityToMove = liveChunk.entities.find(e => e.uid === deltaInfo.uid);
+             if (entityToMove) {
+                entityToMove.x = deltaInfo.x;
+                entityToMove.y = deltaInfo.y;
+             }
+             break;
     }
     
     // 2. ¡NO GUARDAR! Solo marcar como sucio.
     dirtyChunks.add(chunkKey);
-    // La llamada a saveFusedChunk(chunkKey, liveChunk) se ha eliminado.
 }
 
-
-/**
- * Helper para encontrar el chunkKey de una entidad
- * @param {object} entity 
- */
+// ... (Sin cambios en recordDeltaFromEntity) ...
 function recordDeltaFromEntity(entity, deltaInfo) {
     const chunkX = Math.floor(entity.x / CHUNK_PX_WIDTH);
     const chunkY = Math.floor(entity.y / CHUNK_PX_HEIGHT);
@@ -328,6 +304,7 @@ function recordDeltaFromEntity(entity, deltaInfo) {
 
 // --- LÓGICA DE JUEGO (LLAMADA DESDE MAIN) ---
 
+// --- ¡MODIFICADO! ---
 export function getMapTileKey(gridX, gridY) {
     const chunkX = Math.floor(gridX / CHUNK_GRID_WIDTH);
     const chunkY = Math.floor(gridY / CHUNK_GRID_HEIGHT);
@@ -337,14 +314,14 @@ export function getMapTileKey(gridX, gridY) {
     const localX = ((gridX % CHUNK_GRID_WIDTH) + CHUNK_GRID_WIDTH) % CHUNK_GRID_WIDTH;
     const localY = ((gridY % CHUNK_GRID_HEIGHT) + CHUNK_GRID_HEIGHT) % CHUNK_GRID_HEIGHT;
     if (chunk.terrain[localY] && chunk.terrain[localY][localX]) {
-        return chunk.terrain[localY][localX];
+        // Asegurarse de que el tile de terreno existe, si no, devolver 'DIRT'
+        const tileKey = chunk.terrain[localY][localX];
+        return TERRAIN_DATA[tileKey] ? tileKey : 'DIRT';
     }
     return 'WALL';
 }
 
-/**
- * ¡MODIFICADO! Ahora incluye a los otros jugadores.
- */
+// --- ¡MODIFICADO! ---
 export function getVisibleObjects(viewport) {
     let objectsToRender = [];
 
@@ -356,11 +333,12 @@ export function getVisibleObjects(viewport) {
     for (let y = startY; y < endY; y++) {
         for (let x = startX; x < endX; x++) {
             objectsToRender.push({
-                key: getMapTileKey(x, y),
+                key: getMapTileKey(x, y), // Clave del terreno
                 x: x * TILE_PX_WIDTH,
                 y: y * TILE_PX_HEIGHT,
                 zIndex: (y * TILE_PX_HEIGHT), 
-                isGround: true
+                isGround: true,
+                name: null, // El terreno no tiene nombre para dibujar
             });
         }
     }
@@ -369,9 +347,15 @@ export function getVisibleObjects(viewport) {
     // 2. Recopilar ENTIDADES
     for (const chunk of activeChunks.values()) {
         for (const entity of chunk.entities) {
-            const img = IMAGES[entity.key]; 
+            // --- ¡NUEVA LÓGICA DE COMPONENTES! ---
+            const renderComp = entity.components.Renderable;
+            if (!renderComp) continue; // No dibujable
+            
+            const img = IMAGES[renderComp.imageKey]; 
             const imgHeight = img ? img.height : TILE_PX_HEIGHT;
             const imgWidth = img ? img.width : TILE_PX_WIDTH;
+            // --- Fin Lógica Componentes ---
+
             const entityTop = entity.y - imgHeight;
             const entityBottom = entity.y;
             const entityLeft = entity.x - (imgWidth / 2);
@@ -387,9 +371,12 @@ export function getVisibleObjects(viewport) {
             }
             
             objectsToRender.push({
-                ...entity,
+                key: renderComp.imageKey, // Clave de la imagen
+                x: entity.x,
+                y: entity.y,
                 zIndex: entity.y, 
-                isGround: false
+                isGround: false,
+                name: null, // Las entidades no dibujan su nombre (aún)
             });
         }
     }
@@ -400,13 +387,13 @@ export function getVisibleObjects(viewport) {
         x: player.x,
         y: player.y,
         zIndex: player.y,
-        isGround: false
+        isGround: false,
+        name: null,
     });
     
     // 4. ¡NUEVO! Añadir OTROS JUGADORES
     for (const [name, p] of otherPlayers.entries()) {
-        // Simple comprobación de AABB (como las entidades)
-        const img = IMAGES[p.key];
+        const img = IMAGES[p.key]; // p.key sigue siendo 'PLAYER'
         const imgHeight = img ? img.height : TILE_PX_HEIGHT;
         const imgWidth = img ? img.width : TILE_PX_WIDTH;
         const pTop = p.y - imgHeight;
@@ -429,7 +416,7 @@ export function getVisibleObjects(viewport) {
             y: p.y,
             zIndex: p.y,
             isGround: false,
-            name: p.name // ¡Importante!
+            name: p.name // ¡Importante! El renderizador dibujará esto
         });
     }
     
@@ -439,6 +426,7 @@ export function getVisibleObjects(viewport) {
     return objectsToRender;
 }
 
+// --- ¡MODIFICADO! ---
 function findEntityAt(worldX, worldY) {
     const chunkX = Math.floor(worldX / CHUNK_PX_WIDTH);
     const chunkY = Math.floor(worldY / CHUNK_PX_HEIGHT);
@@ -447,17 +435,32 @@ function findEntityAt(worldX, worldY) {
 
     for (let i = chunk.entities.length - 1; i >= 0; i--) {
         const entity = chunk.entities[i];
-        const def = TILES[entity.key];
-        if (!def) continue;
-
-        const clickWidth = (def.collisionBox?.width || TILE_PX_WIDTH * 0.8);
-        const clickHeight = (def.collisionBox?.height || TILE_PX_HEIGHT * 0.8);
-        const offsetY = (def.collisionBox?.offsetY || TILE_PX_HEIGHT * 0.8);
-        const eX = entity.x - clickWidth / 2;
-        const eY = entity.y - offsetY;
         
-        if (worldX >= eX && worldX <= eX + clickWidth &&
-            worldY >= eY && worldY <= eY + clickHeight) 
+        // --- ¡NUEVA LÓGICA DE COMPONENTES! ---
+        // 1. Debe ser interactuable
+        if (!entity.components.InteractableResource &&
+            !entity.components.InteractableDialogue &&
+            !entity.components.InteractableMenu) {
+            continue; 
+        }
+
+        // 2. Usar su caja de colisión para el clic
+        const colComp = entity.components.Collision;
+        if (!colComp) continue; // Si no tiene colisión, no se puede clickear (¿o sí? por ahora no)
+
+        // Usar caja de colisión o una caja por defecto generosa
+        const clickBox = colComp.collisionBox || { 
+            width: TILE_PX_WIDTH * 0.8, 
+            height: TILE_PX_HEIGHT * 0.8, 
+            offsetY: TILE_PX_HEIGHT * 0.8 
+        };
+        // --- Fin Lógica Componentes ---
+        
+        const eX = entity.x - clickBox.width / 2;
+        const eY = entity.y - clickBox.offsetY;
+        
+        if (worldX >= eX && worldX <= eX + clickBox.width &&
+            worldY >= eY && worldY <= eY + clickBox.height) 
         {
             return { entity };
         }
@@ -465,48 +468,52 @@ function findEntityAt(worldX, worldY) {
     return null;
 }
 
+// --- ¡MODIFICADO! ---
 export function handleWorldTap(worldX, worldY) {
     const target = findEntityAt(worldX, worldY);
     
-    if (target && TILES[target.entity.key]?.onInteract) {
+    // 1. Clic en Entidad Interactuable
+    if (target) {
         player.isMovingToTarget = false;
         const dx = player.x - target.entity.x;
         const dy = player.y - target.entity.y;
         const distance = Math.sqrt(dx*dx + dy*dy);
         
         if (distance < TILE_PX_WIDTH * 1.5) {
-            const message = TILES[target.entity.key].onInteract(target.entity);
-            return { message };
+            // ¡Llamar al sistema de interacción!
+            return playerInteract(target.entity);
         } else {
             return { message: "Estás demasiado lejos." };
         }
     }
 
+    // 2. Clic en el Terreno
     const gridX = Math.floor(worldX / TILE_PX_WIDTH);
     const gridY = Math.floor(worldY / TILE_PX_HEIGHT);
     const groundTileKey = getMapTileKey(gridX, gridY);
 
-    if (TILES[groundTileKey]?.solid) {
+    if (TERRAIN_DATA[groundTileKey]?.solid) {
         player.isMovingToTarget = false; 
         return { message: "No puedes caminar ahí." };
     }
-    if (target && TILES[target.entity.key]?.solid) {
-         player.isMovingToTarget = false; 
-        return { message: `No puedes caminar a través de: ${TILES[target.entity.key].name}` };
-    }
-
+    
+    // (La comprobación de colisión con entidad en tap se elimina,
+    // findEntityAt ahora solo devuelve entidades *interactuables*)
+    
+    // 3. Moverse al punto
     player.isMovingToTarget = true;
     player.targetX = worldX;
     player.targetY = worldY;
     return { message: null };
 }
 
-function checkCollision(pixelX, pixelY) {
+// --- ¡MODIFICADO! ---
+function checkCollision(pixelX, pixelY, entityToIgnore = null) {
     // 1. Colisión con el mapa (suelo)
     const gridX = Math.floor(pixelX / TILE_PX_WIDTH);
     const gridY = Math.floor(pixelY / TILE_PX_HEIGHT);
     const groundTileKey = getMapTileKey(gridX, gridY);
-    if (TILES[groundTileKey]?.solid) {
+    if (TERRAIN_DATA[groundTileKey]?.solid) {
         return { solid: true, type: 'map' };
     }
 
@@ -519,17 +526,40 @@ function checkCollision(pixelX, pixelY) {
             if (!chunk) continue;
             
             for (const entity of chunk.entities) {
-                const def = TILES[entity.key];
-                if (!def || !def.solid) continue; 
+                // --- ¡MODIFICADO! Ignorar entidad específica (para IA) ---
+                if (entityToIgnore && entity.uid === entityToIgnore.uid) {
+                    continue;
+                }
+
+                // --- ¡NUEVA LÓGICA DE COMPONENTES! ---
+                const colComp = entity.components.Collision;
+                if (!colComp || !colComp.isSolid) continue; 
                 
-                const eBox = def.collisionBox || { width: TILE_PX_WIDTH * 0.8, height: TILE_PX_HEIGHT * 0.4, offsetY: TILE_PX_HEIGHT * 0.4 };
+                const eBox = colComp.collisionBox || { 
+                    width: TILE_PX_WIDTH * 0.8, 
+                    height: TILE_PX_HEIGHT * 0.4, 
+                    offsetY: TILE_PX_HEIGHT * 0.4 
+                };
+                // --- Fin Lógica Componentes ---
+                
                 const eMinX = entity.x - eBox.width / 2;
                 const eMaxX = entity.x + eBox.width / 2;
                 const eMinY = entity.y - eBox.offsetY;
                 const eMaxY = entity.y - eBox.offsetY + eBox.height;
 
-                const pDef = TILES['PLAYER'];
-                const pBox = pDef.collisionBox;
+                // --- ¡MODIFICADO! Determinar la caja del "colisionador" ---
+                let pBox;
+                if (entityToIgnore) {
+                    // Si estamos comprobando una entidad (IA), usamos su propia caja
+                    const pColComp = entityToIgnore.components.Collision;
+                    pBox = pColComp ? pColComp.collisionBox : eBox; // Fallback a eBox si es necesario
+                } else {
+                    // Si no (jugador), usamos la caja del jugador
+                    const pDef = ENTITY_DATA['PLAYER'];
+                    const pCompDef = pDef.components.find(c => c.type === 'Collision');
+                    pBox = pCompDef.args[1]; // La collisionBox es el segundo argumento
+                }
+                
                 const pMinX = pixelX - pBox.width / 2;
                 const pMaxX = pixelX + pBox.width / 2;
                 const pMinY = pixelY - pBox.offsetY;
@@ -544,9 +574,11 @@ function checkCollision(pixelX, pixelY) {
     return { solid: false };
 }
 
+// --- ¡MODIFICADO! ---
 export function updatePlayer(deltaTime, input) {
     let message = null;
     
+    // ... (Lógica de movimiento del jugador sin cambios) ...
     if (input.up || input.down || input.left || input.right) {
         player.isMovingToTarget = false;
         let baseVx = 0, baseVy = 0;
@@ -584,6 +616,7 @@ export function updatePlayer(deltaTime, input) {
         let newX = player.x + player.vx * deltaTime;
         let newY = player.y + player.vy * deltaTime;
 
+        // --- ¡MODIFICADO! checkCollision ahora no toma argumentos extra ---
         if (!checkCollision(newX, player.y).solid) player.x = newX;
         else if (player.isMovingToTarget) player.isMovingToTarget = false;
         
@@ -597,21 +630,27 @@ export function updatePlayer(deltaTime, input) {
         }
     }
 
-    // Comprobar onEnter
+    // --- ¡NUEVO! Sistema "OnEnter" (Collectible) ---
     const chunkX = Math.floor(player.x / CHUNK_PX_WIDTH);
     const chunkY = Math.floor(player.y / CHUNK_PX_HEIGHT);
     const chunk = activeChunks.get(`${chunkX},${chunkY}`);
     if(chunk) {
-        for (const entity of chunk.entities) {
-            const def = TILES[entity.key];
-            if (def && def.onEnter) {
+        // Recorrer en reversa por si eliminamos una
+        for (let i = chunk.entities.length - 1; i >= 0; i--) {
+            const entity = chunk.entities[i];
+            const comp = entity.components.Collectible;
+            
+            if (comp) {
                 const dx = player.x - entity.x;
                 const dy = player.y - entity.y;
                 const distance = Math.sqrt(dx*dx + dy*dy);
-                const enterRadius = (def.collisionBox?.width || TILE_PX_WIDTH) / 2;
+                const enterRadius = TILE_PX_WIDTH / 2; // Radio de recolección
                 
                 if (distance < enterRadius) {
-                    message = def.onEnter(entity);
+                    addItem(comp.itemId, comp.quantity);
+                    recordDeltaFromEntity(entity, { type: 'REMOVE_ENTITY', uid: entity.uid });
+                    const itemDef = ITEM_DEFINITIONS[comp.itemId];
+                    message = `¡Has recogido ${comp.quantity} de ${itemDef.name}!`;
                 }
             }
         }
@@ -620,51 +659,207 @@ export function updatePlayer(deltaTime, input) {
     return { message };
 }
 
-export function playerInteract() {
-    let targetX = player.x, targetY = player.y;
-    const reach = TILE_PX_WIDTH * 1.5;
+// --- ¡NUEVO! Sistema de Crecimiento y otros (llamado desde main.js) ---
+export function updateEntities(deltaTime) {
+    const deltaMs = deltaTime * 1000;
 
-    if (player.facing === 'up') targetY -= reach;
-    if (player.facing === 'down') targetY += reach;
-    if (player.facing === 'left') targetX -= reach;
-    if (player.facing === 'right') targetX += reach;
-
-    let closestEntity = null;
-    let closestDist = Infinity;
-
-    const chunkX = Math.floor(player.x / CHUNK_PX_WIDTH);
-    const chunkY = Math.floor(player.y / CHUNK_PX_HEIGHT);
-    
-    for (let y = chunkY - 1; y <= chunkY + 1; y++) {
-         for (let x = chunkX - 1; x <= chunkX + 1; x++) {
-            const chunk = activeChunks.get(`${x},${y}`);
-            if (!chunk) continue;
+    for (const chunkKey of activeChunks.keys()) {
+        const chunk = activeChunks.get(chunkKey);
+        
+        // Usar un índice normal por si reemplazamos (crecimiento)
+        for (let i = 0; i < chunk.entities.length; i++) {
+            const entity = chunk.entities[i];
             
-            for (const entity of chunk.entities) {
-                const def = TILES[entity.key];
-                if (!def || !def.onInteract) continue; 
+            // Si la entidad fue eliminada (ej. por crecimiento), puede ser nula
+            if (!entity) continue; 
+            
+            const comps = entity.components;
 
-                const dx = entity.x - targetX;
-                const dy = entity.y - targetY;
-                const distance = Math.sqrt(dx*dx + dy*dy);
-                const interactRadius = (def.collisionBox?.width || TILE_PX_WIDTH) * 0.8; 
+            // --- Sistema de Crecimiento ---
+            if (comps.Growth) {
+                comps.Growth.currentTime += deltaMs;
+                if (comps.Growth.currentTime >= comps.Growth.timeToGrowMs) {
+                    // ¡Hora de crecer!
+                    // Re-usamos el UID, pero creamos una entidad nueva
+                    const newEntity = createEntity(comps.Growth.nextEntityKey, entity.x, entity.y, entity.uid);
+                    if (newEntity) {
+                        // Reemplazar la entidad en el chunk
+                        recordDelta(chunkKey, { 
+                            type: 'REPLACE_ENTITY', 
+                            uid: entity.uid, 
+                            newEntity: newEntity 
+                        });
+                        // chunk.entities[i] = newEntity; // Aplicación directa (recordDelta ya lo hace)
+                    }
+                }
+            }
+            
+            // --- ¡MODIFICADO! Sistema de Movimiento AI ---
+            if (comps.MovementAI) {
+                const ai = comps.MovementAI;
+                ai.timeUntilNextAction -= deltaMs;
+
+                if (ai.timeUntilNextAction <= 0) {
+                    // 1. Elegir nueva acción
+                    ai.timeUntilNextAction = (Math.random() * 3000) + 2000; // Entre 2 y 5 segundos
+
+                    const action = Math.random();
+                    if (action < 0.6) { // 60% probabilidad de quedarse quieto
+                        ai.currentVelocity.x = 0;
+                        ai.currentVelocity.y = 0;
+                    } else { // 40% probabilidad de moverse
+                        const angle = Math.random() * Math.PI * 2;
+                        ai.currentVelocity.x = Math.cos(angle) * ai.speed;
+                        ai.currentVelocity.y = Math.sin(angle) * ai.speed;
+                    }
+                }
+
+                // 2. Aplicar movimiento
+                if (ai.currentVelocity.x !== 0 || ai.currentVelocity.y !== 0) {
+                    let newX = entity.x + ai.currentVelocity.x * deltaTime;
+                    let newY = entity.y + ai.currentVelocity.y * deltaTime;
+
+                    let newChunkKey = chunkKey;
+                    
+                    // Comprobar colisión (¡pasando la entidad a ignorar!)
+                    if (!checkCollision(newX, entity.y, entity).solid) {
+                        entity.x = newX;
+                    } else {
+                        ai.currentVelocity.x = 0; // Detenerse si choca
+                        ai.timeUntilNextAction = 500; // Elegir nueva acción pronto
+                    }
+                    
+                    if (!checkCollision(entity.x, newY, entity).solid) {
+                        entity.y = newY;
+                    } else {
+                        ai.currentVelocity.y = 0; // Detenerse si choca
+                        ai.timeUntilNextAction = 500; // Elegir nueva acción pronto
+                    }
+
+                    // 3. Marcar el chunk como sucio
+                    // (Necesitamos comprobar si la entidad se movió a un nuevo chunk)
+                    const newChunkX = Math.floor(entity.x / CHUNK_PX_WIDTH);
+                    const newChunkY = Math.floor(entity.y / CHUNK_PX_HEIGHT);
+                    newChunkKey = `${newChunkX},${newChunkY}`;
+
+                    if (newChunkKey !== chunkKey) {
+                        // La entidad cambió de chunk
+                        console.log(`NPC ${entity.uid} se movió a ${newChunkKey}`);
+                        // Eliminar de este chunk
+                        const entityToMove = chunk.entities.splice(i, 1)[0];
+                        i--; // Ajustar índice del bucle
+                        
+                        // Añadir al nuevo chunk
+                        const newChunk = activeChunks.get(newChunkKey);
+                        if (newChunk) {
+                            newChunk.entities.push(entityToMove);
+                            dirtyChunks.add(newChunkKey);
+                        } else {
+                             // Ups, el chunk no está cargado. La entidad se perderá.
+                             // Esto es un bug conocido por ahora.
+                             console.warn(`NPC ${entity.uid} intentó moverse al chunk descargado ${newChunkKey}.`);
+                        }
+                    } 
+                    
+                    dirtyChunks.add(chunkKey); // Marcar el chunk (original o nuevo) como sucio
+                }
+            }
+        }
+    }
+}
+
+
+// --- ¡MODIFICADO! Sistema de Interacción ---
+export function playerInteract(targetEntity = null) {
+    let entityToInteract = targetEntity;
+
+    // 1. Si no nos pasaron una entidad (ej: por tap), buscar una (ej: por tecla espacio)
+    if (!entityToInteract) {
+        let targetX = player.x, targetY = player.y;
+        const reach = TILE_PX_WIDTH * 1.5;
+
+        if (player.facing === 'up') targetY -= reach;
+        if (player.facing === 'down') targetY += reach;
+        if (player.facing === 'left') targetX -= reach;
+        if (player.facing === 'right') targetX += reach;
+
+        let closestDist = Infinity;
+        const chunkX = Math.floor(player.x / CHUNK_PX_WIDTH);
+        const chunkY = Math.floor(player.y / CHUNK_PX_HEIGHT);
+        
+        for (let y = chunkY - 1; y <= chunkY + 1; y++) {
+             for (let x = chunkX - 1; x <= chunkX + 1; x++) {
+                const chunk = activeChunks.get(`${x},${y}`);
+                if (!chunk) continue;
                 
-                if (distance < interactRadius && distance < closestDist) {
-                    closestDist = distance;
-                    closestEntity = entity;
+                for (const entity of chunk.entities) {
+                    // --- ¡NUEVA LÓGICA DE COMPONENTES! ---
+                    // 1. Debe ser interactuable
+                    if (!entity.components.InteractableResource &&
+                        !entity.components.InteractableDialogue &&
+                        !entity.components.InteractableMenu) {
+                        continue; 
+                    }
+                    
+                    // 2. Usar su caja de colisión para el rango
+                    const colComp = entity.components.Collision;
+                    if (!colComp) continue;
+                    // --- Fin Lógica Componentes ---
+
+                    const dx = entity.x - targetX;
+                    const dy = entity.y - targetY;
+                    const distance = Math.sqrt(dx*dx + dy*dy);
+                    
+                    const interactRadius = (colComp.collisionBox?.width || TILE_PX_WIDTH) * 0.8; 
+                    
+                    if (distance < interactRadius && distance < closestDist) {
+                        closestDist = distance;
+                        entityToInteract = entity;
+                    }
                 }
             }
         }
     }
     
-    if (closestEntity) {
-        const message = TILES[closestEntity.key].onInteract(closestEntity);
-        return { message };
+    // 2. Procesar la entidad encontrada (si hay una)
+    if (entityToInteract) {
+        const comps = entityToInteract.components;
+        
+        // --- Sistema de Interacción: Prioridad de componentes ---
+
+        // A. ¿Es un Recurso?
+        if (comps.InteractableResource) {
+            const comp = comps.InteractableResource;
+            if (stats.energia >= comp.energyCost) {
+                addItem(comp.itemId, comp.quantity);
+                stats.energia -= comp.energyCost;
+                recordDeltaFromEntity(entityToInteract, { type: 'REMOVE_ENTITY', uid: entityToInteract.uid });
+                const itemDef = ITEM_DEFINITIONS[comp.itemId];
+                return { message: `Has conseguido ${comp.quantity} de ${itemDef.name}.` };
+            } else {
+                return { message: "No tienes suficiente energía." };
+            }
+        }
+        
+        // B. ¿Es un Menú?
+        if (comps.InteractableMenu) {
+            const comp = comps.InteractableMenu;
+            openMenuCallback(comp.menuId); // ¡Llama al callback de UI!
+            const entityDef = ENTITY_DATA[entityToInteract.key];
+            return { message: `Abriendo ${entityDef.name}...` };
+        }
+
+        // C. ¿Es un Diálogo?
+        if (comps.InteractableDialogue) {
+            const comp = comps.InteractableDialogue;
+            return { message: comp.message };
+        }
     }
 
     return { message: "No hay nada con qué interactuar ahí." };
 }
 
+// ... (Sin cambios en checkGameStatus) ...
 export function checkGameStatus() {
     if (stats.vida <= 0) return { alive: false, message: "Has muerto." };
     if (stats.energia <= 0) {

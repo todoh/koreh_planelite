@@ -56,7 +56,12 @@ export function renderFrame(playerX, playerY, objectsToRender) {
     // 3. Dibujar todos los objetos ordenados
     for (const obj of objectsToRender) {
         // Pasamos '0' como rotación, ya que la cámara no rota
-        drawSprite(ctx, obj.key, obj.x, obj.y, obj.isGround, 0); 
+        drawSprite(ctx, obj.key, obj.x, obj.y, obj.isGround, 0);
+        
+        // ¡NUEVO! Dibujar nombres de otros jugadores
+        if (obj.name) {
+            drawPlayerName(ctx, obj.name, obj.x, obj.y);
+        }
     }
     
     // 4. Restaurar
@@ -94,4 +99,33 @@ function drawSprite(ctx, key, x, y, isGround = false, rotationToUndo = 0) {
         // 5. Restaurar
         ctx.restore();
     }
+}
+
+/**
+ * ¡NUEVO! Dibuja el nombre de un jugador sobre su cabeza.
+ */
+function drawPlayerName(ctx, name, x, y) {
+    const img = IMAGES['PLAYER']; // Asumir altura del sprite de jugador
+    const imgHeight = img ? img.height : TILE_PX_HEIGHT;
+    
+    // Posición sobre la cabeza
+    const textX = x;
+    const textY = y - imgHeight - 10; // 10 píxeles sobre la imagen
+
+    ctx.save();
+    ctx.translate(textX, textY);
+    // ctx.rotate(rotationToUndo); // Des-rotar (0)
+    
+    ctx.font = 'bold 16px sans-serif';
+    ctx.textAlign = 'center';
+    
+    // Sombra de texto
+    ctx.fillStyle = 'rgba(0, 0, 0, 0.7)';
+    ctx.fillText(name, 1, 1);
+    
+    // Texto principal
+    ctx.fillStyle = '#FFFFFF';
+    ctx.fillText(name, 0, 0);
+    
+    ctx.restore();
 }

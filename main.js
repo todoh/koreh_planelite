@@ -10,11 +10,12 @@ import {
     initializeGameLogic,
     updateActiveChunks,
     updatePlayer,
+    updateEntities, // ¡NUEVO!
     playerInteract,
     checkGameStatus,
     handleWorldTap,
     getVisibleObjects,
-    updateAllPlayers // ¡AÑADIDO! Para recibir posiciones
+    updateAllPlayers
 } from './logic.js';
 
 // --- Módulos de Cámara y Persistencia ---
@@ -31,11 +32,11 @@ import {
 import { saveGame, loadGame } from './io.js';
 // ¡MODIFICADO! Importar lógica de la nube
 import { 
-    cloudEnterWorld, // ¡NUEVO!
+    cloudEnterWorld, 
     initializeCloud,
     cloudSaveDirtyChunks,
-    cloudSavePlayerState, // ¡AÑADIDO! Para enviar posición
-    getDbInstance         // ¡AÑADIDO! Para obtener la DB
+    cloudSavePlayerState, 
+    getDbInstance         
 } from './cloud.js';
 
 
@@ -52,7 +53,8 @@ import {
     getProfileCredentials, 
     setFirebaseConfig,
     showOnlineStatus,
-    hideOnlineStatus
+    hideOnlineStatus,
+    openMenu // ¡NUEVO!
 } from './ui.js';
 
 
@@ -62,14 +64,12 @@ let isGameRunning = true;
 
 // --- ESTADO ONLINE ---
 let isOnline = false;
-let onlineChunkSaveInterval = null; // Renombrado para claridad
-const ONLINE_CHUNK_SAVE_INTERVAL_MS = 5000; // Guardar chunks sucios cada 5 segundos
-
-// ¡NUEVO! Estado para sincronización de jugadores
+let onlineChunkSaveInterval = null; 
+const ONLINE_CHUNK_SAVE_INTERVAL_MS = 5000; 
 let onlinePlayerSyncInterval = null;
-const ONLINE_PLAYER_SYNC_INTERVAL_MS = 100; // Enviar posición 10 veces/seg
+const ONLINE_PLAYER_SYNC_INTERVAL_MS = 100; 
 let playerStatesListener = null;
-const PLAYER_STATES_ROOT_PATH = 'playerStates_v2'; // Ruta en Firebase
+const PLAYER_STATES_ROOT_PATH = 'playerStates_v2'; 
 
 
 // --- BUCLE PRINCIPAL ---
@@ -85,19 +85,29 @@ function gameLoop(currentTime) {
     requestAnimationFrame(gameLoop);
 }
 
-// --- CONTROLADOR ---
-// (Sin cambios)
+// --- ¡MODIFICADO! CONTROLADOR ---
 function update(deltaTime) {
     updateCamera();
     updateActiveChunks(player.x, player.y);
+    
     const input = getInputState();
+    
+    // 1. Actualizar movimiento del jugador y 'onEnter'
     const moveResult = updatePlayer(deltaTime, input);
+    
+    // 2. ¡NUEVO! Actualizar todas las demás entidades (crecimiento, IA, etc.)
+    updateEntities(deltaTime);
+
+    // 3. Procesar mensajes y acciones
     if (moveResult.message) showMessage(moveResult.message);
+    
     if (input.interact) {
-        const interactResult = playerInteract();
+        // playerInteract ahora puede ser llamado sin argumento
+        const interactResult = playerInteract(); 
         if (interactResult.message) showMessage(interactResult.message);
         input.interact = false; 
     }
+    
     const status = checkGameStatus();
     if (status.message) showMessage(status.message);
     if (!status.alive) {
@@ -115,11 +125,7 @@ function render() {
 } 
 
 // --- FUNCIONES DE CONEXIÓN ---
-
-/**
- * Procesa un Tap/Clic, convirtiendo coords de pantalla a mundo.
- * (Sin cambios)
- */
+// ... (Sin cambios en processTap, endGame) ...
 function processTap(screenX, screenY) {
     const worldCoords = screenToWorld(screenX, screenY, player.x, player.y);
     const result = handleWorldTap(worldCoords.x, worldCoords.y);
@@ -127,22 +133,13 @@ function processTap(screenX, screenY) {
         showMessage(result.message);
     }
 }
-
-/**
- * Detiene el juego y muestra un mensaje final.
- * (Sin cambios)
- */
 function endGame(message) {
     showMessage(message || "Juego terminado.");
     isGameRunning = false;
 }
 
 // --- MANEJADORES DE NUBE ---
-
-/**
- * ¡NUEVO! Maneja la lógica unificada de "Entrar al Mundo"
- * (Llamado por el botón en ui.js)
- */
+// ... (Sin cambios en handleCloudEnter, handleConnect, handleDisconnect) ...
 async function handleCloudEnter() {
     const config = getFirebaseConfig();
     if (!config) {
@@ -159,12 +156,6 @@ async function handleCloudEnter() {
     // Llamar a la nueva función unificada
     await cloudEnterWorld(config, name, pin, showFirebaseMessage);
 }
-
-// (Las funciones handleCloudSave y handleCloudLoad han sido eliminadas)
-
-/**
- * ¡MODIFICADO! Activa el modo online y los listeners de sincronización.
- */
 function handleConnect() {
     // 1. Set state
     isOnline = true;
@@ -217,10 +208,6 @@ function handleConnect() {
         updateAllPlayers(allPlayersData, myProfileName);
     });
 }
-
-/**
- * ¡MODIFICADO! Desactiva el modo online y limpia los listeners.
- */
 function handleDisconnect() {
     if (!isOnline) return;
 
@@ -263,7 +250,7 @@ function handleDisconnect() {
 }
 
 
-// --- INICIAR EL JUEGO ---
+// --- ¡MODIFICADO! INICIAR EL JUEGO ---
 async function main() {
     try {
         const $canvas = document.getElementById('game-canvas');
@@ -272,8 +259,11 @@ async function main() {
         // 1. Inicializar Cámara
         initializeCamera($canvas);
         
-        // 2. Cargar assets y estado del juego
-        await initializeGameLogic();
+        // 2. ¡MODIFICADO! Cargar assets y estado del juego
+        // Ahora pasamos el callback 'openMenu'
+        await initializeGameLogic({
+            openMenu: openMenu 
+        });
         
         // 3. Inicializar Módulo de Renderizado
         initializeRenderer($canvas, resizeCamera);
@@ -285,35 +275,29 @@ async function main() {
             onZoomIn: () => handleZoom(true),
             onZoomOut: () => handleZoom(false),
             $loadFileInput: $loadFileInput,
-            // Nuevos callbacks
-            onCloudLoad: handleCloudEnter, // MODIFICADO: Llama a la nueva función
+            onCloudLoad: handleCloudEnter, 
             onDisconnect: handleDisconnect 
         });
         
         // 5. Inicializar Módulo de Input
-        // (Sin cambios)
         initializeInput($canvas, {
             onTap: processTap,
             onWheel: handleWheel
         });
 
         // 6. Comprobar si venimos de una carga en la nube
-        // (Sin cambios, esta lógica ya llama a handleConnect)
+        // (Sin cambios)
         const shouldEnterOnline = localStorage.getItem("ENTER_ONLINE_MODE") === "true";
         const lastConfig = localStorage.getItem("LAST_FIREBASE_CONFIG");
         
         if (shouldEnterOnline && lastConfig) {
             localStorage.removeItem("ENTER_ONLINE_MODE");
             
-            // Poner la config en la UI
             setFirebaseConfig(lastConfig); 
             
-            // Conectar a Firebase OTRA VEZ en esta nueva sesión
             const connected = await initializeCloud(lastConfig, showFirebaseMessage);
             
             if (connected) {
-                // ¡Activar modo online!
-                // Esto llamará a la nueva lógica de handleConnect
                 handleConnect(); 
             } else {
                 showMessage("Error al reconectar al modo online.");
@@ -323,7 +307,6 @@ async function main() {
         }
 
         // 7. Empezar el bucle
-        // (Sin cambios)
         if (!isOnline) { 
             showMessage('¡Mundo procedural! Usa flechas/clic para moverte, [Espacio] para interactuar.');
         }

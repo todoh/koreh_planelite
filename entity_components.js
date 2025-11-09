@@ -1,0 +1,78 @@
+// --- entity.js ---
+// Gestiona la creación de entidades y la carga de definiciones.
+
+import { ENTITY_DEFINITIONS } from './entity_definitions.js';
+import * as Components from './components.js';
+// Almacenes de definiciones
+let TERRAIN_DEFINITIONS = {};
+const ENTITY_TEMPLATES = ENTITY_DEFINITIONS; // Alias para claridad
+
+/**
+ * Carga y procesa 'sprites.json' para las definiciones de TERRENO.
+ * Esto debe llamarse una vez al inicio.
+ * @param {object} spriteData - El contenido de sprites.json
+ */
+export function processTerrainDefinitions(spriteData) {
+    const terrainData = {};
+    for (const key in spriteData) {
+        if (key.startsWith("//")) continue;
+        terrainData[key] = spriteData[key];
+    }
+    TERRAIN_DEFINITIONS = terrainData;
+    console.log("Definiciones de terreno procesadas.");
+}
+
+/**
+ * Devuelve las definiciones de terreno cargadas.
+ */
+export function getTerrainDefinitions() {
+    return TERRAIN_DEFINITIONS;
+}
+
+/**
+ * Devuelve las plantillas de entidad.
+ */
+export function getEntityDefinitions() {
+    return ENTITY_TEMPLATES;
+}
+
+
+/**
+ * Fábrica de Entidades (Entity Factory).
+ * Crea una nueva instancia de entidad basada en una plantilla (prefab).
+ * @param {string} key - La clave de la plantilla (ej: "TREE", "NPC").
+ * @param {number} x - Coordenada X en el mundo.
+ * @param {number} y - Coordenada Y en el mundo (base/pies).
+ * @param {string} uid - El ID único para esta entidad.
+ * @returns {object} La nueva instancia de entidad con componentes.
+ */
+export function createEntity(key, x, y, uid) {
+    const template = ENTITY_TEMPLATES[key];
+    if (!template) {
+        console.warn(`No se encontró definición de entidad para: ${key}`);
+        return null;
+    }
+
+    // La entidad base
+    const entity = {
+        uid: uid,
+        x: x,
+        y: y,
+        key: key, // Guardamos la clave de la plantilla para referencia
+        components: {} // Los componentes se almacenan por tipo
+    };
+
+    // Añadir componentes basados en la plantilla
+    for (const compDef of template.components) {
+        const CompClass = Components[compDef.type + 'Component'];
+        if (CompClass) {
+            // Usar el 'spread operator' (...) para pasar los 'args' como argumentos al constructor
+            const newComponent = new CompClass(...compDef.args);
+            entity.components[compDef.type] = newComponent;
+        } else {
+            console.warn(`Componente desconocido "${compDef.type}Component" en la plantilla "${key}"`);
+        }
+    }
+
+    return entity;
+}

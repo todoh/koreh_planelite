@@ -2,7 +2,9 @@
 // Gestiona el guardado y la carga del estado del juego a/desde un archivo JSON
 // y expone la lógica para otros sistemas (como la nube).
 
+// --- MODIFICADO: Importar getInventory ---
 import { player, stats, flushDirtyChunks } from './logic.js';
+import { getInventory } from './inventory.js';
 import { CHUNK_KEY_REGEX } from './generation.js';
 
 /**
@@ -15,21 +17,29 @@ export async function gatherSaveData() {
     await flushDirtyChunks();
 
     // 2. Recopilar el estado del jugador
+    // --- MODIFICADO: Añadir inventario, stats solo tendrá vida/energia ---
     const playerState = {
         x: player.x,
         y: player.y,
-        stats: { ...stats } 
+        stats: { ...stats },
+        inventory: getInventory() // <-- AÑADIDO
     };
 
     // 3. Recopilar todos los chunks fusionados del mapa (desde localStorage)
     const mapData = getAllFusedChunks();
 
-    // 4. Combinar todo
+    // --- ¡INICIO DE MODIFICACIÓN! ---
+    // 4. Incluir la semilla del mundo en el guardado
+    const worldSeed = localStorage.getItem('WORLD_SEED');
+
+    // 5. Combinar todo
     const saveData = {
         playerState,
         mapData,
+        worldSeed: worldSeed || null, // Añadir la semilla
         savedAt: new Date().toISOString()
     };
+    // --- ¡FIN DE MODIFICACIÓN! ---
     
     return saveData;
 }
@@ -59,10 +69,22 @@ if (!saveData || saveData.mapData == null) {
         }
     }
 
-    // 3. Guardar el estado del jugador
+    // --- ¡INICIO DE MODIFICACIÓN! ---
+    // 3. Guardar la SEMILLA del mundo cargado
+    if (saveData.worldSeed) {
+        localStorage.setItem('WORLD_SEED', saveData.worldSeed);
+    } else {
+        // Si el archivo de guardado es antiguo y no tiene semilla,
+        // tenemos que borrarla para que generation.js cree una
+        localStorage.removeItem('WORLD_SEED');
+    }
+
+    // 4. Guardar el estado del jugador (que ahora incluye el inventario)
+    // (Este es el "flag" que generation.js buscará)
     localStorage.setItem("GAME_STATE_LOAD", JSON.stringify(saveData.playerState));
 
-    // 4. Recargar la página
+    // 5. Recargar la página
+    // --- ¡FIN DE MODIFICACIÓN! ---
     console.log("Datos cargados en localStorage. Recargando...");
     window.location.reload();
 }
@@ -75,7 +97,7 @@ if (!saveData || saveData.mapData == null) {
 export async function saveGame() {
     console.log("Guardando partida en archivo...");
     try {
-        // 1. Obtener datos
+        // 1. Obtener datos (ya incluye el inventario)
         const saveData = await gatherSaveData();
 
         // 2. Convertir a JSON y descargar
@@ -107,7 +129,7 @@ export function loadGame(file) {
             const fileContent = event.target.result;
             const saveData = JSON.parse(fileContent);
             
-            // Aplicar los datos cargados
+            // Aplicar los datos cargados (esto recargará la página)
             await applyLoadedData(saveData);
 
         } catch (error) {
@@ -124,7 +146,7 @@ export function loadGame(file) {
 }
 
 // --- Helpers (sin cambios) ---
-
+// ... (getAllFusedChunks, clearAllFusedChunks, downloadJSON) ...
 function getAllFusedChunks() {
     const chunks = {};
     for (let i = 0; i < localStorage.length; i++) {
@@ -142,12 +164,14 @@ function getAllFusedChunks() {
     }
     return chunks;
 }
-
 function clearAllFusedChunks() {
     const keysToRemove = [];
     for (let i = 0; i < localStorage.length; i++) {
         const key = localStorage.key(i);
-        if (CHUNK_KEY_REGEX.test(key)) {
+        // --- ¡MODIFICACIÓN! ---
+        // Ahora también limpiamos la semilla
+        if (CHUNK_KEY_REGEX.test(key) || key === 'WORLD_SEED') {
+        // --- ¡FIN DE MODIFICACIÓN! ---
             keysToRemove.push(key);
         }
     }
@@ -156,7 +180,6 @@ function clearAllFusedChunks() {
         localStorage.removeItem(key);
     }
 }
-
 function downloadJSON(content, fileName) {
     const a = document.createElement('a');
     const file = new Blob([content], { type: 'application/json' });
