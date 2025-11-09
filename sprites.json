@@ -1,0 +1,63 @@
+{
+    "STATUE": {
+        "key": "STATUE",
+        "solid": true,
+        "name": "una estatua enorme",
+        "collisionBox": { "width": 120, "height": 40, "offsetY": 160 }
+    },
+    "PLAYER": {
+        "key": "PLAYER",
+        "solid": true,
+        "name": "jugador",
+        "collisionBox": { "width": 40, "height": 20, "offsetY": 40 }
+    },
+    "STONE_GROUND": {
+        "key": "STONE_GROUND",
+        "solid": false,
+        "name": "suelo de piedra"
+    },
+    "DIRT": {
+        "key": "DIRT",
+        "solid": false,
+        "name": "tierra"
+    },
+    "GRASS": {
+        "key": "GRASS",
+        "solid": false,
+        "name": "césped"
+    },
+    "WALL": {
+        "key": "WALL",
+        "solid": true,
+        "name": "un muro",
+        "collisionBox": { "width": 80, "height": 40, "offsetY": 80 }
+    },
+    "TREE": {
+        "key": "TREE",
+        "solid": true,
+        "name": "un árbol",
+        "collisionBox": { "width": 40, "height": 20, "offsetY": 60 }
+    },
+    "ROCK": {
+        "key": "ROCK",
+        "solid": true,
+        "name": "una roca",
+        "collisionBox": { "width": 60, "height": 30, "offsetY": 30 }
+    },
+    "WATER": {
+        "key": "WATER",
+        "solid": true,
+        "name": "agua"
+    },
+    "NPC": {
+        "key": "NPC",
+        "solid": true,
+        "name": "una persona",
+        "collisionBox": { "width": 40, "height": 20, "offsetY": 40 }
+    },
+    "ITEM": {
+        "key": "ITEM",
+        "solid": false,
+        "name": "un objeto brillante"
+    }
+}
