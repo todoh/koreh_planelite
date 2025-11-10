@@ -8,15 +8,20 @@ import {
     TILE_PX_WIDTH, 
     TILE_PX_HEIGHT 
 } from './logic.js';
-import { BIOME_CONFIG } from './biome_definitions.js';
-import { processTerrainDefinitions, createEntity } from './entity.js';
+// --- ¡MODIFICADO! Importar la nueva función de procesamiento y el config (vacío al inicio) ---
+import { BIOME_CONFIG, processBiomeDefinitions } from './biome_definitions.js';
+// --- ¡MODIFICADO! Importar la nueva función ---
+import { 
+    processTerrainDefinitions, 
+    createEntity,
+    processEntityDefinitions // <-- ¡NUEVA IMPORTACIÓN!
+} from './entity.js';
 
 
 // Cachés de assets
 export const IMAGES = {}; // Imágenes PNG
 
 // Clave para identificar chunks guardados en localStorage
-// --- ¡MODIFICADO! Ahora acepta una tercera coordenada Z ---
 export const CHUNK_KEY_REGEX = /^-?\d+,-?\d+,-?\d+$/; 
 
 // --- LÓGICA DE SEMILLA (SEED) ---
@@ -28,7 +33,6 @@ function _initializeNewWorldSeed() {
 
     if (isLoadingGame) {
         console.log("Detectada carga de partida. Omitiendo limpieza de mundo.");
-        // ¡MODIFICADO! Cargar la semilla existente
         const savedSeed = localStorage.getItem('WORLD_SEED');
         if (savedSeed) {
              WORLD_SEED = parseFloat(savedSeed);
@@ -44,7 +48,6 @@ function _initializeNewWorldSeed() {
         const keysToRemove = [];
         for (let i = 0; i < localStorage.length; i++) {
             const key = localStorage.key(i);
-            // --- ¡MODIFICADO! Limpia claves 2D antiguas y 3D nuevas ---
             if (CHUNK_KEY_REGEX.test(key) || /^-?\d+,-?\d+$/.test(key) || key === 'WORLD_SEED') {
                 keysToRemove.push(key);
             }
@@ -63,10 +66,48 @@ function _initializeNewWorldSeed() {
 _initializeNewWorldSeed();
 
 
+// --- ¡NUEVO! Almacén para la selección de biomas ---
+let biomeWeightList = [];
+let maxBiomeWeight = 0;
+
+/**
+ * Procesa los pesos de los biomas desde el JSON
+ * y crea una lista de pesos acumulados para la selección.
+ */
+function initializeBiomeSelector(weights) {
+    biomeWeightList = [];
+    maxBiomeWeight = 0;
+    
+    if (!weights) {
+        console.error("BIOME_WEIGHTS no encontrado en biome_definitions.json. Usando PLAINS por defecto.");
+        biomeWeightList.push({ biome: 'PLAINS', cumulativeWeight: 1 });
+        maxBiomeWeight = 1;
+        return;
+    }
+
+    for (const biomeKey in weights) {
+        if (weights.hasOwnProperty(biomeKey)) {
+            const weight = weights[biomeKey];
+            maxBiomeWeight += weight;
+            biomeWeightList.push({ biome: biomeKey, cumulativeWeight: maxBiomeWeight });
+        }
+    }
+    
+    if (biomeWeightList.length === 0) {
+         console.error("BIOME_WEIGHTS está vacío. Usando PLAINS por defecto.");
+         biomeWeightList.push({ biome: 'PLAINS', cumulativeWeight: 1 });
+         maxBiomeWeight = 1;
+    }
+    
+    console.log("Selector de biomas inicializado. Peso total:", maxBiomeWeight);
+}
+
+
 /**
  * Carga una sola imagen
  */
 async function loadImage(key, path) {
+    // ... (Esta función no cambia)
     return new Promise((resolve) => {
         const img = new Image();
         img.onload = () => {
@@ -92,23 +133,47 @@ async function loadImage(key, path) {
 }
 
 /**
- * Carga sprites.json (SOLO TERRENO) y todas las imágenes PNG (TODAS).
+ * Carga todos los JSON (terreno, entidades y biomas) y todas las imágenes PNG.
  */
 export async function initializeMetadata() {
-    console.log("Cargando sprites.json (para metadata de terreno)...");
-    const response = await fetch('./sprites.json');
-    if (!response.ok) throw new Error('No se pudo cargar sprites.json.');
     
-    const spriteData = await response.json();
+    // --- Cargar terrain_definitions.json ---
+    console.log("Cargando terrain_definitions.json...");
+    const terrainResponse = await fetch('./terrain_definitions.json');
+    if (!terrainResponse.ok) throw new Error('No se pudo cargar terrain_definitions.json.');
+    const terrainData = await terrainResponse.json();
+    processTerrainDefinitions(terrainData);
     console.log("Metadata de terreno cargada.");
 
-    // Procesa terrenos (incluyendo CAVE_FLOOR, ROCK_WALL)
-    processTerrainDefinitions(spriteData);
+    // --- Cargar entity_definitions.json ---
+    console.log("Cargando entity_definitions.json...");
+    const entityResponse = await fetch('./entity_definitions.json');
+    if (!entityResponse.ok) throw new Error('No se pudo cargar entity_definitions.json.');
+    const entityData = await entityResponse.json();
+    processEntityDefinitions(entityData); // <-- ¡NUEVA LLAMADA!
+    console.log("Definiciones de entidad cargadas.");
+    
+    // --- ¡NUEVO! Cargar biome_definitions.json ---
+    console.log("Cargando biome_definitions.json...");
+    const biomeResponse = await fetch('./biome_definitions.json');
+    if (!biomeResponse.ok) throw new Error('No se pudo cargar biome_definitions.json.');
+    const biomeData = await biomeResponse.json();
+    
+    // --- ¡MODIFICADO! ---
+    // Inicializar el selector de biomas con los pesos
+    initializeBiomeSelector(biomeData.BIOME_WEIGHTS);
+    // Procesar las definiciones de biomas
+    processBiomeDefinitions(biomeData.BIOME_DEFINITIONS); // <-- Pasa solo el sub-objeto
+    // --- FIN DE MODIFICACIÓN ---
+
+    console.log("Definiciones de bioma cargadas.");
+    // --- FIN DE MODIFICACIÓN ---
+
 
     const imageLoadPromises = [];
     
-    // Cargar imágenes de terreno
-    for (const key of Object.keys(spriteData)) {
+    // Cargar imágenes de terreno (usa 'terrainData' ahora)
+    for (const key of Object.keys(terrainData)) {
         if (key.startsWith("//")) continue; 
         const imagePath = `./assets/${key.toLowerCase()}.png`;
         
@@ -123,27 +188,25 @@ export async function initializeMetadata() {
     }
     
     // Cargar imágenes de entidades
+    // (Esta lógica no cambia, sigue usando el array estático)
     const entityImageKeys = [
         "STATUE", "PLAYER", "TREE", "ROCK", "NPC", "ITEM",
         "CACTUS", "ACACIA_TREE", "JUNGLE_TREE", "SNOW_TREE",
         "MESATRABAJO", "COCHE",
-        "STAIRS_UP", "STAIRS_DOWN", "IRON_VEIN" // <-- ¡AÑADIDO!
+        "STAIRS_UP", "STAIRS_DOWN", "IRON_VEIN" 
     ];
     
     for (const key of entityImageKeys) {
         if (!IMAGES[key.toUpperCase()]) {
             const imagePath = `./assets/${key.toLowerCase()}.png`;
             
-            // Reutilizar 'ROCK' para 'IRON_VEIN'
             if (key === 'IRON_VEIN') {
                  imageLoadPromises.push(loadImage(key.toUpperCase(), './assets/rock.png'));
             }
-            // Reutilizar 'MESATRABAJO' para 'STAIRS_UP'
             else if (key === 'STAIRS_UP') {
                  imageLoadPromises.push(loadImage(key.toUpperCase(), './assets/mesatrabajo.png'));
             }
-             // Reutilizar 'COCHE' para 'STAIRS_DOWN'
-            else if (key === 'STAIRS_DOWN') {
+             else if (key === 'STAIRS_DOWN') {
                  imageLoadPromises.push(loadImage(key.toUpperCase(), './assets/coche.png'));
             }
             else {
@@ -160,6 +223,7 @@ export async function initializeMetadata() {
  * Intenta cargar un chunk COMPLETO desde localStorage
  */
 async function loadFusedChunk(chunkKey) {
+    // ... (Esta función no cambia)
     try {
         const savedData = localStorage.getItem(chunkKey);
         if (savedData) {
@@ -178,6 +242,7 @@ async function loadFusedChunk(chunkKey) {
  * Guarda un chunk COMPLETO en localStorage
  */
 export async function saveFusedChunk(chunkKey, chunkData) {
+    // ... (Esta función no cambia)
     try {
         localStorage.setItem(chunkKey, JSON.stringify(chunkData));
     } catch (e) {
@@ -187,25 +252,19 @@ export async function saveFusedChunk(chunkKey, chunkData) {
 
 
 // --- LÓGICA DE GENERACIÓN DE BIOMAS (VORONOI) ---
+// ... (Toda la lógica de biomas, ruido y generación de chunks no cambia) ...
 
 const TERRAIN_SCALE = 0.05;
 const VEGETATION_SCALE = 0.5;
 const BIOME_REGION_SIZE = 50;
-// --- ¡NUEVO! Escala para cuevas ---
 const CAVE_SCALE = 0.1; 
 
-/**
- * Devuelve un valor pseudoaleatorio determinista entre [0.0, 1.0)
- */
-function seededRandom(x, y, z = 0) { // <-- ¡Acepta Z!
+function seededRandom(x, y, z = 0) { 
     const sin = Math.sin(x * 12.9898 + y * 78.233 + z * 45.435 + WORLD_SEED) * 43758.5453;
-    return sin - Math.floor(sin); // Devuelve [0.0, 1.0)
+    return sin - Math.floor(sin); 
 }
 
-/**
- * Interpola suavemente entre los valores de seededRandom.
- */
-function smoothNoise(x, y, z = 0) { // <-- ¡Acepta Z!
+function smoothNoise(x, y, z = 0) { 
     const intX = Math.floor(x);
     const fracX = x - intX;
     const intY = Math.floor(y);
@@ -213,7 +272,6 @@ function smoothNoise(x, y, z = 0) { // <-- ¡Acepta Z!
     const intZ = Math.floor(z);
     const fracZ = z - intZ;
 
-    // Obtener el ruido de las 8 esquinas del cubo
     const v1 = seededRandom(intX, intY, intZ);
     const v2 = seededRandom(intX + 1, intY, intZ);
     const v3 = seededRandom(intX, intY + 1, intZ);
@@ -223,17 +281,14 @@ function smoothNoise(x, y, z = 0) { // <-- ¡Acepta Z!
     const v7 = seededRandom(intX, intY + 1, intZ + 1);
     const v8 = seededRandom(intX + 1, intY + 1, intZ + 1);
 
-    // Interpolar en X
     const i1 = (v1 * (1 - fracX)) + (v2 * fracX);
     const i2 = (v3 * (1 - fracX)) + (v4 * fracX);
     const i3 = (v5 * (1 - fracX)) + (v6 * fracX);
     const i4 = (v7 * (1 - fracX)) + (v8 * fracX);
 
-    // Interpolar en Y
     const j1 = (i1 * (1 - fracY)) + (i2 * fracY);
     const j2 = (i3 * (1 - fracY)) + (i4 * fracY);
 
-    // Interpolar en Z
     return (j1 * (1 - fracZ)) + (j2 * fracZ);
 }
 
@@ -247,28 +302,25 @@ function getBiomeRegionCenter(regionX, regionY) {
 }
 
 function getBiomeRegionType(regionX, regionY) {
-    const biomeNoise = seededRandom(regionX * 10.7, regionY * 10.7);
-    const slice = 1.0 / 6.0; 
+    const biomeNoise = seededRandom(regionX * 10.7, regionY * 10.7); // Valor 0.0 a 1.0
+    const targetWeight = biomeNoise * maxBiomeWeight; // Mapear al peso total
 
-    if (biomeNoise < slice * 1) return 'DESERT';
-    if (biomeNoise < slice * 2) return 'SAVANNA';
-    if (biomeNoise < slice * 3) return 'JUNGLE';
-    if (biomeNoise < slice * 4) return 'ROCKY';
-    if (biomeNoise < slice * 5) return 'TUNDRA';
+    // Encontrar el primer bioma que esté por encima del peso objetivo
+    for (const item of biomeWeightList) {
+        if (targetWeight < item.cumulativeWeight) {
+            return item.biome;
+        }
+    }
     
-    return 'PLAINS';
+    // Fallback (no debería pasar si maxBiomeWeight > 0)
+    return biomeWeightList[biomeWeightList.length - 1]?.biome || 'PLAINS';
 }
 
-/**
- * ¡MODIFICADO! Acepta Z y lo usa
- */
 function getBiome(globalX, globalY, globalZ) {
-    // 1. ¡NUEVO! Comprobar si estamos bajo tierra
     if (globalZ < 0) {
         return 'UNDERGROUND';
     }
 
-    // 2. Lógica de superficie (z=0)
     const elevationNoise = smoothNoise(globalX * TERRAIN_SCALE, globalY * TERRAIN_SCALE, 0);
     
     if (elevationNoise < 0.25) return 'OCEAN';
@@ -296,13 +348,8 @@ function getBiome(globalX, globalY, globalZ) {
     return closestBiomeType;
 }
 
-// --- FIN DE LÓGICA DE BIOMAS VORONOI ---
-
-
-/**
- * Aplica las sobreescrituras de la plaza de spawn (SOLO Z=0).
- */
 function _applySpawnPlazaOverrides(terrain, entities) {
+    // ... (Esta función no cambia)
     const plazaCenterX = 30;
     const plazaCenterY = 30;
     const plazaRadius = 4;
@@ -330,11 +377,8 @@ function _applySpawnPlazaOverrides(terrain, entities) {
             
             const entityX = (globalTileX * TILE_PX_WIDTH) + TILE_PX_WIDTH / 2;
             const entityY = (globalTileY * TILE_PX_HEIGHT) + TILE_PX_HEIGHT / 2;
-
-            // ¡MODIFICADO! Pasar Z=0 a createEntity
             const z = 0; 
 
-            // ESTATUA (30, 28)
             if (globalTileX === 30 && globalTileY === 28) {
                  filteredEntities.push(
                     createEntity('STATUE', entityX, entityY, z, `uid_0_0_0_30_28_STATUE`) 
@@ -342,7 +386,6 @@ function _applySpawnPlazaOverrides(terrain, entities) {
                 terrain[y][x] = 'STONE_GROUND';
             }
             
-            // NPC (31, 30)
              if (globalTileX === 31 && globalTileY === 30) {
                  filteredEntities.push(
                     createEntity('NPC', entityX, entityY, z, `uid_0_0_0_31_30_NPC`) 
@@ -350,7 +393,6 @@ function _applySpawnPlazaOverrides(terrain, entities) {
                 terrain[y][x] = 'STONE_GROUND';
             }
             
-            // Mesa de Crafting (29, 30)
              if (globalTileX === 29 && globalTileY === 30) {
                  filteredEntities.push(
                     createEntity('CRAFTING_TABLE', entityX, entityY, z, `uid_0_0_0_29_30_CRAFTING`) 
@@ -358,7 +400,6 @@ function _applySpawnPlazaOverrides(terrain, entities) {
                 terrain[y][x] = 'STONE_GROUND';
             }
             
-            // Brote (30, 32)
              if (globalTileX === 30 && globalTileY === 32) {
                  filteredEntities.push(
                     createEntity('SAPLING', entityX, entityY, z, `uid_0_0_0_30_32_SAPLING`) 
@@ -366,7 +407,6 @@ function _applySpawnPlazaOverrides(terrain, entities) {
                 terrain[y][x] = 'STONE_GROUND';
             }
 
-            // Coche (32, 32)
              if (globalTileX === 32 && globalTileY === 32) {
                  filteredEntities.push(
                     createEntity('COCHE', entityX, entityY, z, `uid_0_0_0_32_32_COCHE`) 
@@ -374,7 +414,6 @@ function _applySpawnPlazaOverrides(terrain, entities) {
                 terrain[y][x] = 'STONE_GROUND';
             }
 
-            // --- ¡NUEVO! Escalera para bajar (28, 32) ---
              if (globalTileX === 28 && globalTileY === 32) {
                  filteredEntities.push(
                     createEntity('STAIRS_DOWN', entityX, entityY, z, `uid_0_0_0_28_32_STAIRS_DOWN`)
@@ -387,15 +426,8 @@ function _applySpawnPlazaOverrides(terrain, entities) {
     return { terrain, entities: filteredEntities };
 }
 
-// --- ¡NUEVA FUNCIÓN! ---
-/**
- * Genera un chunk de subsuelo (cuevas, minerales)
- * @param {number} chunkX 
- * @param {number} chunkY 
- * @param {number} chunkZ 
- * @returns {object} { terrain: [...], entities: [...] }
- */
 function generateUndergroundChunk(chunkX, chunkY, chunkZ) {
+    // ... (Esta función no cambia)
     let terrain = [];
     let entities = [];
     
@@ -406,28 +438,25 @@ function generateUndergroundChunk(chunkX, chunkY, chunkZ) {
             const globalTileX = (chunkX * CHUNK_GRID_WIDTH) + x;
             const globalTileY = (chunkY * CHUNK_GRID_HEIGHT) + y;
             
-            // 1. Generar cuevas usando 3D noise
             const caveNoise = smoothNoise(
                 globalTileX * CAVE_SCALE, 
                 globalTileY * CAVE_SCALE, 
-                chunkZ * 0.5 // Z influye en la forma de la cueva
+                chunkZ * 0.5 
             );
 
             const entityUIDBase = `uid_${chunkX}_${chunkY}_${chunkZ}_${x}_${y}`;
             const entityX = (globalTileX * TILE_PX_WIDTH) + TILE_PX_WIDTH / 2;
             const entityY = (globalTileY * TILE_PX_HEIGHT) + TILE_PX_HEIGHT / 2;
             
-            if (caveNoise > 0.6) { // 60% umbral para espacio abierto
+            if (caveNoise > 0.6) { 
                 row.push('CAVE_FLOOR');
                 
             } else {
-                row.push('ROCK_WALL'); // Sólido
+                row.push('ROCK_WALL'); 
                 
-                // 2. Generar vetas de mineral en las paredes
                 const mineralNoise = seededRandom(globalTileX * 1.5, globalTileY * 1.5, chunkZ);
                 
-                if (mineralNoise > 0.98) { // 2% de probabilidad
-                    // ¡MODIFICADO! Pasar Z a createEntity
+                if (mineralNoise > 0.98) { 
                     entities.push(createEntity('IRON_VEIN', entityX, entityY, chunkZ, `${entityUIDBase}_IRON`));
                 }
             }
@@ -435,10 +464,8 @@ function generateUndergroundChunk(chunkX, chunkY, chunkZ) {
         terrain.push(row);
     }
     
-    // --- ¡NUEVO! Conexión de escalera de spawn ---
-    // Si estamos generando el chunk (0, 0, -1), poner la escalera de subida
     if (chunkX === 0 && chunkY === 0 && chunkZ === -1) {
-        const spawnStairX = 28; // Debe coincidir con _applySpawnPlazaOverrides
+        const spawnStairX = 28; 
         const spawnStairY = 32;
         
         const entityX = (spawnStairX * TILE_PX_WIDTH) + TILE_PX_WIDTH / 2;
@@ -446,7 +473,6 @@ function generateUndergroundChunk(chunkX, chunkY, chunkZ) {
 
         terrain[spawnStairY][spawnStairX] = 'CAVE_FLOOR';
         
-        // ¡MODIFICADO! Pasar Z a createEntity
         entities.push(
            createEntity('STAIRS_UP', entityX, entityY, chunkZ, `uid_0_0_-1_28_32_STAIRS_UP`)
         );
@@ -456,22 +482,12 @@ function generateUndergroundChunk(chunkX, chunkY, chunkZ) {
 }
 
 
-/**
- * Genera el chunk "base" (terreno y entidades)
- * (¡MODIFICADO PARA Z-LEVELS!)
- * @param {number} chunkX 
- * @param {number} chunkY 
- * @param {number} chunkZ // <-- ¡NUEVO!
- * @returns {object} { terrain: [...], entities: [...] }
- */
 function generateNewChunk(chunkX, chunkY, chunkZ) {
-    
-    // --- ¡NUEVO! Delegar a generador de subsuelo si Z < 0 ---
+    // ... (Esta función no cambia)
     if (chunkZ < 0) {
         return generateUndergroundChunk(chunkX, chunkY, chunkZ);
     }
     
-    // --- Generación de Superficie (Z=0) ---
     let terrain = [];
     let entities = [];
     
@@ -492,15 +508,18 @@ function generateNewChunk(chunkX, chunkY, chunkZ) {
             const entityX = (globalTileX * TILE_PX_WIDTH) + TILE_PX_WIDTH / 2;
             const entityY = (globalTileY * TILE_PX_HEIGHT) + TILE_PX_HEIGHT / 2;
 
+            // Esta línea ahora usa el BIOME_CONFIG que fue
+            // poblado dinámicamente al inicio.
             const biomeConfig = BIOME_CONFIG[biome] || BIOME_CONFIG['PLAINS'];
             
-            // ¡MODIFICADO! Pasar Z a getTileAndEntities
+            // Esta función ahora llamará a la lógica que generamos
+            // dinámicamente en processBiomeDefinitions
             const result = biomeConfig.getTileAndEntities(
                 noises, 
                 entityUIDBase, 
                 entityX, 
                 entityY,
-                chunkZ, // <-- ¡PASAR Z!
+                chunkZ, 
                 createEntity
             );
             
@@ -512,7 +531,6 @@ function generateNewChunk(chunkX, chunkY, chunkZ) {
         terrain.push(row);
     }
 
-    // Solo aplicar en la superficie
     if (chunkX === 0 && chunkY === 0 && chunkZ === 0) {
         const overrideResult = _applySpawnPlazaOverrides(terrain, entities);
         terrain = overrideResult.terrain;
@@ -523,23 +541,14 @@ function generateNewChunk(chunkX, chunkY, chunkZ) {
 }
 
 
-/**
- * Orquestador: Carga un chunk fusionado O Genera uno nuevo
- * (¡MODIFICADO!)
- * @param {number} chunkX 
- * @param {number} chunkY 
- * @param {number} chunkZ // <-- ¡NUEVO!
- * @param {string} chunkKey // <-- (ej: "x,y,z")
- * @returns {object} { chunkData, isNew }
- */
 export async function getOrGenerateChunk(chunkX, chunkY, chunkZ, chunkKey) {
+    // ... (Esta función no cambia)
     const fusedChunk = await loadFusedChunk(chunkKey);
     
     if (fusedChunk) {
         return { chunkData: fusedChunk, isNew: false }; 
     }
 
-    // ¡MODIFICADO! Pasar Z al generador
     const baseChunk = generateNewChunk(chunkX, chunkY, chunkZ);
     
     return { chunkData: baseChunk, isNew: true }; 

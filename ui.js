@@ -11,6 +11,9 @@ import { IMAGES } from './generation.js'; // Para obtener las imágenes
 // ¡MODIFICADO!
 let $messageOverlay, $menuToggleBtn, $menuModal, $closeModalBtn;
 let $zoomInBtn, $zoomOutBtn, $saveBtn, $modalSaveBtn, $loadFileInput;
+// --- ¡NUEVO! Caché para botones de rotación ---
+let $rotateLeftBtn, $rotateRightBtn;
+// --- FIN DE MODIFICACIÓN ---
 let $statsUI = {};
 // Nuevos elementos de Firebase
 let $firebaseToggleBtn, $firebaseModal, $firebaseCloseBtn;
@@ -26,13 +29,16 @@ let $inventoryToggleBtn, $desktopInventoryBtn;
 // --- ¡NUEVO! Caché de Crafting ---
 let $craftingModal, $craftingCloseBtn;
 
+// ¡NUEVO! Caché del reloj
+let $statTime;
+
 // --- ¡NUEVO! Temporizador para mensajes ---
 let messageTimer = null;
 
 
 /**
  * Inicializa todos los listeners del DOM.
- * @param {object} callbacks - { onSave, onLoadFile, onZoomIn, onZoomOut, onCloudLoad, onDisconnect }
+ * @param {object} callbacks - { onSave, onLoadFile, onZoomIn, onZoomOut, onCloudLoad, onDisconnect, onRotateLeft, onRotateRight }
  */
 export function initializeUI(callbacks) {
     // Poblar caché de elementos
@@ -45,6 +51,10 @@ export function initializeUI(callbacks) {
     $closeModalBtn = document.getElementById('close-modal-btn');
     $zoomInBtn = document.getElementById('zoom-in-btn');
     $zoomOutBtn = document.getElementById('zoom-out-btn');
+    // --- ¡NUEVO! Poblar caché de rotación ---
+    $rotateLeftBtn = document.getElementById('rotate-left-btn');
+    $rotateRightBtn = document.getElementById('rotate-right-btn');
+    // --- FIN DE MODIFICACIÓN ---
     $saveBtn = document.getElementById('save-btn');
     $loadFileInput = document.getElementById('load-file-input');
     $modalSaveBtn = document.getElementById('modal-save-btn');
@@ -57,6 +67,9 @@ export function initializeUI(callbacks) {
         energiamax: document.getElementById('stat-energiamax'),
     };
     
+    // ¡NUEVO! Caché de Reloj
+    $statTime = document.getElementById('stat-time');
+
     // Caché de Firebase
     $firebaseToggleBtn = document.getElementById('firebase-toggle-btn');
     $firebaseModal = document.getElementById('firebase-modal');
@@ -82,7 +95,14 @@ export function initializeUI(callbacks) {
 
     // Añadir listeners
     addModalListeners();
-    addZoomListeners(callbacks.onZoomIn, callbacks.onZoomOut);
+    // --- ¡MODIFICADO! Llamar a la nueva función ---
+    addCameraControlListeners(
+        callbacks.onZoomIn, 
+        callbacks.onZoomOut,
+        callbacks.onRotateLeft,
+        callbacks.onRotateRight
+    );
+    // --- FIN DE MODIFICACIÓN ---
     addSaveLoadListeners(callbacks.onSave, callbacks.onLoadFile);
     addFirebaseListeners(callbacks.onCloudLoad); 
     addInventoryListeners();
@@ -179,9 +199,25 @@ export function renderStats(stats) {
     if ($statsUI.energiamax) $statsUI.energiamax.textContent = stats.energiamax;
 }
 
+/**
+ * ¡NUEVO! Actualiza el reloj del juego en la UI.
+ * @param {number} timeOfDay - Valor de 0.0 a 1.0
+ */
+export function renderClock(timeOfDay) {
+    if (!$statTime) return;
+
+    const totalMinutes = Math.floor(timeOfDay * 24 * 60);
+    const hour = Math.floor(totalMinutes / 60);
+    const minute = totalMinutes % 60;
+
+    const formattedTime = String(hour).padStart(2, '0') + ':' + String(minute).padStart(2, '0');
+    $statTime.textContent = formattedTime;
+}
+
+
 // --- GESTORES INTERNOS ---
 
-// ... (Sin cambios en addModalListeners, toggleMenuModal, addFirebaseListeners, toggleFirebaseModal, addZoomListeners, addSaveLoadListeners) ...
+// ... (Sin cambios en addModalListeners, toggleMenuModal, addFirebaseListeners, toggleFirebaseModal) ...
 function addModalListeners() {
     $menuToggleBtn.addEventListener('click', toggleMenuModal);
     $closeModalBtn.addEventListener('click', toggleMenuModal);
@@ -206,12 +242,27 @@ function addFirebaseListeners(onCloudLoad) {
 function toggleFirebaseModal() {
     $firebaseModal.classList.toggle('hidden');
 }
-function addZoomListeners(onZoomIn, onZoomOut) {
+
+// --- ¡MODIFICADO! Renombrado de addZoomListeners a addCameraControlListeners ---
+function addCameraControlListeners(onZoomIn, onZoomOut, onRotateLeft, onRotateRight) {
+    // Listeners de Zoom
     $zoomInBtn.addEventListener('mousedown', (e) => { e.stopPropagation(); onZoomIn(); });
     $zoomOutBtn.addEventListener('mousedown', (e) => { e.stopPropagation(); onZoomOut(); });
     $zoomInBtn.addEventListener('touchstart', (e) => e.stopPropagation());
     $zoomOutBtn.addEventListener('touchstart', (e) => e.stopPropagation());
+
+    // ¡NUEVO! Listeners de Rotación
+    if ($rotateLeftBtn) {
+        $rotateLeftBtn.addEventListener('mousedown', (e) => { e.stopPropagation(); onRotateLeft(); });
+        $rotateLeftBtn.addEventListener('touchstart', (e) => e.stopPropagation());
+    }
+    if ($rotateRightBtn) {
+        $rotateRightBtn.addEventListener('mousedown', (e) => { e.stopPropagation(); onRotateRight(); });
+        $rotateRightBtn.addEventListener('touchstart', (e) => e.stopPropagation());
+    }
 }
+// --- FIN DE MODIFICACIÓN ---
+
 function addSaveLoadListeners(onSave, onLoadFile) {
     $saveBtn.addEventListener('click', (e) => {
         e.stopPropagation();

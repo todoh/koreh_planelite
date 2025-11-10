@@ -1,27 +1,40 @@
 // --- entity.js ---
 // Gestiona la creación de entidades y la carga de definiciones.
 
-import { ENTITY_DEFINITIONS } from './entity_definitions.js';
+// --- ¡ELIMINADO! La importación de definiciones ya no se hace aquí ---
+// import { ENTITY_DEFINITIONS } from './entity_definitions.js';
 import * as Components from './entity_components.js';
 
 // Almacenes de definiciones
 let TERRAIN_DEFINITIONS = {};
-const ENTITY_TEMPLATES = ENTITY_DEFINITIONS; // Alias para claridad
+// --- ¡MODIFICADO! Ahora es una variable 'let' que se poblará al cargar ---
+let ENTITY_TEMPLATES = {}; 
 
 /**
- * Carga y procesa 'sprites.json' para las definiciones de TERRENO.
+ * Carga y procesa las definiciones de TERRENO (desde JSON).
  * Esto debe llamarse una vez al inicio.
- * @param {object} spriteData - El contenido de sprites.json
+ * @param {object} spriteData - El contenido de terrain_definitions.json
  */
 export function processTerrainDefinitions(spriteData) {
     const terrainData = {};
     for (const key in spriteData) {
-        if (key.startsWith("//")) continue;
+        if (key.startsWith("//")) continue; // Por si acaso
         terrainData[key] = spriteData[key];
     }
     TERRAIN_DEFINITIONS = terrainData;
     console.log("Definiciones de terreno procesadas.");
 }
+
+// --- ¡NUEVA FUNCIÓN! ---
+/**
+ * Carga y procesa las definiciones de ENTIDAD (desde JSON).
+ * @param {object} entityData - El contenido de entity_definitions.json
+ */
+export function processEntityDefinitions(entityData) {
+    ENTITY_TEMPLATES = entityData;
+    console.log("Definiciones de entidad procesadas.");
+}
+
 
 /**
  * Devuelve las definiciones de terreno cargadas.
@@ -41,7 +54,7 @@ export function getEntityDefinitions() {
 /**
  * Fábrica de Entidades (Entity Factory).
  * Crea una nueva instancia de entidad basada en una plantilla (prefab).
- * --- ¡MODIFICADO! ---
+ * --- (Sin cambios en esta función, pero ahora usa ENTITY_TEMPLATES poblado) ---
  * @param {string} key - La clave de la plantilla (ej: "TREE", "NPC").
  * @param {number} x - Coordenada X en el mundo.
  * @param {number} y - Coordenada Y en el mundo (base/pies).
@@ -61,9 +74,10 @@ export function createEntity(key, x, y, z, uid) {
         uid: uid,
         x: x,
         y: y,
-        z: z, // <-- ¡AÑADIDO Z!
-        key: key, // Guardamos la clave de la plantilla para referencia
-        components: {} // Los componentes se almacenan por tipo
+        z: z, 
+        key: key, 
+        facing: 'right', 
+        components: {} 
     };
 
     // Añadir componentes basados en la plantilla

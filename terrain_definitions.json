@@ -1,0 +1,58 @@
+{
+    "STONE_GROUND": {
+        "key": "STONE_GROUND",
+        "solid": false,
+        "name": "suelo de piedra"
+    },
+    "DIRT": {
+        "key": "DIRT",
+        "solid": false,
+        "name": "tierra"
+    },
+    "GRASS": {
+        "key": "GRASS",
+        "solid": false,
+        "name": "césped"
+    },
+    "WALL": {
+        "key": "WALL",
+        "solid": true,
+        "name": "un muro",
+        "collisionBox": { "width": 80, "height": 40, "offsetY": 80 }
+    },
+    "WATER": {
+        "key": "WATER",
+        "solid": true,
+        "name": "agua"
+    },
+    "SAND": {
+        "key": "SAND",
+        "solid": false,
+        "name": "arena"
+    },
+    "SAVANNA_GRASS": {
+        "key": "SAVANNA_GRASS",
+        "solid": false,
+        "name": "hierba de savana"
+    },
+    "JUNGLE_GRASS": {
+        "key": "JUNGLE_GRASS",
+        "solid": false,
+        "name": "hierba de jungla"
+    },
+    "SNOW": {
+        "key": "SNOW",
+        "solid": false,
+        "name": "nieve"
+    },
+    "CAVE_FLOOR": {
+        "key": "CAVE_FLOOR",
+        "solid": false,
+        "name": "suelo de cueva"
+    },
+    "ROCK_WALL": {
+        "key": "ROCK_WALL",
+        "solid": true,
+        "name": "pared de roca"
+    }
+}

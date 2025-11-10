@@ -2,6 +2,7 @@
 // Orquestador principal.
 // Conecta Lógica, Vista (Render/UI) e Input.
 // Controla el bucle de juego.
+// --- ¡SIN CAMBIOS! Tu optimización de carga de chunks ya estaba aquí ---
 
 // --- Módulos de Lógica (ESTADO) ---
 import {
@@ -12,7 +13,9 @@ import {
     updateWorldState, 
     checkGameStatus,
     updateAllPlayers,
-    TILE_PX_HEIGHT
+    TILE_PX_HEIGHT,
+    CHUNK_PX_WIDTH,  // <-- ¡AÑADIDO!
+    CHUNK_PX_HEIGHT  // <-- ¡AÑADIDO!
 } from './logic.js';
 
 // --- Módulos de SISTEMAS ---
@@ -22,20 +25,21 @@ import {
 } from './world.js';
 import {
     updatePlayer,
-    handleWorldTap,
+    // handleWorldTap, // <-- ELIMINADO
+    // --- ¡AÑADIDO! ---
+    handleWorldHold,
+    handleWorldMove,
+    handleWorldRelease,
+    // --- FIN DE AÑADIDO ---
     playerInteract
 } from './player_system.js';
 import { updateEntities } from './entity_system.js';
 
 // --- Módulos de Cámara y Persistencia ---
 import {
-    // ¡RE-ACTIVADO! (Solo para culling)
     initializeCamera,
-    // resizeCamera, // <-- Sin uso
-    // handleZoom,   // <-- ¡ELIMINADO!
-    // handleWheel,  // <-- ¡ELIMINADO!
     updateCamera,
-    getViewportAABB,
+    // getViewportAABB, // <-- ¡YA NO SE USA!
     screenToWorld,
 } from './camera.js';
 import { saveGame, loadGame } from './io.js';
@@ -52,14 +56,13 @@ import {
 import { initializeInput, getInputState } from './input.js';
 
 // --- ¡CAMBIO DE MOTOR! ---
-// import { initializeRenderer, renderFrame } from './render.js'; // <-- ANTIGUO
 import { 
     initialize3DEngine, 
     render3DFrame,
-    handle3DZoom,           // <-- ¡NUEVO!
-    handle3DCameraRotate,   // <-- ¡NUEVO!
-    getWorldCoordsFromScreen // <-- ¡NUEVO!
-} from './engine_3d.js'; // <-- ¡MODIFICADO!
+    handle3DZoom,
+    handle3DCameraRotate,
+    getWorldCoordsFromScreen
+} from './engine_3d.js'; 
 // --- FIN DE CAMBIO ---
 
 import { 
@@ -80,6 +83,11 @@ import {
 // --- ESTADO DEL BUCLE ---
 let lastFrameTime = 0;
 let isGameRunning = true;
+
+// --- ¡NUEVO! Variables de estado de chunk ---
+let lastPlayerChunkX = null;
+let lastPlayerChunkY = null;
+let lastPlayerChunkZ = null;
 
 // --- ESTADO ONLINE ---
 let isOnline = false;
@@ -106,11 +114,25 @@ function gameLoop(currentTime) {
 // --- CONTROLADOR ---
 function update(deltaTime) {
     // 1. Actualizar cámara y reloj
-    updateCamera(); // <-- Necesario para getViewportAABB 2D
+    updateCamera(); // <-- Inofensivo, lo dejamos
     updateWorldState(deltaTime); 
     
     // 2. Actualizar estado del mundo (chunks)
-    updateActiveChunks(player.x, player.y);
+    // --- ¡LÓGICA DE OPTIMIZACIÓN! ---
+    // Solo actualizamos los chunks activos si el jugador cambia de chunk (o de nivel Z)
+    const playerChunkX = Math.floor(player.x / CHUNK_PX_WIDTH);
+    const playerChunkY = Math.floor(player.y / CHUNK_PX_HEIGHT);
+    
+    if (playerChunkX !== lastPlayerChunkX || playerChunkY !== lastPlayerChunkY || player.z !== lastPlayerChunkZ) {
+        console.log(`Cambiando de chunk: ${lastPlayerChunkX},${lastPlayerChunkY},${lastPlayerChunkZ} -> ${playerChunkX},${playerChunkY},${player.z}`);
+        updateActiveChunks(player.x, player.y); // Esta es la llamada original
+        
+        // Actualizar el estado 'last'
+        lastPlayerChunkX = playerChunkX;
+        lastPlayerChunkY = playerChunkY;
+        lastPlayerChunkZ = player.z;
+    }
+    // --- FIN DE OPTIMIZACIÓN ---
     
     const input = getInputState();
     
@@ -118,7 +140,7 @@ function update(deltaTime) {
     const moveResult = updatePlayer(deltaTime, input);
     
     // 4. Actualizar entidades (IA, crecimiento)
-    updateEntities(deltaTime);
+    updateEntities(deltaTime); // <-- ¡Ahora es mucho más rápido!
 
     // 5. Procesar mensajes y acciones
     if (moveResult.message) showMessage(moveResult.message);
@@ -139,12 +161,9 @@ function update(deltaTime) {
 // --- VISTA ---
 function render() {
     
-    // --- ¡MODIFICACIÓN! ---
-    // 1. Obtenemos los objetos visibles usando el AABB 2D gigante
-    const cameraYOffset = TILE_PX_HEIGHT * 1.5;
-    const viewport = getViewportAABB(player.x, player.y - cameraYOffset); // <-- ¡FIX APLICADO!
-    
-    const objectsToRender = getVisibleObjects(viewport); // <-- ¡RE-ACTIVADO!
+    // --- ¡OPTIMIZACIÓN! ---
+    // 1. Obtenemos los objetos visibles (solo entidades dinámicas)
+    const objectsToRender = getVisibleObjects(); // <-- ¡MODIFICADO!
     const time = worldState.timeOfDay;
     
     // 2. RenderFrame usará el nuevo motor 3D
@@ -157,26 +176,36 @@ function render() {
 }
 
 // --- FUNCIONES DE CONEXIÓN ---
-function processTap(screenX, screenY) {
-    
-    // --- ¡MODIFICACIÓN CRÍTICA! ---
-    // ¡Raycaster 3D AHORA HABILITADO!
-    
-    // 1. Obtener coordenadas del mundo 3D desde el clic
+
+function processHoldStart(screenX, screenY) {
     const worldPoint = getWorldCoordsFromScreen(screenX, screenY);
 
     if (worldPoint) {
-        // 2. Usar la lógica de 'handleWorldTap' existente
-        // (worldPoint.y es el 'z' del mundo 3D)
-        const result = handleWorldTap(worldPoint.x, worldPoint.y); // Desde player_system.js
+        // handleWorldHold (de player_system) decidirá si interactuar o empezar a moverse
+        const result = handleWorldHold(worldPoint.x, worldPoint.y); // Desde player_system.js
         if (result.message) {
             showMessage(result.message);
         }
     } else {
          showMessage("Clic en el vacío.");
     }
-    // --- FIN DE MODIFICACIÓN ---
 }
+
+function processHoldMove(screenX, screenY) {
+    const worldPoint = getWorldCoordsFromScreen(screenX, screenY);
+    if (worldPoint) {
+        // handleWorldMove (de player_system) recalculará el path
+        handleWorldMove(worldPoint.x, worldPoint.y); // Desde player_system.js
+    }
+}
+
+// --- ¡MODIFICADO! ---
+function processHoldEnd(didMove) { // <-- Aceptar argumento
+    // handleWorldRelease (de player_system) detiene el recálculo de path
+    handleWorldRelease(didMove); // <-- Pasar argumento
+}
+// --- FIN DEL REEMPLAZO ---
+
 
 function endGame(message) {
     showMessage(message || "Juego terminado.");
@@ -248,6 +277,8 @@ function handleConnect() {
 function handleDisconnect() {
     if (!isOnline) return;
 
+    // NOTA: confirm() puede no funcionar bien en todos los entornos.
+    // Si esto falla, reemplazarlo por un modal de UI personalizado.
     if (confirm("¿Desconectarse del modo online? Los cambios dejarán de guardarse en tiempo real.")) {
         isOnline = false;
         hideOnlineStatus(); 
@@ -280,7 +311,7 @@ function handleDisconnect() {
 
 
 /**
- * ¡NUEVO! Manejador para la rueda del ratón en 3D.
+ * Manejador para la rueda del ratón en 3D.
  * @param {WheelEvent} e 
  */
 function handleWheel3D(e) {
@@ -299,35 +330,43 @@ async function main() {
         const $canvas = document.getElementById('game-canvas');
         const $loadFileInput = document.getElementById('load-file-input');
 
-        initializeCamera($canvas); // <-- ¡RE-ACTIVADO! (Para culling)
+        initializeCamera($canvas); // Inofensivo, lo dejamos
         
+        // --- ¡CORRECCIÓN DE ORDEN! ---
+        // El motor 3D (la 'escena') debe existir ANTES de cargar la lógica del juego,
+        // ya que la lógica del juego (al cargar chunks) intenta añadir meshes a la escena.
+        initialize3DEngine($canvas); // <-- ¡MOVIDO AQUÍ!
+        // --- FIN DE CORRECCIÓN ---
+
         // Pasamos el callback 'openMenu' a 'initializeGameLogic'
         await initializeGameLogic({
             openMenu: openMenu 
         });
         
         // --- ¡CAMBIO DE MOTOR! ---
-        initialize3DEngine($canvas); // <-- NUEVO (3D)
+        // initialize3DEngine($canvas); // <-- ¡ELIMINADO DE AQUÍ!
         // --- FIN DE CAMBIO ---
         
         initializeUI({
             onSave: saveGame,
+            onSave: saveGame,
             onLoadFile: loadGame,
-            // --- ¡MODIFICADO! Conectar a handlers 3D ---
             onZoomIn: () => handle3DZoom(true), 
             onZoomOut: () => handle3DZoom(false),
-            onRotateLeft: () => handle3DCameraRotate(false), // <-- ¡NUEVO!
-            onRotateRight: () => handle3DCameraRotate(true), // <-- ¡NUEVO!
-            // --- FIN DE MODIFICACIÓN ---
+            onRotateLeft: () => handle3DCameraRotate(false), 
+            onRotateRight: () => handle3DCameraRotate(true), 
             $loadFileInput: $loadFileInput,
             onCloudLoad: handleCloudEnter, 
             onDisconnect: handleDisconnect 
         });
         
         initializeInput($canvas, {
-            onTap: processTap,
-            // --- ¡MODIFICADO! Conectar a handler 3D ---
-            onWheel: handleWheel3D // <-- ¡MODIFICADO!
+            // --- ¡MODIFICADO! ---
+            onHoldStart: processHoldStart,
+            onHoldMove: processHoldMove,
+            onHoldEnd: processHoldEnd,
+            // --- FIN DE MODIFICACIÓN ---
+            onWheel: handleWheel3D 
         });
 
         // Comprobar si venimos de una carga en la nube
@@ -350,8 +389,7 @@ async function main() {
 
         // Empezar el bucle
         if (!isOnline) { 
-            // ¡MODIFICADO! Mensaje de inicio
-            showMessage('¡Mundo 3D! Usa flechas para moverte. ¡Clic para moverte HABILITADO!');
+            showMessage('¡Mundo 3D! Usa flechas para moverte. ¡Clic/Mantener para moverte HABILITADO!');
         }
         lastFrameTime = performance.now();
         requestAnimationFrame(gameLoop);

@@ -1,0 +1,97 @@
+{
+  "BIOME_WEIGHTS": {
+    "PLAINS": 10,
+    "DESERT": 5,
+    "SAVANNA": 5,
+    "JUNGLE": 3,
+    "ROCKY": 4,
+    "TUNDRA": 2
+  },
+  "BIOME_DEFINITIONS": {
+    "OCEAN": {
+      "baseTile": "WATER",
+      "entities": []
+    },
+    "BEACH": {
+      "baseTile": "DIRT",
+      "entities": []
+    },
+    "DESERT": {
+      "baseTile": "SAND",
+      "entities": [
+        {
+          "type": "vegetation",
+          "entityKey": "CACTUS",
+          "noise": "vegetation",
+          "threshold": 0.97
+        }
+      ]
+    },
+    "SAVANNA": {
+      "baseTile": "SAVANNA_GRASS",
+      "entities": [
+        {
+          "type": "vegetation",
+          "entityKey": "ACACIA_TREE",
+          "noise": "vegetation",
+          "threshold": 0.96
+        }
+      ]
+    },
+    "JUNGLE": {
+      "baseTile": "JUNGLE_GRASS",
+      "entities": [
+        {
+          "type": "vegetation",
+          "entityKey": "JUNGLE_TREE",
+          "noise": "vegetation",
+          "threshold": 0.85
+        }
+      ]
+    },
+    "PLAINS": {
+      "baseTile": "GRASS",
+      "entities": [
+        {
+          "type": "vegetation",
+          "entityKey": "TREE",
+          "noise": "vegetation",
+          "threshold": 0.9
+        }
+      ]
+    },
+    "ROCKY": {
+      "baseTile": "DIRT",
+      "terrainRules": [
+        {
+          "tileKey": "STONE_GROUND",
+          "noise": "terrain",
+          "threshold": 0.75
+        }
+      ],
+      "entities": [
+        {
+          "type": "rock",
+          "entityKey": "ROCK",
+          "noise": "vegetation",
+          "threshold": 0.85
+        }
+      ]
+    },
+    "TUNDRA": {
+      "baseTile": "SNOW",
+      "entities": [
+        {
+          "type": "vegetation",
+          "entityKey": "SNOW_TREE",
+          "noise": "vegetation",
+          "threshold": 0.95
+        }
+      ]
+    },
+    "UNDERGROUND": {
+      "baseTile": "ROCK_WALL",
+      "entities": []
+    }
+  }
+}

@@ -29,16 +29,21 @@
         <button id="firebase-toggle-btn" class="absolute top-4 left-4 z-20 w-10 h-10 bg-gray-700 text-cyan-400 rounded-md font-bold text-lg hover:bg-gray-600">⚙️</button>
         <button id="online-status-btn" class="absolute top-4 right-4 z-20 w-10 h-10 bg-gray-700 text-red-500 rounded-md font-bold text-lg hover:bg-gray-600 hidden">🔴</button>
 
-        <div class="absolute bottom-4 right-4 z-20 flex flex-col space-y-2">
-            <button id="zoom-in-btn" class="w-10 h-10 bg-gray-700 text-cyan-400 rounded-md font-bold text-lg hover:bg-gray-600">+</button>
-            <button id="zoom-out-btn" class="w-10 h-10 bg-gray-700 text-cyan-400 rounded-md font-bold text-lg hover:bg-gray-600">-</button>
+        <div class="absolute bottom-4 right-4 z-20 flex space-x-2">
+            
+            <div class="flex flex-col space-y-2"style="display:none">
+                <button id="rotate-left-btn" class="w-10 h-10 bg-gray-700 text-cyan-400 rounded-md font-bold text-lg hover:bg-gray-600">⟲</button>
+                <button id="rotate-right-btn" class="w-10 h-10 bg-gray-700 text-cyan-400 rounded-md font-bold text-lg hover:bg-gray-600">⟳</button>
+            </div>
+
+            <div class="flex flex-col space-y-2">
+                <button id="zoom-in-btn" class="w-10 h-10 bg-gray-700 text-cyan-400 rounded-md font-bold text-lg hover:bg-gray-600">+</button>
+                <button id="zoom-out-btn" class="w-10 h-10 bg-gray-700 text-cyan-400 rounded-md font-bold text-lg hover:bg-gray-600">-</button>
+            </div>
+
         </div>
-        
-        <!-- ¡NUEVO! Ventana de mensajes superpuesta -->
-        <!-- Se posiciona 1rem (bottom-4) desde el borde inferior del canvas -->
         <div id="message-overlay" class="absolute z-10 bottom-4 left-1/2 -translate-x-1/2 w-11/12 md:max-w-lg p-3 bg-gray-900 bg-opacity-80 text-white text-center text-sm md:text-base rounded-lg shadow-lg border border-gray-700 hidden opacity-0 transition-opacity duration-300 ease-in-out pointer-events-none">
-            <!-- El texto se insertará aquí vía ui.js -->
-        </div>
+            </div>
     </div>
 
     <div id="ui-container" class="w-full p-2 bg-gray-800 border-t border-gray-700 flex-shrink-0 shadow-inner z-10">
@@ -59,9 +64,6 @@
                 </div>
             </div>
 
-            <!-- ¡ELIMINADO! Panel de UI de escritorio -->
-            <!-- <div id="ui-panel" class="w-1/3 ..."> ... </div> -->
-
             <div class="hidden sm:flex items-center space-x-2 ml-4">
                 <button id="desktop-inventory-btn" class="px-3 py-2 bg-yellow-600 text-white rounded-md text-sm font-medium hover:bg-yellow-700">Inventario</button>
                 <button id="save-btn" class="px-3 py-2 bg-blue-600 text-white rounded-md text-sm font-medium hover:bg-blue-700">Guardar</button>
@@ -78,7 +80,6 @@
         </div>
     </div>
 
-    <!-- Modal de Menú -->
     <div id="menu-modal" class="modal-overlay hidden">
         <div class="modal-content">
             <button id="close-modal-btn" class="modal-close-btn">&times;</button>
@@ -89,19 +90,9 @@
                 <label for="load-file-input" id="modal-load-btn-label" class="flex-1 text-center px-3 py-2 bg-green-600 text-white rounded-md text-sm font-medium hover:bg-green-700 cursor-pointer">Cargar</label>
             </div>
             
-            <!-- ¡ELIMINADO! Panel de mensajes del modal -->
-            <!-- 
-            <div>
-                <h3 class="text-lg font-semibold text-gray-300 mb-2">Mensajes</h3>
-                <div id="modal-ui-panel" class="w-full h-24 p-2 bg-gray-900 rounded-md overflow-y-auto text-sm">
-                    <span class="text-gray-400">¡Bienvenido!</span>
-                </div>
-            </div> 
-            -->
-        </div>
+            </div>
     </div>
 
-    <!-- Modal de Firebase -->
     <div id="firebase-modal" class="modal-overlay hidden">
         <div class="modal-content">
             <button id="firebase-close-btn" class="modal-close-btn">&times;</button>
@@ -133,45 +124,26 @@
         </div>
     </div>
 
-    <!-- Modal de Inventario -->
     <div id="inventory-modal" class="modal-overlay hidden">
-        <div class="modal-content !max-w-3xl"> <!-- Modal más ancho -->
-            <button id="inventory-close-btn" class="modal-close-btn">&times;</button>
+        <div class="modal-content !max-w-3xl"> <button id="inventory-close-btn" class="modal-close-btn">&times;</button>
             <h2 class="text-xl font-bold text-cyan-400 mb-4">Inventario</h2>
             
             <div id="inventory-grid" class="grid grid-cols-4 sm:grid-cols-6 lg:grid-cols-8 gap-2 p-2 bg-gray-900 rounded-md max-h-[60vh] overflow-y-auto">
-                <!-- Los slots se generan dinámicamente por ui.js -->
-            </div>
+                </div>
         </div>
     </div>
 
-    <!-- ¡AÑADIDO! Modal de Crafting -->
     <div id="crafting-modal" class="modal-overlay hidden">
         <div class="modal-content !max-w-3xl">
             <button id="crafting-close-btn" class="modal-close-btn">&times;</button>
             <h2 class="text-xl font-bold text-cyan-400 mb-4">Mesa de Trabajo</h2>
             <div id="crafting-grid" class="p-2 bg-gray-900 rounded-md">
                 <p class="text-gray-400">¡Aquí podrías craftear! (WIP)</p>
-                <!-- Aquí iría la lógica de crafteo -->
-            </div>
+                </div>
         </div>
     </div>
 
 
-      <!-- ¡MODIFICADO! Orden de scripts -->
-    <!-- Estos archivos son importados por otros, 
-         no necesitan cargarse aquí directamente -->
-    <!-- 
-    <script type="module" src="items.js"></script>
-    <script type="module" src="inventory.js"></script>
-    <script type="module" src="components.js"></script> 
-    <script type="module" src="entity_definitions.js"></script>
-    <script type="module" src="vehicle_logic.js"></script>
-    -->
- 
-    <!-- Solo necesitamos cargar el script principal.
-         Él se encargará de importar 'logic', 'generation',
-         'entity', 'inventory', 'items', etc. -->
-    <script type="module" src="main.js"></script>
+      <script type="module" src="main.js"></script>
 </body>
 </html>

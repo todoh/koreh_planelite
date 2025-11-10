@@ -9,27 +9,42 @@ const inputState = {
 
 // --- ESTADO DE TAP (TÁCTIL) ---
 let touchTapState = {
-    id: null, startTime: 0, startX: 0, startY: 0
+    id: null
+    // startTime: 0, startX: 0, startY: 0 // <-- Ya no se necesitan
 };
 
 // --- ESTADO DE TAP (MOUSE) ---
 let mouseTapState = {
-    isDown: false, startTime: 0, startX: 0, startY: 0
+    isDown: false
+    // startTime: 0, startX: 0, startY: 0 // <-- Ya no se necesitan
 };
 
-const MAX_TAP_TIME = 200; // ms
-const MAX_TAP_DISTANCE = 10; // px
+// --- ¡NUEVO! Estado de movimiento ---
+let didMoveSinceTap = false;
 
-let onTapCallback = () => {};
+// --- ¡ELIMINADO! ---
+// const MAX_TAP_TIME = 200; // ms
+// const MAX_TAP_DISTANCE = 10; // px
+
+// --- ¡MODIFICADO! ---
+let onHoldStartCallback = () => {};
+let onHoldMoveCallback = () => {};
+let onHoldEndCallback = (didMove) => {}; // <-- ¡Acepta argumento!
+// --- FIN DE MODIFICACIÓN ---
+
 let onWheelCallback = () => {};
 
 /**
  * Inicializa todos los listeners de entrada.
  * @param {HTMLCanvasElement} $canvas
- * @param {object} callbacks - { onTap, onWheel }
+ * @param {object} callbacks - { onHoldStart, onHoldMove, onHoldEnd, onWheel }
  */
 export function initializeInput($canvas, callbacks) {
-    onTapCallback = callbacks.onTap || onTapCallback;
+    // --- ¡MODIFICADO! ---
+    onHoldStartCallback = callbacks.onHoldStart || onHoldStartCallback;
+    onHoldMoveCallback = callbacks.onHoldMove || onHoldMoveCallback;
+    onHoldEndCallback = callbacks.onHoldEnd || onHoldEndCallback;
+    // --- FIN DE MODIFICACIÓN ---
     onWheelCallback = callbacks.onWheel || onWheelCallback;
 
     addKeyListeners();
@@ -54,11 +69,17 @@ function addKeyListeners() {
 
 function addTouchListeners($canvas) {
     $canvas.addEventListener('touchstart', handleTouchStart, { passive: false });
+    // --- ¡AÑADIDO! ---
+    $canvas.addEventListener('touchmove', handleTouchMove, { passive: false });
+    // --- FIN DE AÑADIDO ---
     $canvas.addEventListener('touchend', handleTouchEnd, { passive: false });
 }
 
 function addMouseListeners($canvas) {
     $canvas.addEventListener('mousedown', handleMouseDown, { passive: false });
+    // --- ¡AÑADIDO! ---
+    $canvas.addEventListener('mousemove', handleMouseMove, { passive: false });
+    // --- FIN DE AÑADIDO ---
     $canvas.addEventListener('mouseup', handleMouseUp, { passive: false });
     $canvas.addEventListener('contextmenu', (e) => e.preventDefault(), { passive: false });
 }
@@ -104,16 +125,37 @@ function handleKeyUp(e) {
     }
 }
 
+// --- ¡handleTouchStart MODIFICADO! ---
 function handleTouchStart(e) {
     e.preventDefault();
     if (touchTapState.id !== null) return; 
     const touch = e.changedTouches[0]; 
     touchTapState.id = touch.identifier;
-    touchTapState.startTime = Date.now();
-    touchTapState.startX = touch.clientX;
-    touchTapState.startY = touch.clientY;
+    
+    // ¡NUEVO!
+    didMoveSinceTap = false;
+
+    // ¡Llamar al callback de INICIO!
+    onHoldStartCallback(touch.clientX, touch.clientY);
 }
 
+// --- ¡NUEVA FUNCIÓN handleTouchMove! ---
+function handleTouchMove(e) {
+    e.preventDefault();
+    let touch = null;
+    for (const t of e.changedTouches) {
+        if (t.identifier === touchTapState.id) { touch = t; break; }
+    }
+    if (!touch) return;
+    
+    // ¡NUEVO!
+    didMoveSinceTap = true;
+    
+    // ¡Llamar al callback de MOVER!
+    onHoldMoveCallback(touch.clientX, touch.clientY);
+}
+
+// --- ¡handleTouchEnd MODIFICADO! ---
 function handleTouchEnd(e) {
     e.preventDefault();
     let touch = null;
@@ -121,16 +163,14 @@ function handleTouchEnd(e) {
         if (t.identifier === touchTapState.id) { touch = t; break; }
     }
     if (!touch) return;
+    
     touchTapState.id = null;
-    const tapDuration = Date.now() - touchTapState.startTime;
-    const dx = touch.clientX - touchTapState.startX;
-    const dy = touch.clientY - touchTapState.startY;
-    const tapDistance = Math.sqrt(dx*dx + dy*dy);
-    if (tapDuration < MAX_TAP_TIME && tapDistance < MAX_TAP_DISTANCE) {
-        onTapCallback(touch.clientX, touch.clientY);
-    }
+    
+    // ¡Llamar al callback de FIN!
+    onHoldEndCallback(didMoveSinceTap); // <-- ¡Pasar flag!
 }
 
+// --- ¡handleMouseDown MODIFICADO! ---
 function handleMouseDown(e) {
     e.preventDefault();
     const targetId = e.target.id || (e.target.htmlFor || '');
@@ -145,11 +185,28 @@ function handleMouseDown(e) {
     if(isUIButton) return; 
 
     mouseTapState.isDown = true;
-    mouseTapState.startTime = Date.now();
-    mouseTapState.startX = e.clientX;
-    mouseTapState.startY = e.clientY;
+    
+    // ¡NUEVO!
+    didMoveSinceTap = false;
+    
+    // ¡Llamar al callback de INICIO!
+    onHoldStartCallback(e.clientX, e.clientY);
 }
 
+// --- ¡NUEVA FUNCIÓN handleMouseMove! ---
+function handleMouseMove(e) {
+    e.preventDefault();
+    if (!mouseTapState.isDown) return; // Solo si estamos pulsando
+    
+    // ¡NUEVO!
+    didMoveSinceTap = true;
+    
+    // ¡Llamar al callback de MOVER!
+    onHoldMoveCallback(e.clientX, e.clientY);
+}
+
+
+// --- ¡handleMouseUp MODIFICADO! ---
 function handleMouseUp(e) {
     e.preventDefault();
     if (e.button !== 0) return; 
@@ -162,15 +219,13 @@ function handleMouseUp(e) {
         return;
     }
     if (!mouseTapState.isDown) return; 
+    
     mouseTapState.isDown = false; 
-    const tapDuration = Date.now() - mouseTapState.startTime;
-    const dx = e.clientX - mouseTapState.startX;
-    const dy = e.clientY - mouseTapState.startY;
-    const tapDistance = Math.sqrt(dx*dx + dy*dy);
-    if (tapDuration < MAX_TAP_TIME && tapDistance < MAX_TAP_DISTANCE) {
-        onTapCallback(e.clientX, e.clientY);
-    }
+    
+    // ¡Llamar al callback de FIN!
+    onHoldEndCallback(didMoveSinceTap); // <-- ¡Pasar flag!
 }
+
 
 function handleWheel(e) {
     e.preventDefault();

@@ -2,8 +2,12 @@
 // Gestiona el guardado y la carga del estado del juego a/desde un archivo JSON
 // y expone la lógica para otros sistemas (como la nube).
 
-// --- MODIFICADO: Importar getInventory ---
-import { player, stats, flushDirtyChunks } from './logic.js';
+// --- ¡MODIFICADO! ---
+// 'flushDirtyChunks' ahora viene de 'world.js'
+import { player, stats } from './logic.js';
+import { flushDirtyChunks } from './world.js';
+// --- FIN DE MODIFICACIÓN ---
+
 import { getInventory } from './inventory.js';
 import { CHUNK_KEY_REGEX } from './generation.js';
 
@@ -14,16 +18,16 @@ import { CHUNK_KEY_REGEX } from './generation.js';
  */
 export async function gatherSaveData() {
     // 1. Guardar todos los chunks modificados de la RAM a localStorage.
-    await flushDirtyChunks();
+    await flushDirtyChunks(); // Esta función ahora se importa desde world.js
 
     // 2. Recopilar el estado del jugador
-    // --- ¡MODIFICADO! ---
     const playerState = {
         x: player.x,
         y: player.y,
-        z: player.z, // <-- ¡AÑADIDO Z!
+        z: player.z, 
         stats: { ...stats },
-        inventory: getInventory() 
+        inventory: getInventory(),
+        facing: player.facing 
     };
 
     // 3. Recopilar todos los chunks fusionados del mapa (desde localStorage)
@@ -58,7 +62,6 @@ if (!saveData || saveData.mapData == null) {
     
     // 2. Escribir los nuevos chunks fusionados en localStorage
     for (const chunkKey in saveData.mapData) {
-        // ¡Validar que la clave sea 3D!
         if (CHUNK_KEY_REGEX.test(chunkKey)) {
             const chunkString = JSON.stringify(saveData.mapData[chunkKey]);
             try {
@@ -80,7 +83,6 @@ if (!saveData || saveData.mapData == null) {
     }
 
     // 4. Guardar el estado del jugador
-    // (logic.js se encargará de leer 'z' al cargar)
     localStorage.setItem("GAME_STATE_LOAD", JSON.stringify(saveData.playerState));
 
     // 5. Recargar la página
@@ -144,7 +146,6 @@ function getAllFusedChunks() {
     const chunks = {};
     for (let i = 0; i < localStorage.length; i++) {
         const key = localStorage.key(i);
-        // ¡USA LA REGEX 3D!
         if (CHUNK_KEY_REGEX.test(key)) {
             try {
                 const chunk = JSON.parse(localStorage.getItem(key));
@@ -164,7 +165,6 @@ function clearAllFusedChunks() {
     for (let i = 0; i < localStorage.length; i++) {
         const key = localStorage.key(i);
         
-        // ¡MODIFICADO! Limpiar claves 2D y 3D
         if (CHUNK_KEY_REGEX.test(key) || /^-?\d+,-?\d+$/.test(key) || key === 'WORLD_SEED') {
             keysToRemove.push(key);
         }

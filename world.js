@@ -1,6 +1,8 @@
 // --- world.js ---
 // Gestiona el estado del mundo activo (chunks en RAM)
 // y proporciona funciones para consultarlo y mutarlo.
+// --- ¡MODIFICADO! ---
+// Añade listas globales para entidades activas (IA, Crecimiento)
 
 import { 
     getOrGenerateChunk, 
@@ -15,15 +17,26 @@ import {
     TILE_PX_HEIGHT,
     CHUNK_PX_WIDTH,
     CHUNK_PX_HEIGHT,
-        CHUNK_GRID_WIDTH,  // <-- ¡AÑADIDO!
-    CHUNK_GRID_HEIGHT // <-- ¡AÑADIDO!
+    CHUNK_GRID_WIDTH,
+    CHUNK_GRID_HEIGHT
 } from './logic.js';
+// Importamos funciones del motor 3D para crear/destruir meshes de terreno
+import { addChunkTerrain, removeChunkTerrain } from './engine_3d.js';
+
 
 // --- ESTADO DEL MUNDO ACTIVO (RAM) ---
 // K: "x,y,z"
 let activeChunks = new Map(); 
 let pendingChunkLoads = new Set(); 
 let dirtyChunks = new Set(); 
+
+// --- ¡NUEVO! Listas de optimización de CPU ---
+// Estas listas contendrán referencias a entidades que necesitan
+// actualizaciones por frame (IA, Crecimiento), para que
+// entity_system.js no tenga que buscar en todos los chunks.
+export let activeAiEntities = [];
+export let activeGrowthEntities = [];
+
 
 // --- GESTIÓN DE CHUNKS ---
 
@@ -34,6 +47,7 @@ export function getActiveChunks() {
 export function getActiveChunk(key) {
     return activeChunks.get(key);
 }
+
 export function updateActiveChunks(playerX, playerY) {
     const playerChunkX = Math.floor(playerX / CHUNK_PX_WIDTH);
     const playerChunkY = Math.floor(playerY / CHUNK_PX_HEIGHT);
@@ -50,8 +64,27 @@ export function updateActiveChunks(playerX, playerY) {
                 
                 getOrGenerateChunk(x, y, playerChunkZ, chunkKey)
                     .then(result => { 
-                        activeChunks.set(chunkKey, result.chunkData);
+                        const chunkData = result.chunkData;
+                        chunkData.x = x;
+                        chunkData.y = y;
+                        chunkData.z = playerChunkZ;
+                        chunkData.key = chunkKey; 
                         
+                        activeChunks.set(chunkKey, chunkData);
+                        
+                        // --- ¡NUEVO! Registrar entidades activas ---
+                        for (const entity of chunkData.entities) {
+                            if (entity.components.MovementAI) {
+                                activeAiEntities.push(entity);
+                            }
+                            if (entity.components.Growth) {
+                                activeGrowthEntities.push(entity);
+                            }
+                        }
+                        
+                        // Informar al motor 3D para que cree el mesh estático
+                        addChunkTerrain(chunkKey, chunkData);
+
                         if (result.isNew) {
                             dirtyChunks.add(chunkKey);
                             console.log(`Chunk ${chunkKey} marcado como 'dirty' (nuevo).`);
@@ -74,14 +107,29 @@ export function updateActiveChunks(playerX, playerY) {
             Math.abs(y - playerChunkY) > 2 ||
             z !== playerChunkZ) 
         {
+            const chunkToUnload = activeChunks.get(chunkKey); // Obtener referencia
             
             if (dirtyChunks.has(chunkKey)) {
                 console.log(`Guardando chunk sucio ${chunkKey} antes de descargar...`);
-                saveFusedChunk(chunkKey, activeChunks.get(chunkKey));
+                saveFusedChunk(chunkKey, chunkToUnload);
                 dirtyChunks.delete(chunkKey);
             }
             
             console.log(`Descargando chunk: ${chunkKey}`);
+            
+            // --- ¡NUEVO! Eliminar entidades de las listas activas ---
+            if (chunkToUnload && chunkToUnload.entities) {
+                // Creamos un Set de UIDs a eliminar para una búsqueda rápida
+                const uidsToUnload = new Set(chunkToUnload.entities.map(e => e.uid));
+                
+                activeAiEntities = activeAiEntities.filter(e => !uidsToUnload.has(e.uid));
+                activeGrowthEntities = activeGrowthEntities.filter(e => !uidsToUnload.has(e.uid));
+            }
+
+            // Informar al motor 3D para que elimine el mesh estático
+            removeChunkTerrain(chunkKey);
+            
+            // Finalmente, eliminar el chunk de la RAM
             activeChunks.delete(chunkKey);
         }
     }
@@ -128,23 +176,33 @@ export function recordDelta(chunkKey, deltaInfo) {
         return; 
     }
 
+    // --- ¡NUEVO! Manejo de listas de optimización ---
+    let entityToRemove = null;
+    let entityToAdd = null;
+
     switch(deltaInfo.type) {
         case 'REMOVE_ENTITY':
+            // Encontrar la entidad ANTES de filtrarla
+            entityToRemove = liveChunk.entities.find(e => e.uid === deltaInfo.uid);
             liveChunk.entities = liveChunk.entities.filter(
                 e => e.uid !== deltaInfo.uid
             );
             break;
         case 'ADD_ENTITY':
-            liveChunk.entities.push(deltaInfo.entity);
+            entityToAdd = deltaInfo.entity;
+            liveChunk.entities.push(entityToAdd);
             break;
         case 'REPLACE_ENTITY':
             const index = liveChunk.entities.findIndex(e => e.uid === deltaInfo.uid);
             if (index !== -1) {
-                liveChunk.entities[index] = deltaInfo.newEntity;
+                entityToRemove = liveChunk.entities[index]; // Registrar la entidad antigua
+                entityToAdd = deltaInfo.newEntity; // Registrar la nueva
+                liveChunk.entities[index] = entityToAdd;
                 console.log(`Entidad ${deltaInfo.uid} reemplazada (ej: crecimiento).`);
             } else {
                 console.warn(`No se pudo reemplazar la entidad ${deltaInfo.uid}: no encontrada.`);
-                liveChunk.entities.push(deltaInfo.newEntity);
+                entityToAdd = deltaInfo.newEntity; // Solo añadir
+                liveChunk.entities.push(entityToAdd);
             }
             break;
         case 'CHANGE_TILE':
@@ -152,6 +210,9 @@ export function recordDelta(chunkKey, deltaInfo) {
              if (liveChunk.terrain[y]) {
                 liveChunk.terrain[y][x] = deltaInfo.tileKey;
              }
+             // Si un tile cambia, debemos reconstruir el mesh de ese chunk
+             removeChunkTerrain(chunkKey);
+             addChunkTerrain(chunkKey, liveChunk);
             break;
         case 'MOVE_ENTITY':
              const entityToMove = liveChunk.entities.find(e => e.uid === deltaInfo.uid);
@@ -162,11 +223,30 @@ export function recordDelta(chunkKey, deltaInfo) {
              break;
     }
     
+    // --- ¡NUEVO! Actualizar listas de optimización ---
+    if (entityToRemove) {
+        if (entityToRemove.components.MovementAI) {
+            activeAiEntities = activeAiEntities.filter(e => e.uid !== entityToRemove.uid);
+        }
+        if (entityToRemove.components.Growth) {
+            activeGrowthEntities = activeGrowthEntities.filter(e => e.uid !== entityToRemove.uid);
+        }
+    }
+    if (entityToAdd) {
+        if (entityToAdd.components.MovementAI) {
+            activeAiEntities.push(entityToAdd);
+        }
+        if (entityToAdd.components.Growth) {
+            activeGrowthEntities.push(entityToAdd);
+        }
+    }
+    // --- FIN DE ACTUALIZACIÓN DE LISTAS ---
+
     dirtyChunks.add(chunkKey);
 }
 
 export function recordDeltaFromEntity(entity, deltaInfo) {
-    const chunkKey = getChunkKeyForEntity(entity); // ¡Usar helper!
+    const chunkKey = getChunkKeyForEntity(entity);
     recordDelta(chunkKey, deltaInfo);
 }
 
@@ -188,7 +268,7 @@ export function findEntityByUid(uid) {
 export function getChunkKeyForEntity(entity) {
     const chunkX = Math.floor(entity.x / CHUNK_PX_WIDTH);
     const chunkY = Math.floor(entity.y / CHUNK_PX_HEIGHT);
-    const chunkZ = entity.z; // <-- ¡USAR Z DE LA ENTIDAD!
+    const chunkZ = entity.z;
     return `${chunkX},${chunkY},${chunkZ}`;
 }
 
@@ -199,6 +279,10 @@ export function moveEntityToNewChunk(entity, oldKey, newKey) {
         if (index > -1) {
             oldChunk.entities.splice(index, 1);
         }
+        // NOTA: La entidad permanece en las listas activeAiEntities
+        // lo cual es correcto, ya que todavía está activa.
+        // La lógica de descarga de chunks se encargará de
+        // limpiarla si se aleja demasiado.
     }
     
     const newChunk = activeChunks.get(newKey);
@@ -206,11 +290,18 @@ export function moveEntityToNewChunk(entity, oldKey, newKey) {
         newChunk.entities.push(entity);
         dirtyChunks.add(newKey); 
     } else {
+        // La entidad se movió a un chunk NO CARGADO.
+        // Se perderá, y la lógica de descarga de chunks
+        // (cuando el chunk antiguo se descargue) la limpiará
+        // de las listas activas.
         const [, , newZ] = newKey.split(',').map(Number);
         if (newZ !== entity.z) {
              console.error(`¡ERROR DE LÓGICA! Entidad ${entity.uid} (z=${entity.z}) movida a chunk ${newKey} (z=${newZ})`);
         } else {
              console.warn(`La entidad ${entity.uid} se movió a un chunk no cargado (${newKey}) y se perderá.`);
+             // Como se perderá, la eliminamos manualmente de las listas activas
+             activeAiEntities = activeAiEntities.filter(e => e.uid !== entity.uid);
+             activeGrowthEntities = activeGrowthEntities.filter(e => e.uid !== entity.uid);
         }
     }
 }
@@ -220,8 +311,7 @@ export function moveEntityToNewChunk(entity, oldKey, newKey) {
 export function getMapTileKey(gridX, gridY, gridZ) {
     const chunkX = Math.floor(gridX / CHUNK_GRID_WIDTH);
     const chunkY = Math.floor(gridY / CHUNK_GRID_HEIGHT);
-    // gridZ ya es el chunkZ
-    const chunkKey = `${chunkX},${chunkY},${gridZ}`; // <-- ¡CLAVE 3D!
+    const chunkKey = `${chunkX},${chunkY},${gridZ}`;
     const chunk = activeChunks.get(chunkKey);
     if (!chunk) return 'WALL'; 
     const localX = ((gridX % CHUNK_GRID_WIDTH) + CHUNK_GRID_WIDTH) % CHUNK_GRID_WIDTH;
@@ -231,64 +321,36 @@ export function getMapTileKey(gridX, gridY, gridZ) {
         const tileKey = chunk.terrain[localY][localX];
         return TERRAIN_DATA[tileKey] ? tileKey : 'DIRT';
     }
-    return 'WALL'; // Fallback si el índice está fuera de rango
+    return 'WALL';
 }
 
-export function getVisibleObjects(viewport) {
-    let objectsToRender = [];
+/**
+ * ¡OPTIMIZADO!
+ * Ya no devuelve tiles. Solo devuelve entidades dinámicas.
+ * El terreno se maneja estáticamente en engine_3d.js.
+ */
+export function getVisibleObjects() {
+    let objectsToRender = []; // Empieza vacío
 
-    // 1. Recopilar TILES (Suelo)
-    const startX = Math.floor(viewport.minX / TILE_PX_WIDTH) - 1;
-    const endX = Math.ceil(viewport.maxX / TILE_PX_WIDTH) + 1;
-    const startY = Math.floor(viewport.minY / TILE_PX_HEIGHT) - 1;
-    const endY = Math.ceil(viewport.maxY / TILE_PX_HEIGHT) + 1;
-    for (let y = startY; y < endY; y++) {
-        for (let x = startX; x < endX; x++) {
-            objectsToRender.push({
-                key: getMapTileKey(x, y, player.z), // <-- ¡PASAR Z!
-                x: x * TILE_PX_WIDTH,
-                y: y * TILE_PX_HEIGHT,
-                zIndex: (y * TILE_PX_HEIGHT), 
-                isGround: true,
-                name: null, 
-                facing: 'right', // Suelo no tiene dirección
-                uid: `tile_${x}_${y}` // UID para el suelo
-            });
-        }
-    }
-
-    // 2. Recopilar ENTIDADES
+    // 1. Recopilar ENTIDADES desde los chunks activos
     for (const chunk of activeChunks.values()) {
+        
+        // (Asegurarse de que el Z del chunk es el Z del jugador)
+        if (chunk.z !== player.z) {
+            continue;
+        }
+        
+        // Iterar solo las entidades
         for (const entity of chunk.entities) {
             const renderComp = entity.components.Renderable;
             if (!renderComp) continue; 
             
-            const img = IMAGES[renderComp.imageKey]; 
-            const imgHeight = img ? img.height : TILE_PX_HEIGHT;
-            const imgWidth = img ? img.width : TILE_PX_WIDTH;
-            
-            const entityTop = entity.y - imgHeight;
-            const entityBottom = entity.y;
-            const entityLeft = entity.x - (imgWidth / 2);
-            const entityRight = entity.x + (imgWidth / 2);
-            const buffer = TILE_PX_HEIGHT * 2; 
-    
-            if (entityRight < viewport.minX - buffer ||
-                entityLeft > viewport.maxX + buffer ||
-                entityBottom < viewport.minY - buffer ||
-                entityTop > viewport.maxY + buffer) 
-            {
-                continue; 
-            }
-            
             objectsToRender.push({
-                // --- ¡MODIFICACIÓN! ---
-                uid: entity.uid, // <--- ¡AÑADIDO!
-                // --- FIN ---
+                uid: entity.uid,
                 key: renderComp.imageKey, 
                 x: entity.x,
                 y: entity.y,
-                zIndex: entity.y, 
+                zIndex: entity.y, // Y-Sort por los pies de la entidad
                 isGround: false,
                 name: null,
                 facing: entity.facing || 'right' 
@@ -296,12 +358,10 @@ export function getVisibleObjects(viewport) {
         }
     }
 
-   // 3. Añadir JUGADOR (Nosotros)
+   // 2. Añadir JUGADOR (Nosotros)
     if (!player.mountedVehicleUid) {
         objectsToRender.push({
-            // --- ¡MODIFICACIÓN! ---
-            uid: 'PLAYER', // <--- ¡AÑADIDO!
-            // --- FIN ---
+            uid: 'PLAYER',
             key: 'PLAYER',
             x: player.x,
             y: player.y,
@@ -312,29 +372,10 @@ export function getVisibleObjects(viewport) {
         });
     }
     
-    // 4. Añadir OTROS JUGADORES
+    // 3. Añadir OTROS JUGADORES
     for (const [name, p] of otherPlayers.entries()) {
-        const img = IMAGES[p.key]; 
-        const imgHeight = img ? img.height : TILE_PX_HEIGHT;
-        const imgWidth = img ? img.width : TILE_PX_WIDTH;
-        const pTop = p.y - imgHeight;
-        const pBottom = p.y;
-        const pLeft = p.x - (imgWidth / 2);
-        const pRight = p.x + (imgWidth / 2);
-        const buffer = TILE_PX_HEIGHT * 2;
-        
-        if (pRight < viewport.minX - buffer ||
-            pLeft > viewport.maxX + buffer ||
-            pBottom < viewport.minY - buffer ||
-            pTop > viewport.maxY + buffer) 
-        {
-            continue; 
-        }
-        
         objectsToRender.push({
-            // --- ¡MODIFICACIÓN! ---
-            uid: name, // <--- ¡AÑADIDO! (usamos el nombre como uid)
-            // --- FIN ---
+            uid: name,
             key: p.key,
             x: p.x,
             y: p.y,
@@ -345,13 +386,16 @@ export function getVisibleObjects(viewport) {
         });
     }
     
-    // 5. Y-SORTING
+    // 4. Y-SORTING (¡Importante!)
+    // Ahora solo ordena entidades dinámicas, lo cual es mucho más rápido.
     objectsToRender.sort((a, b) => a.zIndex - b.zIndex);
     
     return objectsToRender;
 }
 
 export function findEntityAt(worldX, worldY) {
+    // TODO: Optimizar esto con Spatial Hashing (Prioridad #4)
+    // Por ahora, la lógica sigue siendo la misma.
     const chunkX = Math.floor(worldX / CHUNK_PX_WIDTH);
     const chunkY = Math.floor(worldY / CHUNK_PX_HEIGHT);
     const chunkKey = `${chunkX},${chunkY},${player.z}`; // <-- Usar Z del jugador
