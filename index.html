@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>Explorador ASCII (Canvas)</title>
+    <title>P L A N E L I T E - 3D</title>
 
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
@@ -11,7 +11,15 @@
  
     <link rel="stylesheet" href="styles.css">
 
-</head>
+    <script type="importmap">
+    {
+        "imports": {
+            "three": "https://unpkg.com/three@0.157.0/build/three.module.js",
+            "three/addons/": "https://unpkg.com/three@0.157.0/examples/jsm/"
+        }
+    }
+    </script>
+    </head>
 <body class="bg-gray-900 text-gray-300 flex flex-col h-screen w-screen">
 
     <input type="file" id="load-file-input" class="hidden" accept=".json,application/json">
@@ -36,8 +44,10 @@
     <div id="ui-container" class="w-full p-2 bg-gray-800 border-t border-gray-700 flex-shrink-0 shadow-inner z-10">
         <div class="flex items-center justify-between w-full max-w-7xl mx-auto px-2">
 
-            <h1 class="text-xl font-bold text-cyan-400 hidden md:block whitespace-nowrap">Explorador ASCII</h1>
-
+            <h1 class="text-xl font-bold text-cyan-400 hidden md:block whitespace-nowrap">Planelite</h1>
+<div id="clock-display" class="hidden sm:flex items-center justify-center text-lg font-bold text-yellow-300 mx-4">
+                <span id="stat-time">12:00</span>
+            </div>
             <div id="stats-panel" class="flex-grow flex items-center justify-center flex-wrap gap-x-3 sm:gap-x-4 text-sm">
                 <div class="whitespace-nowrap">
                     <span class="font-bold text-red-400">Vida:</span>

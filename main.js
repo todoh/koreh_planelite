@@ -3,34 +3,42 @@
 // Conecta Lógica, Vista (Render/UI) e Input.
 // Controla el bucle de juego.
 
-// --- Módulos de Lógica ---
+// --- Módulos de Lógica (ESTADO) ---
 import {
     player,
     stats,
+    worldState, 
     initializeGameLogic,
-    updateActiveChunks,
-    updatePlayer,
-    updateEntities, // ¡NUEVO!
-    playerInteract,
+    updateWorldState, 
     checkGameStatus,
-    handleWorldTap,
-    getVisibleObjects,
-    updateAllPlayers
+    updateAllPlayers,
+    TILE_PX_HEIGHT
 } from './logic.js';
+
+// --- Módulos de SISTEMAS ---
+import {
+    updateActiveChunks,
+    getVisibleObjects
+} from './world.js';
+import {
+    updatePlayer,
+    handleWorldTap,
+    playerInteract
+} from './player_system.js';
+import { updateEntities } from './entity_system.js';
 
 // --- Módulos de Cámara y Persistencia ---
 import {
+    // ¡RE-ACTIVADO! (Solo para culling)
     initializeCamera,
-    resizeCamera,
-    handleZoom,
-    handleWheel,
+    // resizeCamera, // <-- Sin uso
+    // handleZoom,   // <-- ¡ELIMINADO!
+    // handleWheel,  // <-- ¡ELIMINADO!
     updateCamera,
     getViewportAABB,
     screenToWorld,
 } from './camera.js';
-// Importar solo saveGame/loadGame (para archivos)
 import { saveGame, loadGame } from './io.js';
-// ¡MODIFICADO! Importar lógica de la nube
 import { 
     cloudEnterWorld, 
     initializeCloud,
@@ -42,19 +50,30 @@ import {
 
 // --- Módulos de Vista e Input ---
 import { initializeInput, getInputState } from './input.js';
-import { initializeRenderer, renderFrame } from './render.js';
-// ¡MODIFICADO! Importar helpers de UI para Firebase
+
+// --- ¡CAMBIO DE MOTOR! ---
+// import { initializeRenderer, renderFrame } from './render.js'; // <-- ANTIGUO
+import { 
+    initialize3DEngine, 
+    render3DFrame,
+    handle3DZoom,           // <-- ¡NUEVO!
+    handle3DCameraRotate,   // <-- ¡NUEVO!
+    getWorldCoordsFromScreen // <-- ¡NUEVO!
+} from './engine_3d.js'; // <-- ¡MODIFICADO!
+// --- FIN DE CAMBIO ---
+
 import { 
     initializeUI, 
     showMessage, 
     renderStats,
+    renderClock, 
     showFirebaseMessage,
     getFirebaseConfig,
     getProfileCredentials, 
     setFirebaseConfig,
     showOnlineStatus,
     hideOnlineStatus,
-    openMenu // ¡NUEVO!
+    openMenu 
 } from './ui.js';
 
 
@@ -73,36 +92,38 @@ const PLAYER_STATES_ROOT_PATH = 'playerStates_v2';
 
 
 // --- BUCLE PRINCIPAL ---
-// (Sin cambios)
 function gameLoop(currentTime) {
     if (!isGameRunning) return;
     const deltaTime = (currentTime - lastFrameTime) / 1000;
     lastFrameTime = currentTime;
     
     update(deltaTime);
-    render();
+    render(); // <-- Llamará al nuevo render 3D
     
     requestAnimationFrame(gameLoop);
 }
 
-// --- ¡MODIFICADO! CONTROLADOR ---
+// --- CONTROLADOR ---
 function update(deltaTime) {
-    updateCamera();
+    // 1. Actualizar cámara y reloj
+    updateCamera(); // <-- Necesario para getViewportAABB 2D
+    updateWorldState(deltaTime); 
+    
+    // 2. Actualizar estado del mundo (chunks)
     updateActiveChunks(player.x, player.y);
     
     const input = getInputState();
     
-    // 1. Actualizar movimiento del jugador y 'onEnter'
+    // 3. Actualizar jugador (input, movimiento)
     const moveResult = updatePlayer(deltaTime, input);
     
-    // 2. ¡NUEVO! Actualizar todas las demás entidades (crecimiento, IA, etc.)
+    // 4. Actualizar entidades (IA, crecimiento)
     updateEntities(deltaTime);
 
-    // 3. Procesar mensajes y acciones
+    // 5. Procesar mensajes y acciones
     if (moveResult.message) showMessage(moveResult.message);
     
     if (input.interact) {
-        // playerInteract ahora puede ser llamado sin argumento
         const interactResult = playerInteract(); 
         if (interactResult.message) showMessage(interactResult.message);
         input.interact = false; 
@@ -116,30 +137,53 @@ function update(deltaTime) {
 }
 
 // --- VISTA ---
-// (Sin cambios)
 function render() {
-    const viewport = getViewportAABB(player.x, player.y);
-    const objectsToRender = getVisibleObjects(viewport);
-    renderFrame(player.x, player.y, objectsToRender);
+    
+    // --- ¡MODIFICACIÓN! ---
+    // 1. Obtenemos los objetos visibles usando el AABB 2D gigante
+    const cameraYOffset = TILE_PX_HEIGHT * 1.5;
+    const viewport = getViewportAABB(player.x, player.y - cameraYOffset); // <-- ¡FIX APLICADO!
+    
+    const objectsToRender = getVisibleObjects(viewport); // <-- ¡RE-ACTIVADO!
+    const time = worldState.timeOfDay;
+    
+    // 2. RenderFrame usará el nuevo motor 3D
+    // Le pasamos la Z del jugador (que será la 'Y' en 3D)
+    render3DFrame(player.x, player.y, player.z, objectsToRender, time);
+    
+    // 3. La UI (HTML) se renderiza encima, sin cambios.
     renderStats(stats);
-} 
+    renderClock(time);
+}
 
 // --- FUNCIONES DE CONEXIÓN ---
-// ... (Sin cambios en processTap, endGame) ...
 function processTap(screenX, screenY) {
-    const worldCoords = screenToWorld(screenX, screenY, player.x, player.y);
-    const result = handleWorldTap(worldCoords.x, worldCoords.y);
-    if (result.message) {
-        showMessage(result.message);
+    
+    // --- ¡MODIFICACIÓN CRÍTICA! ---
+    // ¡Raycaster 3D AHORA HABILITADO!
+    
+    // 1. Obtener coordenadas del mundo 3D desde el clic
+    const worldPoint = getWorldCoordsFromScreen(screenX, screenY);
+
+    if (worldPoint) {
+        // 2. Usar la lógica de 'handleWorldTap' existente
+        // (worldPoint.y es el 'z' del mundo 3D)
+        const result = handleWorldTap(worldPoint.x, worldPoint.y); // Desde player_system.js
+        if (result.message) {
+            showMessage(result.message);
+        }
+    } else {
+         showMessage("Clic en el vacío.");
     }
+    // --- FIN DE MODIFICACIÓN ---
 }
+
 function endGame(message) {
     showMessage(message || "Juego terminado.");
     isGameRunning = false;
 }
 
 // --- MANEJADORES DE NUBE ---
-// ... (Sin cambios en handleCloudEnter, handleConnect, handleDisconnect) ...
 async function handleCloudEnter() {
     const config = getFirebaseConfig();
     if (!config) {
@@ -153,148 +197,146 @@ async function handleCloudEnter() {
         return;
     }
     
-    // Llamar a la nueva función unificada
     await cloudEnterWorld(config, name, pin, showFirebaseMessage);
 }
+
 function handleConnect() {
-    // 1. Set state
     isOnline = true;
-    
-    // 2. Show UI
     showOnlineStatus(); 
     showMessage("¡Modo Online ACTIVADO! Sincronizando en tiempo real.");
     showFirebaseMessage("Conectado. Sincronizando...");
 
-    // 3. Obtener DB y Perfil
     const db = getDbInstance();
     const myProfileName = localStorage.getItem("CURRENT_PROFILE_NAME");
 
     if (!db || !myProfileName) {
         showMessage("Error fatal: No se pudo iniciar sesión online.");
         showFirebaseMessage("Error de perfil. Desconectando.");
-        handleDisconnect(); // Llama a desconectar si hay un error
+        handleDisconnect();
         return;
     }
     
-    // 4. Iniciar guardado periódico de CHUNKS (código existente)
+    // Guardado periódico de CHUNKS
     if (onlineChunkSaveInterval) clearInterval(onlineChunkSaveInterval);
     onlineChunkSaveInterval = setInterval(() => {
         if (isOnline) {
-            cloudSaveDirtyChunks(showFirebaseMessage);
+            cloudSaveDirtyChunks(showFirebaseMessage); // Desde cloud.js (que importa desde world.js)
         }
     }, ONLINE_CHUNK_SAVE_INTERVAL_MS);
 
-    // 5. ¡NUEVO! Iniciar envío periódico de POSICIÓN
+    // Envío periódico de POSIFICIÓN
     if (onlinePlayerSyncInterval) clearInterval(onlinePlayerSyncInterval);
     onlinePlayerSyncInterval = setInterval(() => {
         if (isOnline) {
-            // Llama a la función ligera que solo guarda x, y, stats
-            cloudSavePlayerState(myProfileName);
+            cloudSavePlayerState(myProfileName); // Desde cloud.js
         }
     }, ONLINE_PLAYER_SYNC_INTERVAL_MS);
 
-    // 6. ¡NUEVO! Iniciar listener de POSICIONES de otros
-    if (playerStatesListener) playerStatesListener.off(); // Limpiar listener antiguo
+    // Listener de POSICIONES de otros
+    if (playerStatesListener) playerStatesListener.off(); 
     
     const playerStatesRef = db.ref(PLAYER_STATES_ROOT_PATH);
-    playerStatesListener = playerStatesRef; // Guardar la referencia para poder desconectarla
+    playerStatesListener = playerStatesRef; 
     
     playerStatesListener.on('value', (snapshot) => {
-        if (!isOnline) return; // No procesar si nos acabamos de desconectar
-        
+        if (!isOnline) return; 
         const allPlayersData = snapshot.val();
-        
-        // Llama a la función de logic.js para actualizar el estado interno
-        updateAllPlayers(allPlayersData, myProfileName);
+        updateAllPlayers(allPlayersData, myProfileName); // Desde logic.js
     });
 }
+
 function handleDisconnect() {
     if (!isOnline) return;
 
     if (confirm("¿Desconectarse del modo online? Los cambios dejarán de guardarse en tiempo real.")) {
-        // 1. Set state
         isOnline = false;
-        
-        // 2. Hide UI
         hideOnlineStatus(); 
         showMessage("Modo Online DESACTIVADO.");
         showFirebaseMessage("Desconectado.");
 
-        // 3. ¡NUEVO! Detener listener de POSICIONES
         if (playerStatesListener) {
-            playerStatesListener.off(); // ¡Importante! Detiene el listener
+            playerStatesListener.off(); 
             playerStatesListener = null;
         }
         
-        // 4. ¡NUEVO! Detener envío de POSICIÓN
         if (onlinePlayerSyncInterval) {
             clearInterval(onlinePlayerSyncInterval);
             onlinePlayerSyncInterval = null;
         }
 
-        // 5. Detener guardado de CHUNKS (código existente)
         if (onlineChunkSaveInterval) {
             clearInterval(onlineChunkSaveInterval);
             onlineChunkSaveInterval = null;
         }
         
-        // 6. (Opcional) Guardar una última vez (código existente)
         showFirebaseMessage("Guardando cambios finales...");
         cloudSaveDirtyChunks(showFirebaseMessage).then(() => {
             showFirebaseMessage("Desconectado. Cambios finales guardados.");
-            // Borramos la config para la próxima vez
             localStorage.removeItem("LAST_FIREBASE_CONFIG");
-            localStorage.removeItem("CURRENT_PROFILE_NAME"); // Limpiar también el perfil
+            localStorage.removeItem("CURRENT_PROFILE_NAME");
         });
     }
 }
 
 
-// --- ¡MODIFICADO! INICIAR EL JUEGO ---
+/**
+ * ¡NUEVO! Manejador para la rueda del ratón en 3D.
+ * @param {WheelEvent} e 
+ */
+function handleWheel3D(e) {
+    e.preventDefault();
+    if (e.deltaY < 0) {
+        handle3DZoom(true); // Llama a la función 3D
+    } else if (e.deltaY > 0) {
+        handle3DZoom(false); // Llama a la función 3D
+    }
+}
+
+
+// --- INICIAR EL JUEGO ---
 async function main() {
     try {
         const $canvas = document.getElementById('game-canvas');
         const $loadFileInput = document.getElementById('load-file-input');
 
-        // 1. Inicializar Cámara
-        initializeCamera($canvas);
+        initializeCamera($canvas); // <-- ¡RE-ACTIVADO! (Para culling)
         
-        // 2. ¡MODIFICADO! Cargar assets y estado del juego
-        // Ahora pasamos el callback 'openMenu'
+        // Pasamos el callback 'openMenu' a 'initializeGameLogic'
         await initializeGameLogic({
             openMenu: openMenu 
         });
         
-        // 3. Inicializar Módulo de Renderizado
-        initializeRenderer($canvas, resizeCamera);
+        // --- ¡CAMBIO DE MOTOR! ---
+        initialize3DEngine($canvas); // <-- NUEVO (3D)
+        // --- FIN DE CAMBIO ---
         
-        // 4. Inicializar Módulo de UI (DOM)
         initializeUI({
             onSave: saveGame,
             onLoadFile: loadGame,
-            onZoomIn: () => handleZoom(true),
-            onZoomOut: () => handleZoom(false),
+            // --- ¡MODIFICADO! Conectar a handlers 3D ---
+            onZoomIn: () => handle3DZoom(true), 
+            onZoomOut: () => handle3DZoom(false),
+            onRotateLeft: () => handle3DCameraRotate(false), // <-- ¡NUEVO!
+            onRotateRight: () => handle3DCameraRotate(true), // <-- ¡NUEVO!
+            // --- FIN DE MODIFICACIÓN ---
             $loadFileInput: $loadFileInput,
             onCloudLoad: handleCloudEnter, 
             onDisconnect: handleDisconnect 
         });
         
-        // 5. Inicializar Módulo de Input
         initializeInput($canvas, {
             onTap: processTap,
-            onWheel: handleWheel
+            // --- ¡MODIFICADO! Conectar a handler 3D ---
+            onWheel: handleWheel3D // <-- ¡MODIFICADO!
         });
 
-        // 6. Comprobar si venimos de una carga en la nube
-        // (Sin cambios)
+        // Comprobar si venimos de una carga en la nube
         const shouldEnterOnline = localStorage.getItem("ENTER_ONLINE_MODE") === "true";
         const lastConfig = localStorage.getItem("LAST_FIREBASE_CONFIG");
         
         if (shouldEnterOnline && lastConfig) {
             localStorage.removeItem("ENTER_ONLINE_MODE");
-            
             setFirebaseConfig(lastConfig); 
-            
             const connected = await initializeCloud(lastConfig, showFirebaseMessage);
             
             if (connected) {
@@ -306,9 +348,10 @@ async function main() {
             }
         }
 
-        // 7. Empezar el bucle
+        // Empezar el bucle
         if (!isOnline) { 
-            showMessage('¡Mundo procedural! Usa flechas/clic para moverte, [Espacio] para interactuar.');
+            // ¡MODIFICADO! Mensaje de inicio
+            showMessage('¡Mundo 3D! Usa flechas para moverte. ¡Clic para moverte HABILITADO!');
         }
         lastFrameTime = performance.now();
         requestAnimationFrame(gameLoop);
