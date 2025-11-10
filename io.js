@@ -17,18 +17,18 @@ export async function gatherSaveData() {
     await flushDirtyChunks();
 
     // 2. Recopilar el estado del jugador
-    // --- MODIFICADO: Añadir inventario, stats solo tendrá vida/energia ---
+    // --- ¡MODIFICADO! ---
     const playerState = {
         x: player.x,
         y: player.y,
+        z: player.z, // <-- ¡AÑADIDO Z!
         stats: { ...stats },
-        inventory: getInventory() // <-- AÑADIDO
+        inventory: getInventory() 
     };
 
     // 3. Recopilar todos los chunks fusionados del mapa (desde localStorage)
     const mapData = getAllFusedChunks();
 
-    // --- ¡INICIO DE MODIFICACIÓN! ---
     // 4. Incluir la semilla del mundo en el guardado
     const worldSeed = localStorage.getItem('WORLD_SEED');
 
@@ -36,10 +36,9 @@ export async function gatherSaveData() {
     const saveData = {
         playerState,
         mapData,
-        worldSeed: worldSeed || null, // Añadir la semilla
+        worldSeed: worldSeed || null, 
         savedAt: new Date().toISOString()
     };
-    // --- ¡FIN DE MODIFICACIÓN! ---
     
     return saveData;
 }
@@ -59,32 +58,32 @@ if (!saveData || saveData.mapData == null) {
     
     // 2. Escribir los nuevos chunks fusionados en localStorage
     for (const chunkKey in saveData.mapData) {
-        const chunkString = JSON.stringify(saveData.mapData[chunkKey]);
-        // Manejar error de LocalStorage lleno
-        try {
-            localStorage.setItem(chunkKey, chunkString);
-        } catch (e) {
-            console.error(`Error al escribir en localStorage (posiblemente lleno): ${e.message}`);
-            throw new Error("No se pudo cargar el mapa en el almacenamiento local (¿está lleno?).");
+        // ¡Validar que la clave sea 3D!
+        if (CHUNK_KEY_REGEX.test(chunkKey)) {
+            const chunkString = JSON.stringify(saveData.mapData[chunkKey]);
+            try {
+                localStorage.setItem(chunkKey, chunkString);
+            } catch (e) {
+                console.error(`Error al escribir en localStorage (posiblemente lleno): ${e.message}`);
+                throw new Error("No se pudo cargar el mapa en el almacenamiento local (¿está lleno?).");
+            }
+        } else {
+             console.warn(`Omitiendo chunk con clave antigua (2D) al cargar: ${chunkKey}`);
         }
     }
 
-    // --- ¡INICIO DE MODIFICACIÓN! ---
     // 3. Guardar la SEMILLA del mundo cargado
     if (saveData.worldSeed) {
         localStorage.setItem('WORLD_SEED', saveData.worldSeed);
     } else {
-        // Si el archivo de guardado es antiguo y no tiene semilla,
-        // tenemos que borrarla para que generation.js cree una
         localStorage.removeItem('WORLD_SEED');
     }
 
-    // 4. Guardar el estado del jugador (que ahora incluye el inventario)
-    // (Este es el "flag" que generation.js buscará)
+    // 4. Guardar el estado del jugador
+    // (logic.js se encargará de leer 'z' al cargar)
     localStorage.setItem("GAME_STATE_LOAD", JSON.stringify(saveData.playerState));
 
     // 5. Recargar la página
-    // --- ¡FIN DE MODIFICACIÓN! ---
     console.log("Datos cargados en localStorage. Recargando...");
     window.location.reload();
 }
@@ -92,15 +91,11 @@ if (!saveData || saveData.mapData == null) {
 
 /**
  * Inicia la descarga de un archivo JSON con el estado del juego.
- * (Ahora usa el refactor)
  */
 export async function saveGame() {
     console.log("Guardando partida en archivo...");
     try {
-        // 1. Obtener datos (ya incluye el inventario)
         const saveData = await gatherSaveData();
-
-        // 2. Convertir a JSON y descargar
         const jsonData = JSON.stringify(saveData);
         downloadJSON(jsonData, 'partida_explorador_ascii.json');
 
@@ -112,7 +107,6 @@ export async function saveGame() {
 
 /**
  * Procesa un archivo JSON cargado por el usuario.
- * (Ahora usa el refactor)
  * @param {File} file - El archivo seleccionado desde el <input type="file">
  */
 export function loadGame(file) {
@@ -129,7 +123,6 @@ export function loadGame(file) {
             const fileContent = event.target.result;
             const saveData = JSON.parse(fileContent);
             
-            // Aplicar los datos cargados (esto recargará la página)
             await applyLoadedData(saveData);
 
         } catch (error) {
@@ -145,12 +138,13 @@ export function loadGame(file) {
     reader.readAsText(file);
 }
 
-// --- Helpers (sin cambios) ---
-// ... (getAllFusedChunks, clearAllFusedChunks, downloadJSON) ...
+// --- Helpers ---
+
 function getAllFusedChunks() {
     const chunks = {};
     for (let i = 0; i < localStorage.length; i++) {
         const key = localStorage.key(i);
+        // ¡USA LA REGEX 3D!
         if (CHUNK_KEY_REGEX.test(key)) {
             try {
                 const chunk = JSON.parse(localStorage.getItem(key));
@@ -164,22 +158,23 @@ function getAllFusedChunks() {
     }
     return chunks;
 }
+
 function clearAllFusedChunks() {
     const keysToRemove = [];
     for (let i = 0; i < localStorage.length; i++) {
         const key = localStorage.key(i);
-        // --- ¡MODIFICACIÓN! ---
-        // Ahora también limpiamos la semilla
-        if (CHUNK_KEY_REGEX.test(key) || key === 'WORLD_SEED') {
-        // --- ¡FIN DE MODIFICACIÓN! ---
+        
+        // ¡MODIFICADO! Limpiar claves 2D y 3D
+        if (CHUNK_KEY_REGEX.test(key) || /^-?\d+,-?\d+$/.test(key) || key === 'WORLD_SEED') {
             keysToRemove.push(key);
         }
     }
-    console.log(`Limpiando ${keysToRemove.length} chunks guardados...`);
+    console.log(`Limpiando ${keysToRemove.length} chunks/semilla guardados...`);
     for (const key of keysToRemove) {
         localStorage.removeItem(key);
     }
 }
+
 function downloadJSON(content, fileName) {
     const a = document.createElement('a');
     const file = new Blob([content], { type: 'application/json' });

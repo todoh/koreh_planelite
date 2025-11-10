@@ -1,78 +1,124 @@
-// --- entity.js ---
-// Gestiona la creación de entidades y la carga de definiciones.
-
-import { ENTITY_DEFINITIONS } from './entity_definitions.js';
-import * as Components from './components.js';
-// Almacenes de definiciones
-let TERRAIN_DEFINITIONS = {};
-const ENTITY_TEMPLATES = ENTITY_DEFINITIONS; // Alias para claridad
+// --- entity_components.js ---
+// Define las "clases" de componentes.
+// Un componente es un bloque de DATOS que describe un aspecto de una entidad.
 
 /**
- * Carga y procesa 'sprites.json' para las definiciones de TERRENO.
- * Esto debe llamarse una vez al inicio.
- * @param {object} spriteData - El contenido de sprites.json
+ * Componente para entidades que se pueden dibujar.
  */
-export function processTerrainDefinitions(spriteData) {
-    const terrainData = {};
-    for (const key in spriteData) {
-        if (key.startsWith("//")) continue;
-        terrainData[key] = spriteData[key];
+export class RenderableComponent {
+    constructor(imageKey) {
+        this.imageKey = imageKey;
     }
-    TERRAIN_DEFINITIONS = terrainData;
-    console.log("Definiciones de terreno procesadas.");
 }
 
 /**
- * Devuelve las definiciones de terreno cargadas.
+ * Componente para entidades que tienen colisión física.
  */
-export function getTerrainDefinitions() {
-    return TERRAIN_DEFINITIONS;
+export class CollisionComponent {
+    constructor(isSolid, collisionBox = null) {
+        this.isSolid = isSolid;
+        this.collisionBox = collisionBox; 
+    }
 }
 
 /**
- * Devuelve las plantillas de entidad.
+ * Componente para entidades que dan recursos al interactuar.
  */
-export function getEntityDefinitions() {
-    return ENTITY_TEMPLATES;
+export class InteractableResourceComponent {
+    constructor(itemId, quantity, energyCost = 1) {
+        this.itemId = itemId;
+        this.quantity = quantity;
+        this.energyCost = energyCost;
+    }
+}
+
+/**
+ * Componente para entidades que muestran un diálogo al interactuar.
+ */
+export class InteractableDialogueComponent {
+    constructor(message) {
+        this.message = message; 
+    }
+}
+
+/**
+ * Componente para entidades que abren un menú al interactuar.
+ */
+export class InteractableMenuComponent {
+    constructor(menuId) {
+        this.menuId = menuId; // Ej: "CRAFTING", "SHOP"
+    }
+}
+
+/**
+ * ¡NUEVO! Componente para entidades que cambian el Z-level.
+ */
+export class InteractableLevelChangeComponent {
+    constructor(direction) { // "up" o "down"
+        this.direction = direction;
+    }
 }
 
 
 /**
- * Fábrica de Entidades (Entity Factory).
- * Crea una nueva instancia de entidad basada en una plantilla (prefab).
- * @param {string} key - La clave de la plantilla (ej: "TREE", "NPC").
- * @param {number} x - Coordenada X en el mundo.
- * @param {number} y - Coordenada Y en el mundo (base/pies).
- * @param {string} uid - El ID único para esta entidad.
- * @returns {object} La nueva instancia de entidad con componentes.
+ * Componente para entidades que se recogen al pasar por encima.
  */
-export function createEntity(key, x, y, uid) {
-    const template = ENTITY_TEMPLATES[key];
-    if (!template) {
-        console.warn(`No se encontró definición de entidad para: ${key}`);
-        return null;
+export class CollectibleComponent {
+    constructor(itemId, quantity) {
+        this.itemId = itemId;
+        this.quantity = quantity;
     }
+}
 
-    // La entidad base
-    const entity = {
-        uid: uid,
-        x: x,
-        y: y,
-        key: key, // Guardamos la clave de la plantilla para referencia
-        components: {} // Los componentes se almacenan por tipo
-    };
-
-    // Añadir componentes basados en la plantilla
-    for (const compDef of template.components) {
-        const CompClass = Components[compDef.type + 'Component'];
-        if (CompClass) {
-            // Usar el 'spread operator' (...) para pasar los 'args' como argumentos al constructor
-            const newComponent = new CompClass(...compDef.args);
-            entity.components[compDef.type] = newComponent;
-        } else {
-            console.warn(`Componente desconocido "${compDef.type}Component" en la plantilla "${key}"`);
-        }
+/**
+ * Componente para entidades que crecen con el tiempo.
+ */
+export class GrowthComponent {
+    constructor(timeToGrowMs, nextEntityKey) {
+        this.timeToGrowMs = timeToGrowMs;
+        this.nextEntityKey = nextEntityKey;
+        this.currentTime = 0; 
     }
+}
 
-    return entity;
+/**
+ * Componente para entidades que se pueden conducir.
+ */
+export class VehicleComponent {
+    constructor(speed) {
+        this.speed = speed; 
+        this.mountedEntityUid = null; 
+    }
+}
+
+/**
+ * Componente para marcar un vehiculo como interactuable (para montarse).
+ */
+export class InteractableVehicleComponent {
+    constructor() {
+        // No necesita args
+    }
+}
+
+
+/**
+ * Componente para entidades que se mueven solas.
+ */
+export class MovementAIComponent {
+    constructor(pattern, speed) {
+        this.pattern = pattern; 
+        this.speed = speed;
+        this.timeUntilNextAction = 0; 
+        this.currentVelocity = { x: 0, y: 0 };
+    }
+}
+
+/**
+ * Componente para entidades que tienen vida.
+ */
+export class HealthComponent {
+    constructor(maxHealth) {
+        this.maxHealth = maxHealth;
+        this.currentHealth = maxHealth;
+    }
 }

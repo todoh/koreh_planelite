@@ -47,5 +47,17 @@
         "key": "SNOW",
         "solid": false,
         "name": "nieve"
+    },
+
+    "//--- ¡NUEVO! Terrenos de Subsuelo ---//": {},
+    "CAVE_FLOOR": {
+        "key": "CAVE_FLOOR",
+        "solid": false,
+        "name": "suelo de cueva"
+    },
+    "ROCK_WALL": {
+        "key": "ROCK_WALL",
+        "solid": true,
+        "name": "pared de roca"
     }
 }

@@ -9,7 +9,7 @@ export const ENTITY_DEFINITIONS = {
         components: [
             { type: 'Renderable', args: ['TREE'] },
             { type: 'Collision', args: [true, { width: 40, height: 20, offsetY: 60 }] },
-            { type: 'InteractableResource', args: ['WOOD', 1, 2] } // itemId, quantity, energyCost
+            { type: 'InteractableResource', args: ['WOOD', 1, 2] } 
         ]
     },
     "ROCK": {
@@ -53,15 +53,25 @@ export const ENTITY_DEFINITIONS = {
         ]
     },
 
+    // --- ¡NUEVO! Entidades de Subsuelo ---
+    "IRON_VEIN": {
+        name: "veta de mineral",
+        components: [
+            { type: 'Renderable', args: ['IRON_VEIN'] }, // Usa fallback 'ROCK'
+            { type: 'Collision', args: [true, { width: 60, height: 30, offsetY: 30 }] },
+            { type: 'InteractableResource', args: ['IRON_ORE', 1, 3] } // ¡Necesitarás 'IRON_ORE' en items.js!
+        ]
+    },
+
+
     // --- Entidades de Interacción (Diálogo, Menús) ---
     "NPC": {
         name: "una persona",
         components: [
             { type: 'Renderable', args: ['NPC'] },
             { type: 'Collision', args: [true, { width: 40, height: 20, offsetY: 40 }] },
-            // --- ¡MODIFICADO! ---
             { type: 'InteractableDialogue', args: ["Bienvenidos a Planelite!!!"] },
-            { type: 'MovementAI', args: ['WANDER', 50] } // pattern, speed (más lento que el jugador)
+            { type: 'MovementAI', args: ['WANDER', 50] } 
         ]
     },
     "STATUE": {
@@ -69,15 +79,45 @@ export const ENTITY_DEFINITIONS = {
         components: [
             { type: 'Renderable', args: ['STATUE'] },
             { type: 'Collision', args: [true, { width: 120, height: 40, offsetY: 160 }] },
-            { type: 'InteractableDialogue', args: ["Una estatua imponente. Marca el spawn (0,0)."] }
+            { type: 'InteractableDialogue', args: ["Una estatua imponente. Marca el spawn (0,0,0)."] }
         ]
     },
     "CRAFTING_TABLE": {
         name: "Mesa de Trabajo",
         components: [
-            { type: 'Renderable', args: ['MESATRABAJO'] }, // Usando 'ROCK' como imagen temporal
+            { type: 'Renderable', args: ['MESATRABAJO'] }, 
             { type: 'Collision', args: [true, { width: 70, height: 30, offsetY: 30 }] },
             { type: 'InteractableMenu', args: ['CRAFTING'] }
+        ]
+    },
+
+    // --- ¡NUEVO! Entidades de Escaleras ---
+    "STAIRS_DOWN": {
+        name: "escalera hacia abajo",
+        components: [
+            { type: 'Renderable', args: ['STAIRS_DOWN'] }, // Usa fallback 'COCHE'
+            { type: 'Collision', args: [false] }, // No sólido para poder caminar "encima"
+            { type: 'InteractableLevelChange', args: ['down'] }
+        ]
+    },
+    "STAIRS_UP": {
+        name: "escalera hacia arriba",
+        components: [
+            { type: 'Renderable', args: ['STAIRS_UP'] }, // Usa fallback 'MESATRABAJO'
+            { type: 'Collision', args: [false] },
+            { type: 'InteractableLevelChange', args: ['up'] }
+        ]
+    },
+
+
+    // --- Vehículo ---
+    "COCHE": {
+        name: "un coche",
+        components: [
+            { type: 'Renderable', args: ['COCHE'] },
+            { type: 'Collision', args: [true, { width: 70, height: 35, offsetY: 35 }] },
+            { type: 'Vehicle', args: [400] }, 
+            { type: 'InteractableVehicle', args: [] }
         ]
     },
 
@@ -86,8 +126,8 @@ export const ENTITY_DEFINITIONS = {
         name: "un objeto brillante",
         components: [
             { type: 'Renderable', args: ['ITEM'] },
-            { type: 'Collision', args: [false] }, // No es sólido, pero necesita un componente para 'findEntityAt'
-            { type: 'Collectible', args: ['GOLD_COIN', 10] } // itemId, quantity
+            { type: 'Collision', args: [false] }, 
+            { type: 'Collectible', args: ['GOLD_COIN', 10] } 
         ]
     },
 
@@ -95,9 +135,9 @@ export const ENTITY_DEFINITIONS = {
     "SAPLING": {
         name: "un brote",
         components: [
-            { type: 'Renderable', args: ['ITEM'] }, // Usando 'ITEM' como imagen temporal
+            { type: 'Renderable', args: ['ITEM'] }, 
             { type: 'Collision', args: [false] },
-            { type: 'Growth', args: [10000, 'TREE'] } // timeToGrowMs, nextEntityKey
+            { type: 'Growth', args: [10000, 'TREE'] } 
         ]
     },
     

@@ -148,15 +148,20 @@
     </div>
 
 
-    <!-- ¡MODIFICADO! Orden de scripts -->
+      <!-- ¡MODIFICADO! Orden de scripts -->
+    <!-- Estos archivos son importados por otros, 
+         no necesitan cargarse aquí directamente -->
+    <!-- 
     <script type="module" src="items.js"></script>
     <script type="module" src="inventory.js"></script>
-    
-    <!-- ¡NUEVOS SCRIPTS! -->
-    <script type="module" src="entity_components.js"></script>
+    <script type="module" src="components.js"></script> 
     <script type="module" src="entity_definitions.js"></script>
-    <script type="module" src="entity.js"></script>
-
+    <script type="module" src="vehicle_logic.js"></script>
+    -->
+ 
+    <!-- Solo necesitamos cargar el script principal.
+         Él se encargará de importar 'logic', 'generation',
+         'entity', 'inventory', 'items', etc. -->
     <script type="module" src="main.js"></script>
 </body>
 </html>
