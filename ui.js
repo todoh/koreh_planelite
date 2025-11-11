@@ -6,6 +6,9 @@
 import { getInventory } from './inventory.js';
 import { ITEM_DEFINITIONS } from './items.js';
 import { IMAGES } from './generation.js'; // Para obtener las imágenes
+// --- ¡NUEVA IMPORTACIÓN! ---
+import { player } from './logic.js';
+
 
 // --- CACHÉ DE ELEMENTOS DEL DOM ---
 // ¡MODIFICADO!
@@ -31,6 +34,9 @@ let $craftingModal, $craftingCloseBtn;
 
 // ¡NUEVO! Caché del reloj
 let $statTime;
+
+// ¡NUEVO! Caché de Hotbar
+let $hotbar;
 
 // --- ¡NUEVO! Temporizador para mensajes ---
 let messageTimer = null;
@@ -92,6 +98,9 @@ export function initializeUI(callbacks) {
     $craftingModal = document.getElementById('crafting-modal');
     $craftingCloseBtn = document.getElementById('crafting-close-btn');
 
+    // --- ¡NUEVO! Caché de Hotbar ---
+    $hotbar = document.getElementById('hotbar');
+
 
     // Añadir listeners
     addModalListeners();
@@ -107,6 +116,7 @@ export function initializeUI(callbacks) {
     addFirebaseListeners(callbacks.onCloudLoad); 
     addInventoryListeners();
     addCraftingListeners(); // ¡NUEVO!
+    initializeHotbar(); // <- ¡NUEVA LLAMADA!
 
     if ($onlineStatusBtn) {
         $onlineStatusBtn.addEventListener('click', callbacks.onDisconnect);
@@ -287,7 +297,7 @@ function addSaveLoadListeners(onSave, onLoadFile) {
 
 
 // --- GESTORES DE INVENTARIO ---
-// ... (Sin cambios en addInventoryListeners, toggleInventoryModal, renderInventory) ...
+// ... (Sin cambios en addInventoryListeners) ...
 function addInventoryListeners() {
     if ($inventoryToggleBtn) $inventoryToggleBtn.addEventListener('click', toggleInventoryModal);
     if ($desktopInventoryBtn) $desktopInventoryBtn.addEventListener('click', toggleInventoryModal);
@@ -299,13 +309,17 @@ function addInventoryListeners() {
         });
     }
 }
+
+// --- ¡MODIFICADO! ---
 function toggleInventoryModal() {
     if (!$inventoryModal) return;
     const isHidden = $inventoryModal.classList.toggle('hidden');
     if (!isHidden) {
         renderInventory(); // Renderiza el inventario CADA VEZ que se abre
+        renderHotbar(); // <- ¡AÑADIR ESTA LÍNEA!
     }
 }
+
 export function renderInventory() {
     if (!$inventoryGrid) return;
 
@@ -349,6 +363,63 @@ export function renderInventory() {
             $slotDiv.classList.add('opacity-50'); // hacerlo semi-transparente
         }
         $inventoryGrid.appendChild($slotDiv);
+    });
+}
+
+// --- ¡NUEVAS FUNCIONES DE HOTBAR! ---
+
+function initializeHotbar() {
+    if (!$hotbar) return;
+
+    // Crear 8 slots
+    for (let i = 0; i < 8; i++) {
+        const $slotDiv = document.createElement('div');
+        $slotDiv.className = 'hotbar-slot';
+        $slotDiv.dataset.slotIndex = i;
+
+        $slotDiv.addEventListener('click', (e) => {
+            e.stopPropagation();
+            setActiveHotbarSlot(i);
+        });
+
+        $hotbar.appendChild($slotDiv);
+    }
+    
+    // Actualizar el estado visual
+    renderHotbar();
+    setActiveHotbarSlot(0); // Activar el primer slot por defecto
+}
+
+function setActiveHotbarSlot(index) {
+    player.activeHotbarSlot = index;
+    // Actualizar clase 'active'
+    const slots = $hotbar.querySelectorAll('.hotbar-slot');
+    slots.forEach(($slot, i) => {
+        $slot.classList.toggle('hotbar-slot-active', i === index);
+    });
+}
+
+// ¡NUEVO! Exportar renderHotbar para llamarla cuando se actualice el inventario
+export function renderHotbar() {
+    if (!$hotbar) return;
+
+    const inventory = getInventory().slice(0, 8); // Tomar los primeros 8 items
+    const slots = $hotbar.querySelectorAll('.hotbar-slot');
+
+    slots.forEach(($slot, i) => {
+        const item = inventory[i];
+        if (item && item.itemId) {
+            const itemDef = ITEM_DEFINITIONS[item.itemId];
+            const img = IMAGES[itemDef.imageKey];
+            $slot.innerHTML = `
+                ${img ? `<img src="${img.src}" alt="${itemDef.name}">` : ''}
+                ${item.quantity > 1 ? `<span class="hotbar-quantity">${item.quantity}</span>` : ''}
+            `;
+            $slot.title = itemDef.name;
+        } else {
+            $slot.innerHTML = '';
+            $slot.title = 'Vacío';
+        }
     });
 }
 

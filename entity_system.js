@@ -68,17 +68,21 @@ export function updateEntities(deltaTime) {
         ai.timeUntilNextAction -= deltaMs;
 
         // Decidir nueva acción
-        if (ai.timeUntilNextAction <= 0) {
-            ai.timeUntilNextAction = (Math.random() * 3000) + 2000; 
-            const action = Math.random();
-            if (action < 0.6) { // 60% chance de parar
-                ai.currentVelocity.x = 0;
-                ai.currentVelocity.y = 0;
-            } else { // 40% chance de moverse
-                const angle = Math.random() * Math.PI * 2;
-                ai.currentVelocity.x = Math.cos(angle) * ai.speed;
-                ai.currentVelocity.y = Math.sin(angle) * ai.speed;
+       if (ai.currentVelocity.x !== 0 || ai.currentVelocity.y !== 0) {
+            
+            // Actualizar dirección (facing) y rotación
+            if (ai.currentVelocity.x !== 0 || ai.currentVelocity.y !== 0) {
+                // Actualizar rotación Y (para 3D)
+                entity.rotationY = Math.atan2(ai.currentVelocity.x, ai.currentVelocity.y);
+                
+                // Actualizar 'facing' (para 2D o interacciones)
+                if (Math.abs(ai.currentVelocity.x) > Math.abs(ai.currentVelocity.y)) {
+                    entity.facing = ai.currentVelocity.x > 0 ? 'right' : 'left';
+                } else {
+                    entity.facing = ai.currentVelocity.y > 0 ? 'down' : 'up';
+                }
             }
+            // Si la velocidad es 0, la rotación persiste.
         }
 
         // Aplicar movimiento

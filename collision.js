@@ -22,9 +22,10 @@ import {
  * @param {number} pixelX - Posición X del ancla (pies) de la entidad
  * @param {number} pixelY - Posición Y del ancla (pies) de la entidad
  * @param {object|null} entityToIgnore - La propia entidad que se mueve (para no chocar consigo misma)
+ * @param {object|null} collisionBoxOverride - ¡AÑADIDO! Una caja de colisión para usar en lugar de la del jugador.
  * @returns {object} { solid: boolean, type?: string, entity?: object }
  */
-export function checkCollision(pixelX, pixelY, entityToIgnore = null) {
+export function checkCollision(pixelX, pixelY, entityToIgnore = null, collisionBoxOverride = null) {
     
     // 1. Obtener la Z correcta
     // Si es una IA moviéndose, usa su Z. Si no (jugador), usa la Z del jugador.
@@ -72,20 +73,32 @@ export function checkCollision(pixelX, pixelY, entityToIgnore = null) {
         const eMaxY = entity.y - eBox.offsetY + eBox.height;
 
         let pBox;
-        if (entityToIgnore) {
-            // Es una IA u otra entidad moviéndose
+        if (collisionBoxOverride) {
+            // --- ¡NUEVO! Caso 1: Se proporciona una caja (para construcción)
+            pBox = collisionBoxOverride;
+        } else if (entityToIgnore) {
+            // Caso 2: Es una IA u otra entidad moviéndose
             const pColComp = entityToIgnore.components.Collision;
-            pBox = pColComp ? pColComp.collisionBox : eBox; // Usar su propia caja o una por defecto
+            // Usar su propia caja o, como fallback, la caja de la entidad con la que choca (eBox)
+            const entityBox = (pColComp && pColComp.collisionBox) ? pColComp.collisionBox : null;
+            pBox = entityBox || eBox; 
         } else {
-            // Es el jugador
+            // Caso 3: Es el jugador (movimiento normal)
             let pEntityKey = 'PLAYER';
             if (player.mountedVehicleUid) {
                 const vehicle = findEntityByUid(player.mountedVehicleUid);
                 if(vehicle) pEntityKey = vehicle.key;
             }
             const pDef = ENTITY_DATA[pEntityKey];
-            const pCompDef = pDef.components.find(c => c.type === 'Collision');
-            pBox = pCompDef.args[1]; // Usar la caja de colisión del jugador (o vehiculo)
+            // Asegurarse de que pDef y el componente existen
+            const pCompDef = pDef?.components.find(c => c.type === 'Collision');
+            pBox = pCompDef?.args[1]; // Usar la caja de colisión del jugador (o vehiculo)
+
+            // Fallback MUY importante si la def del jugador/vehículo falla
+            if (!pBox) {
+                 console.warn(`No se encontró pBox para ${pEntityKey}, usando fallback.`);
+                 pBox = { width: 40, height: 20, offsetY: 40 };
+            }
         }
         
         const pMinX = pixelX - pBox.width / 2;

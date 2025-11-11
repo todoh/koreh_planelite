@@ -79,3 +79,51 @@ body {
 .modal-close-btn:hover {
     color: #e5e7eb; /* text-gray-200 */
 }
+
+/* --- ¡NUEVOS ESTILOS HOTBAR! --- */
+#hotbar {
+    touch-action: manipulation; /* Evita zoom al tocar rápido en el hotbar */
+    user-select: none;
+    -webkit-user-select: none;
+}
+
+.hotbar-slot {
+    width: 56px;  /* w-14 */
+    height: 56px; /* h-14 */
+    background-color: #374151; /* bg-gray-700 */
+    border: 2px solid #4b5563; /* border-gray-600 */
+    border-radius: 0.375rem; /* rounded-md */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    cursor: pointer;
+    transition: all 150ms;
+}
+
+.hotbar-slot:hover {
+    border-color: #9ca3af; /* hover:border-gray-400 */
+}
+
+.hotbar-slot-active {
+    border-color: #22d3ee; /* border-cyan-400 */
+    transform: scale(1.05);
+    box-shadow: 0 0 10px #22d3ee;
+}
+
+.hotbar-slot img {
+    width: 80%;
+    height: 80%;
+    object-fit: contain;
+    image-rendering: pixelated;
+}
+
+.hotbar-quantity {
+    position: absolute;
+    bottom: 2px;
+    right: 4px;
+    font-size: 0.875rem; /* text-sm */
+    font-weight: 700; /* font-bold */
+    color: white;
+    text-shadow: 1px 1px 2px black;
+}

@@ -97,8 +97,38 @@ export function addItem(itemId, quantity) {
  * @returns {boolean} - true si se eliminó con éxito.
  */
 export function removeItem(itemId, quantity) {
-    // TODO: Implementar lógica para eliminar objetos
-    return false;
+    let quantityToRemove = quantity;
+    let success = false;
+
+    // Iterar al revés para poder vaciar slots
+    for (let i = playerInventory.length - 1; i >= 0; i--) {
+        const slot = playerInventory[i];
+        
+        if (slot && slot.itemId === itemId) {
+            if (slot.quantity > quantityToRemove) {
+                // El stack tiene más de lo que necesitamos
+                slot.quantity -= quantityToRemove;
+                quantityToRemove = 0;
+                success = true;
+                break; // Terminamos
+            } else {
+                // Vaciamos (parcial o totalmente) este stack
+                quantityToRemove -= slot.quantity;
+                playerInventory[i] = null; // Vaciar el slot
+                success = true;
+                if (quantityToRemove === 0) {
+                    break; // Terminamos
+                }
+            }
+        }
+    }
+    
+    if (quantityToRemove > 0) {
+        console.warn(`No se pudo eliminar toda la cantidad. Faltaron ${quantityToRemove} de ${itemId}`);
+        return false; // No se pudo eliminar todo lo solicitado
+    }
+
+    return success;
 }
 
 /**

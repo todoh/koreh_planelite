@@ -16,7 +16,7 @@ export class RenderableComponent {
  */
 export class CollisionComponent {
     constructor(isSolid, collisionBox = null) {
-        this.isSolid = isSolid;
+        this.isSolid = isSolid; 
         this.collisionBox = collisionBox; 
     }
 }
@@ -122,3 +122,10 @@ export class HealthComponent {
         this.currentHealth = maxHealth;
     }
 }
+
+/**
+ * ¡ELIMINADO! El componente 'PlaceableComponent' ya no es necesario.
+ * El renderizado en cubo ahora se controla con "renderMode": "cube" 
+ * en entity_definitions.json.
+ */
+// export class PlaceableComponent { ... }

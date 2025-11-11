@@ -1,6 +1,7 @@
 {
     "TREE": {
         "name": "un árbol",
+        "renderMode": "cross",
         "components": [
             { "type": "Renderable", "args": ["TREE"] },
             { "type": "Collision", "args": [true, { "width": 40, "height": 20, "offsetY": 60 }] },
@@ -9,6 +10,7 @@
     },
     "ROCK": {
         "name": "una roca",
+        "renderMode": "cross",
         "components": [
             { "type": "Renderable", "args": ["ROCK"] },
             { "type": "Collision", "args": [true, { "width": 60, "height": 30, "offsetY": 30 }] },
@@ -17,6 +19,7 @@
     },
     "CACTUS": {
         "name": "un cactus",
+        "renderMode": "cross",
         "components": [
             { "type": "Renderable", "args": ["CACTUS"] },
             { "type": "Collision", "args": [true, { "width": 30, "height": 20, "offsetY": 50 }] },
@@ -25,6 +28,7 @@
     },
     "ACACIA_TREE": {
         "name": "una acacia",
+        "renderMode": "cross",
         "components": [
             { "type": "Renderable", "args": ["ACACIA_TREE"] },
             { "type": "Collision", "args": [true, { "width": 40, "height": 20, "offsetY": 60 }] },
@@ -33,6 +37,7 @@
     },
     "JUNGLE_TREE": {
         "name": "un árbol de jungla",
+        "renderMode": "cross",
         "components": [
             { "type": "Renderable", "args": ["JUNGLE_TREE"] },
             { "type": "Collision", "args": [true, { "width": 40, "height": 20, "offsetY": 60 }] },
@@ -41,6 +46,7 @@
     },
     "SNOW_TREE": {
         "name": "un árbol nevado",
+        "renderMode": "cross",
         "components": [
             { "type": "Renderable", "args": ["SNOW_TREE"] },
             { "type": "Collision", "args": [true, { "width": 40, "height": 20, "offsetY": 60 }] },
@@ -49,6 +55,7 @@
     },
     "IRON_VEIN": {
         "name": "veta de mineral",
+        "renderMode": "cross",
         "components": [
             { "type": "Renderable", "args": ["IRON_VEIN"] },
             { "type": "Collision", "args": [true, { "width": 60, "height": 30, "offsetY": 30 }] },
@@ -57,6 +64,7 @@
     },
     "NPC": {
         "name": "una persona",
+        "renderMode": "billboard",
         "components": [
             { "type": "Renderable", "args": ["NPC"] },
             { "type": "Collision", "args": [true, { "width": 40, "height": 20, "offsetY": 40 }] },
@@ -66,6 +74,7 @@
     },
     "STATUE": {
         "name": "una estatua enorme",
+        "renderMode": "billboard",
         "components": [
             { "type": "Renderable", "args": ["STATUE"] },
             { "type": "Collision", "args": [true, { "width": 120, "height": 40, "offsetY": 160 }] },
@@ -74,6 +83,7 @@
     },
     "CRAFTING_TABLE": {
         "name": "Mesa de Trabajo",
+        "renderMode": "billboard",
         "components": [
             { "type": "Renderable", "args": ["MESATRABAJO"] }, 
             { "type": "Collision", "args": [true, { "width": 70, "height": 30, "offsetY": 30 }] },
@@ -82,6 +92,7 @@
     },
     "STAIRS_DOWN": {
         "name": "escalera hacia abajo",
+        "renderMode": "billboard",
         "components": [
             { "type": "Renderable", "args": ["STAIRS_DOWN"] },
             { "type": "Collision", "args": [false] },
@@ -90,6 +101,7 @@
     },
     "STAIRS_UP": {
         "name": "escalera hacia arriba",
+        "renderMode": "billboard",
         "components": [
             { "type": "Renderable", "args": ["STAIRS_UP"] },
             { "type": "Collision", "args": [false] },
@@ -98,6 +110,7 @@
     },
     "COCHE": {
         "name": "un coche",
+        "renderMode": "billboard",
         "components": [
             { "type": "Renderable", "args": ["COCHE"] },
             { "type": "Collision", "args": [true, { "width": 70, "height": 35, "offsetY": 35 }] },
@@ -107,6 +120,7 @@
     },
     "ITEM_GOLD": {
         "name": "un objeto brillante",
+        "renderMode": "billboard",
         "components": [
             { "type": "Renderable", "args": ["ITEM"] },
             { "type": "Collision", "args": [false] }, 
@@ -115,6 +129,7 @@
     },
     "SAPLING": {
         "name": "un brote",
+        "renderMode": "cross",
         "components": [
             { "type": "Renderable", "args": ["ITEM"] }, 
             { "type": "Collision", "args": [false] },
@@ -123,9 +138,28 @@
     },
     "PLAYER": {
         "name": "jugador",
+        "renderMode": "billboard",
         "components": [
             { "type": "Renderable", "args": ["PLAYER"] },
             { "type": "Collision", "args": [true, { "width": 40, "height": 20, "offsetY": 40 }] }
+        ]
+    },
+    "WOOD_WALL_ENTITY": {
+        "name": "Pared de Madera",
+        "renderMode": "cube",
+        "components": [
+            { "type": "Renderable", "args": ["WALL"] },
+            { "type": "Collision", "args": [true, { "width": 70, "height": 70, "offsetY": 35 }] },
+            { "type": "InteractableResource", "args": ["ITEM_WOOD_WALL", 1, 1] }
+        ]
+    },
+    "STONE_PILLAR_ENTITY": {
+        "name": "Pilar de Piedra",
+        "renderMode": "cube",
+        "components": [
+            { "type": "Renderable", "args": ["STATUE"] },
+            { "type": "Collision", "args": [true, { "width": 50, "height": 100, "offsetY": 50 }] },
+            { "type": "InteractableResource", "args": ["ITEM_STONE_PILLAR", 1, 1] }
         ]
     }
 }

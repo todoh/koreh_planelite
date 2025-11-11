@@ -70,13 +70,14 @@ export function createEntity(key, x, y, z, uid) {
     }
 
     // La entidad base
-    const entity = {
+   const entity = {
         uid: uid,
         x: x,
         y: y,
         z: z, 
         key: key, 
         facing: 'right', 
+        rotationY: 0, // <-- AÑADE ESTA LÍNEA
         components: {} 
     };
 

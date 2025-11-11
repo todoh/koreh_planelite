@@ -106,7 +106,7 @@ function gameLoop(currentTime) {
     lastFrameTime = currentTime;
     
     update(deltaTime);
-    render(); // <-- Llamará al nuevo render 3D
+    render(deltaTime); // <-- ¡MODIFICADO! Pasar deltaTime
     
     requestAnimationFrame(gameLoop);
 }
@@ -159,7 +159,7 @@ function update(deltaTime) {
 }
 
 // --- VISTA ---
-function render() {
+function render(deltaTime) { // <-- ¡MODIFICADO! Aceptar deltaTime
     
     // --- ¡OPTIMIZACIÓN! ---
     // 1. Obtenemos los objetos visibles (solo entidades dinámicas)
@@ -168,7 +168,9 @@ function render() {
     
     // 2. RenderFrame usará el nuevo motor 3D
     // Le pasamos la Z del jugador (que será la 'Y' en 3D)
-    render3DFrame(player.x, player.y, player.z, objectsToRender, time);
+    
+    // --- ¡LÍNEA MODIFICADA! ---
+    render3DFrame(player.x, player.y, player.z, objectsToRender, time, deltaTime); // <-- ¡Pasar deltaTime!
     
     // 3. La UI (HTML) se renderiza encima, sin cambios.
     renderStats(stats);

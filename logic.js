@@ -29,6 +29,7 @@ export const player = {
     x: 0, y: 0, z: 0,
     vx: 0, vy: 0, 
     facing: 'right', 
+    rotationY: 0, // <-- ¡CORRECCIÓN AÑADIDA!
     
     // --- ¡MODIFICACIÓN! Volvemos al estado simple ---
     isMovingToTarget: false,   // <-- ¡AÑADIDO!
@@ -39,7 +40,10 @@ export const player = {
     // --- FIN DE MODIFICACIÓN ---
 
     mountedVehicleUid: null,
-    currentSpeed: PLAYER_SPEED
+    currentSpeed: PLAYER_SPEED,
+
+    activeHotbarSlot: 0 ,
+    hoveredEntityUID: null
 };
 
 export const stats = {
@@ -84,6 +88,7 @@ export async function initializeGameLogic(callbacks) {
                 player.y = loadedState.y;
                 player.z = loadedState.z || 0; 
                 player.facing = loadedState.facing || 'right'; 
+                player.rotationY = loadedState.rotationY || 0; // <-- ¡CORRECCIÓN AÑADIDA!
                 Object.assign(stats, loadedState.stats);
                 initializeInventory(loadedState.inventory);
             } else {
@@ -91,12 +96,28 @@ export async function initializeGameLogic(callbacks) {
             }
             localStorage.removeItem("GAME_STATE_LOAD");
         } else {
+            // --- ESTE ES EL BLOQUE QUE NECESITAS CAMBIAR ---
             console.log("No hay estado de jugador. Empezando en spawn por defecto.");
             player.x = (30.5 * TILE_PX_WIDTH);
             player.y = (30.5 * TILE_PX_HEIGHT);
             player.z = 0; 
             player.facing = 'right'; 
-            initializeInventory(null);
+            player.rotationY = 0; // <-- ¡CORRECCIÓN AÑADIDA!
+            
+            // --- MODIFICACIÓN AQUÍ ---
+            // LÍNEA ANTIGUA:
+            // initializeInventory(null);
+            
+            // LÍNEAS NUEVAS:
+            const defaultItems = new Array(30).fill(null); // 30 es MAX_SLOTS de inventory.js
+            defaultItems[0] = { itemId: 'HAND', quantity: 1 }; // <-- ¡LÍNEA NUEVA!
+            defaultItems[1] = { itemId: 'ITEM_WOOD_WALL', quantity: 99 }; // <-- ¡ESTE ES EL MURO!
+            defaultItems[2] = { itemId: 'ITEM_STONE_GROUND_SLAB', quantity: 99 }; // <-- ¡LÍNEA NUEVA! (Índice 2)
+            defaultItems[3] = { itemId: 'ITEM_STONE_PILLAR', quantity: 50 }; // <-- ¡LÍNEA NUEVA! (Índice 3)
+            
+           
+            initializeInventory(defaultItems);
+            // --- FIN DE MODIFICACIÓN ---
         }
     } catch (e) {
         console.error("Error al procesar estado de jugador cargado. Usando spawn por defecto.", e);
@@ -104,8 +125,22 @@ export async function initializeGameLogic(callbacks) {
         player.y = (30.5 * TILE_PX_HEIGHT);
         player.z = 0;
         player.facing = 'right'; 
+        player.rotationY = 0; // <-- ¡CORRECCIÓN AÑADIDA!
         localStorage.removeItem("GAME_STATE_LOAD");
-        initializeInventory(null);
+        
+        // --- MODIFICACIÓN AQUÍ ---
+        // LÍNEA ANTIGUA:
+        // initializeInventory(null);
+        
+        // LÍNEAS NUEVAS:
+        const defaultItems = new Array(30).fill(null); // 30 es MAX_SLOTS de inventory.js
+        defaultItems[0] = { itemId: 'HAND', quantity: 1 }; // <-- ¡LÍNEA NUEVA!
+        defaultItems[1] = { itemId: 'ITEM_WOOD_WALL', quantity: 99 }; // <-- ¡LÍNEA NUEVA! (Índice 1)
+        defaultItems[2] = { itemId: 'ITEM_STONE_GROUND_SLAB', quantity: 99 }; // <-- ¡LÍNEA NUEVA! (Índice 2)
+        defaultItems[3] = { itemId: 'ITEM_STONE_PILLAR', quantity: 50 }; // <-- ¡LÍNEA NUEVA! (Índice 3)
+        
+        initializeInventory(defaultItems);
+        // --- FIN DE MODIFICACIÓN ---
     }
     
     player.currentSpeed = PLAYER_SPEED;
@@ -145,7 +180,7 @@ export function updateAllPlayers(playersData, myProfileName) {
         // Solo añadir otros jugadores si están en el mismo Z-level
         if (data.z === player.z) {
             otherPlayers.set(profileName, {
-                ...data, // x, y, z, stats, facing
+                ...data, // x, y, z, stats, facing, rotationY
                 key: 'PLAYER', 
                 name: profileName 
             });

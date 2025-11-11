@@ -2,6 +2,13 @@
 // Define la "base de datos" de todos los objetos del juego.
 
 export const ITEM_DEFINITIONS = {
+    'HAND': {
+        name: 'Mano',
+        description: 'Tus manos desnudas. Permiten interactuar con el mundo de forma segura sin colocar bloques.',
+        imageKey: 'MANO', // Usaremos 'MANO' como clave de imagen
+        stackable: false,
+        maxStack: 1
+    },
     // Recursos
     'WOOD': {
         name: 'Madera',
@@ -33,4 +40,32 @@ export const ITEM_DEFINITIONS = {
     },
 
     // Añade más objetos aquí...
+
+    // --- Items de Construcción (Entidades Verticales) ---
+    'ITEM_WOOD_WALL': {
+        name: 'Pared de Madera',
+        description: 'Una pared de madera básica.',
+        imageKey: 'WALL', // Usamos el sprite de la pared por ahora
+        stackable: true,
+        maxStack: 99,
+        buildable_entity: 'WOOD_WALL_ENTITY' // <- ¡NUEVA CLAVE!
+    },
+    'ITEM_STONE_PILLAR': {
+        name: 'Pilar de Piedra',
+        description: 'Un pilar de piedra de soporte.',
+        imageKey: 'STATUE', // Reusamos un sprite alto por ahora
+        stackable: true,
+        maxStack: 99,
+        buildable_entity: 'STONE_PILLAR_ENTITY' // <- ¡NUEVA CLAVE!
+    },
+
+    // --- Items de Terraformación (Suelo Horizontal) ---
+    'ITEM_STONE_GROUND_SLAB': {
+        name: 'Adoquín de Piedra',
+        description: 'Un trozo de suelo de piedra.',
+        imageKey: 'STONE_GROUND', // Usamos el sprite del terreno
+        stackable: true,
+        maxStack: 99,
+        terraform_tile: 'STONE_GROUND' // <- ¡NUEVA CLAVE!
+    }
 };

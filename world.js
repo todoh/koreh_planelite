@@ -3,6 +3,8 @@
 // y proporciona funciones para consultarlo y mutarlo.
 // --- ¡MODIFICADO! ---
 // Añade listas globales para entidades activas (IA, Crecimiento)
+// --- ¡FIX v2! ---
+// 'getVisibleObjects' ahora pasa 'entityKey' y 'imageKey' por separado.
 
 import { 
     getOrGenerateChunk, 
@@ -328,6 +330,8 @@ export function getMapTileKey(gridX, gridY, gridZ) {
  * ¡OPTIMIZADO!
  * Ya no devuelve tiles. Solo devuelve entidades dinámicas.
  * El terreno se maneja estáticamente en engine_3d.js.
+ * --- ¡FIX v2! ---
+ * Ahora pasa 'entityKey' y 'imageKey' por separado.
  */
 export function getVisibleObjects() {
     let objectsToRender = []; // Empieza vacío
@@ -345,45 +349,68 @@ export function getVisibleObjects() {
             const renderComp = entity.components.Renderable;
             if (!renderComp) continue; 
             
+            // --- ¡CORRECCIÓN AÑADIDA! ---
+            const aiComp = entity.components.MovementAI; // Obtener componente de IA
+            const isHovered = (entity.uid === player.hoveredEntityUID);
             objectsToRender.push({
                 uid: entity.uid,
-                key: renderComp.imageKey, 
+                imageKey: renderComp.imageKey, 
+                entityKey: entity.key,         
                 x: entity.x,
                 y: entity.y,
-                zIndex: entity.y, // Y-Sort por los pies de la entidad
+                zIndex: entity.y, 
                 isGround: false,
                 name: null,
-                facing: entity.facing || 'right' 
+                facing: entity.facing || 'right',
+                vx: aiComp ? aiComp.currentVelocity.x : 0, // <-- VExt_
+                vy: aiComp ? aiComp.currentVelocity.y : 0, // <-- VExt_
+                rotationY: entity.rotationY || 0,
+                isHovered: isHovered
             });
+            // --- FIN DE CORRECCIÓN ---
         }
     }
 
    // 2. Añadir JUGADOR (Nosotros)
     if (!player.mountedVehicleUid) {
+        
+        // --- ¡CORRECCIÓN AÑADIDA! ---
         objectsToRender.push({
             uid: 'PLAYER',
-            key: 'PLAYER',
+            imageKey: 'PLAYER',  
+            entityKey: 'PLAYER', 
             x: player.x,
             y: player.y,
             zIndex: player.y,
             isGround: false,
             name: null,
-            facing: player.facing 
+            facing: player.facing,
+            vx: player.vx, // <-- VExt_
+            vy: player.vy, // <-- VExt_
+            rotationY: player.rotationY || 0 // <-- ¡NUEVO!
         });
+        // --- FIN DE CORRECCIÓN ---
     }
     
     // 3. Añadir OTROS JUGADORES
     for (const [name, p] of otherPlayers.entries()) {
+        
+        // --- ¡CORRECCIÓN AÑADIDA! ---
         objectsToRender.push({
             uid: name,
-            key: p.key,
+            imageKey: p.key,  
+            entityKey: p.key, 
             x: p.x,
             y: p.y,
             zIndex: p.y,
             isGround: false,
             name: p.name,
-            facing: p.facing || 'right' 
+            facing: p.facing || 'right',
+            vx: 0, // <-- VExt_
+            vy: 0, // <-- VExt_
+            rotationY: p.rotationY || 0 // <-- ¡NUEVO!
         });
+        // --- FIN DE CORRECCIÓN ---
     }
     
     // 4. Y-SORTING (¡Importante!)
@@ -414,23 +441,21 @@ export function findEntityAt(worldX, worldY) {
             continue;
         }
 
-        const colComp = entity.components.Collision;
-        if (!colComp) continue; 
+        const interactWidth = TILE_PX_WIDTH * 0.8; // Un poco más pequeño que un tile
+        const interactHeight = TILE_PX_HEIGHT * 0.8;
+        
+        const eMinX = entity.x - interactWidth / 2;
+        const eMaxX = entity.x + interactWidth / 2;
+        const eMinY = entity.y - interactHeight / 2;
+        const eMaxY = entity.y + interactHeight / 2;
 
-        const clickBox = colComp.collisionBox || { 
-            width: TILE_PX_WIDTH * 0.8, 
-            height: TILE_PX_HEIGHT * 0.8, 
-            offsetY: TILE_PX_HEIGHT * 0.8 
-        };
-        
-        const eX = entity.x - clickBox.width / 2;
-        const eY = entity.y - clickBox.offsetY;
-        
-        if (worldX >= eX && worldX <= eX + clickBox.width &&
-            worldY >= eY && worldY <= eY + clickBox.height) 
+        // Comprobar si el clic (worldX, worldY) está en esta nueva caja
+        if (worldX >= eMinX && worldX <= eMaxX &&
+            worldY >= eMinY && worldY <= eMaxY)
         {
             return { entity };
         }
+        // --- FIN DE LA NUEVA LÓGICA ---
     }
     return null;
 }

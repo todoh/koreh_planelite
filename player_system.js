@@ -5,14 +5,16 @@ import {
     player, 
     stats,
     ENTITY_DATA,
-    TERRAIN_DATA, // <--- ¡AÑADE ESTA LÍNEA!
+    TERRAIN_DATA, 
     ITEM_DEFINITIONS,
     PLAYER_SPEED,
     TILE_PX_WIDTH,
-    TILE_PX_HEIGHT, // <--- ¡AÑADIDO AQUÍ!
+    TILE_PX_HEIGHT, 
     openMenuCallback,
     CHUNK_PX_WIDTH,
-    CHUNK_PX_HEIGHT // <-- ¡AÑADIDO!
+    CHUNK_PX_HEIGHT,
+    CHUNK_GRID_WIDTH,  // <-- ¡AÑADIR ESTA!
+    CHUNK_GRID_HEIGHT // <-- ¡Y ESTA!
 } from './logic.js';
 import { 
     findEntityByUid, 
@@ -24,8 +26,12 @@ import {
     findEntityAt
 } from './world.js';
 import { checkCollision } from './collision.js';
-import { addItem } from './inventory.js';
+// ¡Imports modificados/añadidos!
+import { getInventory, removeItem, addItem } from './inventory.js';
 import * as VehicleSystem from './vehicle_logic.js';
+import { createEntity } from './entity.js';
+import { renderHotbar } from './ui.js';
+
 
 // --- ¡NUEVA IMPORTACIÓN! ---
 // import { findPath } from './pathfinder.js'; // <-- Comentado
@@ -165,11 +171,17 @@ export function updatePlayer(deltaTime, input) {
         }
         
         // 3. Actualizar dirección (facing)
+        if (player.vx !== 0 || player.vy !== 0) {
+        // Actualizar rotación Y (para 3D)
+        player.rotationY = Math.atan2(player.vx, player.vy);
+
+        // Actualizar 'facing' (para 2D o interacciones)
         if (Math.abs(player.vx) > Math.abs(player.vy)) {
             player.facing = player.vx > 0 ? 'right' : 'left';
-        } else if (Math.abs(player.vy) > 0) {
-             player.facing = player.vy > 0 ? 'down' : 'up';
+        } else {
+            player.facing = player.vy > 0 ? 'down' : 'up';
         }
+    }
     }
     
     // 4. Sincronizar vehículo si estamos montados
@@ -230,17 +242,140 @@ export function updatePlayer(deltaTime, input) {
             }
         }
     }
+    // 6. Encontrar el objetivo más cercano para resaltar (PARA EL CÍRCULO AZUL)
+    const HOVER_RANGE = TILE_PX_WIDTH * 2; // Rango de 2 tiles
+    let closestEntity = null;
+    let minDistance = HOVER_RANGE;
+
+    // --- ¡OPTIMIZACIÓN! ---
+    // Solo comprobar chunks cercanos (3x3)
+    // (Optimización simple: por ahora solo el chunk actual)
+    const playerChunk = getActiveChunk(getChunkKeyForEntity(player));
     
+    if (playerChunk) {
+        for (const entity of playerChunk.entities) {
+            // Comprobar si es interactuable (¡ignora el vehículo que estás montando!)
+            if (entity.uid === player.mountedVehicleUid) continue;
+            
+            const isInteractable = entity.components.InteractableResource || 
+                                 entity.components.InteractableDialogue ||
+                                 entity.components.InteractableMenu ||
+                                 entity.components.InteractableVehicle ||
+                                 entity.components.InteractableLevelChange;
+
+            if (isInteractable) {
+                const dx = player.x - entity.x;
+                const dy = player.y - entity.y;
+                const distance = Math.sqrt(dx*dx + dy*dy);
+
+                if (distance < minDistance) {
+                    minDistance = distance;
+                    closestEntity = entity;
+                }
+            }
+        }
+    }
+    // --- FIN DE OPTIMIZACIÓN ---
+    
+    // Actualizar el estado global
+    player.hoveredEntityUID = closestEntity ? closestEntity.uid : null;
     return { message };
 }
 
 // --- ¡REEMPLAZAR handleWorldTap CON ESTAS TRES FUNCIONES! ---
 
 /**
- * Maneja el INICIO de un clic/pulsación en el mundo.
- * Se llama desde main.js (processHoldStart).
+ * ¡REESCRITO! Maneja el INICIO de un clic/pulsación en el mundo.
+ * Ahora actúa como un "router" para construir, terraformar o interactuar.
  */
 export function handleWorldHold(worldX, worldY) {
+    
+    // --- ¡NUEVO! Definir la caja de colisión para placement ---
+    // Una caja pequeña centrada en los pies (el ancla) del tile.
+    const PLACEMENT_COLLISION_BOX = { width: 10, height: 10, offsetY: 5 };
+
+    // 1. Obtener el item activo del Hotbar
+    const inventory = getInventory();
+    const activeItem = inventory[player.activeHotbarSlot];
+    const itemDef = activeItem ? ITEM_DEFINITIONS[activeItem.itemId] : null;
+
+    // --- MODO: Construcción (Paredes/Entidades) ---
+    // if (itemDef && itemDef.buildable_entity) { // <-- LÍNEA ANTIGUA
+    if (itemDef && itemDef.buildable_entity && activeItem.itemId !== 'HAND') { // <-- ¡LÍNEA MODIFICADA!
+        player.isMovingToTarget = false; // Detener movimiento
+        
+        // 2. Alinear a la cuadrícula (snap-to-grid)
+        const gridX = Math.floor(worldX / TILE_PX_WIDTH);
+        const gridY = Math.floor(worldY / TILE_PX_HEIGHT);
+        const placeX = (gridX * TILE_PX_WIDTH) + (TILE_PX_WIDTH / 2);
+        const placeY = (gridY * TILE_PX_HEIGHT) + (TILE_PX_HEIGHT / 2);
+
+        // 3. Comprobar colisión
+        // --- CÓDIGO MODIFICADO ---
+        const collision = checkCollision(placeX, placeY, null, PLACEMENT_COLLISION_BOX);
+        if (collision.solid) {
+            return { message: "No puedes construir ahí." };
+        }
+
+        // 4. Crear entidad
+        const entityToBuild = itemDef.buildable_entity;
+        const newUid = `placed_${placeX}_${placeY}_${player.z}`; // UID simple
+        const newEntity = createEntity(entityToBuild, placeX, placeY, player.z, newUid);
+        
+        if (!newEntity) {
+            return { message: "Error al crear la entidad." };
+        }
+        
+        const chunkKey = getChunkKeyForEntity(newEntity);
+        recordDelta(chunkKey, { type: 'ADD_ENTITY', entity: newEntity });
+
+        // 5. Consumir item
+        removeItem(activeItem.itemId, 1);
+        renderHotbar(); // Actualizar UI
+        
+        return { message: `Has colocado: ${itemDef.name}.` };
+    }
+
+    // --- MODO: Terraformación (Suelo) ---
+    // if (itemDef && itemDef.terraform_tile) { // <-- LÍNEA ANTIGUA
+    if (itemDef && itemDef.terraform_tile && activeItem.itemId !== 'HAND') { // <-- ¡LÍNEA MODIFICADA!
+        player.isMovingToTarget = false; // Detener movimiento
+        
+        const gridX = Math.floor(worldX / TILE_PX_WIDTH);
+        const gridY = Math.floor(worldY / TILE_PX_HEIGHT);
+        const placeX = (gridX * TILE_PX_WIDTH) + (TILE_PX_WIDTH / 2);
+        const placeY = (gridY * TILE_PX_HEIGHT) + (TILE_PX_HEIGHT / 2);
+
+        // 3. Comprobar colisión (no se puede terraformar bajo un objeto)
+        // --- CÓDIGO MODIFICADO ---
+        const collision = checkCollision(placeX, placeY, null, PLACEMENT_COLLISION_BOX);
+        if (collision.solid) {
+            return { message: "Hay algo que bloquea el suelo." };
+        }
+
+        // 4. Modificar terreno
+        const chunkX = Math.floor(placeX / CHUNK_PX_WIDTH);
+        const chunkY = Math.floor(placeY / CHUNK_PX_HEIGHT);
+        const chunkKey = `${chunkX},${chunkY},${player.z}`;
+        
+        const localX = ((gridX % CHUNK_GRID_WIDTH) + CHUNK_GRID_WIDTH) % CHUNK_GRID_WIDTH;
+        const localY = ((gridY % CHUNK_GRID_HEIGHT) + CHUNK_GRID_HEIGHT) % CHUNK_GRID_HEIGHT;
+        
+        recordDelta(chunkKey, { 
+            type: 'CHANGE_TILE', 
+            localCoord: `${localX},${localY}`, 
+            tileKey: itemDef.terraform_tile
+        });
+
+        // 5. Consumir item
+        removeItem(activeItem.itemId, 1);
+        renderHotbar(); // Actualizar UI
+
+        return { message: `Has colocado: ${itemDef.name}.` };
+    }
+    
+    // --- MODO: Interacción/Movimiento (Lógica original) ---
+    // (Si el item es un pico, hacha, o manos vacías)
     
     if (player.mountedVehicleUid) {
         // Intento de desmontar (clic en sí mismo)
@@ -256,12 +391,39 @@ export function handleWorldHold(worldX, worldY) {
         }
     }
 
-    const target = findEntityAt(worldX, worldY);
-    
-    // 1. Clic en Entidad Interactuable
-    if (target) {
-        // player.pathWaypoints = []; // Detener movimiento // <-- Comentado
-        player.isMovingToTarget = false; // <-- ¡AÑADIDO!
+    // --- ¡MODIFICACIÓN REVERTIDA! ---
+    // Volvemos a la lógica original.
+    // El 'if (player.hoveredEntityUID)' se elimina,
+    // porque impedía el movimiento si un círculo estaba activo.
+    /*
+    if (player.hoveredEntityUID) {
+        const targetEntity = findEntityByUid(player.hoveredEntityUID);
+
+        if (targetEntity) {
+            // 1. Clic para interactuar con la entidad seleccionada (círculo azul)
+            player.isMovingToTarget = false;
+            player.vx = 0; player.vy = 0;
+
+            const dx = player.x - targetEntity.x;
+            const dy = player.y - targetEntity.y;
+            const distance = Math.sqrt(dx*dx + dy*dy);
+
+            if (distance < TILE_PX_WIDTH * 1.5) { // Rango de interacción
+                return playerInteract(targetEntity);
+            } else {
+                return { message: "Estás demasiado lejos." };
+            }
+        }
+    }
+    */
+    // --- FIN DE MODIFICACIÓN ---
+
+    // 2. Clic en el Terreno (si no estábamos apuntando a nada)
+    // --- ¡LÓGICA ORIGINAL RESTAURADA! ---
+    const target = findEntityAt(worldX, worldY); // <-- Esta línea busca BAJO EL CURSOR
+    if (target) { // <-- Si encuentra algo BAJO EL CURSOR
+        // 1. Clic en Entidad Interactuable (debajo del cursor)
+        player.isMovingToTarget = false; // Detener movimiento
         player.vx = 0; player.vy = 0;
         
         const dx = player.x - target.entity.x;
@@ -274,8 +436,8 @@ export function handleWorldHold(worldX, worldY) {
             return { message: "Estás demasiado lejos." };
         }
     }
+    // --- FIN DE LÓGICA RESTAURADA ---
 
-    // 2. Clic en el Terreno
     const gridX = Math.floor(worldX / TILE_PX_WIDTH);
     const gridY = Math.floor(worldY / TILE_PX_HEIGHT);
     const groundTileKey = getMapTileKey(gridX, gridY, player.z);
@@ -302,7 +464,7 @@ export function handleWorldHold(worldX, worldY) {
     player.targetY = worldY;
     // --- FIN DE AÑADIDO ---
 
-    return { message: null };
+    return { message: null }; // Fallback
 }
 
 /**
@@ -311,6 +473,21 @@ export function handleWorldHold(worldX, worldY) {
  */
 export function handleWorldMove(worldX, worldY) {
     // --- ¡LÓGICA REESCRITA! ---
+
+    // --- MODO: Construcción o Terraformación (con item activo) ---
+    const inventory = getInventory();
+    const activeItem = inventory[player.activeHotbarSlot];
+    const itemDef = activeItem ? ITEM_DEFINITIONS[activeItem.itemId] : null;
+
+    if (itemDef && (itemDef.buildable_entity || itemDef.terraform_tile) && activeItem.itemId !== 'HAND') {
+        // Si estamos construyendo, "pintar" en el mundo
+        // (Llamar a handleWorldHold de nuevo simula un nuevo clic en la nueva posición)
+        handleWorldHold(worldX, worldY);
+        return;
+    }
+    // --- FIN DE MODO CONSTRUCCIÓN ---
+
+
     // Si nos estamos moviendo (porque hemos pulsado), actualizar el destino.
     if (player.isMovingToTarget) {
         // Comprobar si el destino es válido (no sólido)
@@ -341,15 +518,28 @@ export function handleWorldRelease(didMove) { // <-- Aceptar argumento
     // Si el usuario movió el cursor (fue un "drag" o "hold-to-move"),
     // detenemos el movimiento al soltar.
     if (didMove) {
-        player.isMovingToTarget = false;
-        player.vx = 0;
-        player.vy = 0;
+        
+        // --- ¡NUEVO! Comprobar si estábamos construyendo ---
+        const inventory = getInventory();
+        const activeItem = inventory[player.activeHotbarSlot];
+        const itemDef = activeItem ? ITEM_DEFINITIONS[activeItem.itemId] : null;
+
+        if (itemDef && (itemDef.buildable_entity || itemDef.terraform_tile) && activeItem.itemId !== 'HAND') {
+            // Si estábamos construyendo, no hacer nada más
+        } else {
+             // Si estábamos moviéndonos, detener
+            player.isMovingToTarget = false;
+            player.vx = 0;
+            player.vy = 0;
+        }
+
     }
     // Si no (didMove == false), fue un "tap" o "click".
     // NO HACEMOS NADA.
     // `player.isMovingToTarget` seguirá siendo 'true' (de handleWorldHold)
     // y el bucle `updatePlayer` seguirá moviendo al jugador
     // hasta que llegue al `player.targetX/Y`.
+    // (O, si fue un clic de interacción, `isMovingToTarget` ya se puso a 'false')
     // --- FIN DE LÓGICA REESCRITA! ---
 }
  
@@ -461,6 +651,7 @@ export function playerInteract(targetEntity = null) {
         if (comps.InteractableResource) {
             const comp = comps.InteractableResource;
             if (stats.energia >= comp.energyCost) {
+                // La importación de addItem está local a esta función
                 addItem(comp.itemId, comp.quantity);
                 stats.energia -= comp.energyCost;
                 recordDeltaFromEntity(entityToInteract, { type: 'REMOVE_ENTITY', uid: entityToInteract.uid });

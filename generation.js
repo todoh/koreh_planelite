@@ -189,13 +189,13 @@ export async function initializeMetadata() {
     
     // Cargar imágenes de entidades
     // (Esta lógica no cambia, sigue usando el array estático)
-    const entityImageKeys = [
+   const entityImageKeys = [
         "STATUE", "PLAYER", "TREE", "ROCK", "NPC", "ITEM",
         "CACTUS", "ACACIA_TREE", "JUNGLE_TREE", "SNOW_TREE",
         "MESATRABAJO", "COCHE",
-        "STAIRS_UP", "STAIRS_DOWN", "IRON_VEIN" 
+        "STAIRS_UP", "STAIRS_DOWN", "IRON_VEIN",
+        "MANO" // <-- ¡AÑADIR ESTA LÍNEA!
     ];
-    
     for (const key of entityImageKeys) {
         if (!IMAGES[key.toUpperCase()]) {
             const imagePath = `./assets/${key.toLowerCase()}.png`;
