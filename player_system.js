@@ -1,6 +1,7 @@
 // --- player_system.js ---
 // Gestiona toda la lógica relacionada con el jugador:
 // movimiento, manejo de input, e interacción.
+// ¡MODIFICADO! Interacción ahora activa animaciones.
 import { 
     player, 
     stats,
@@ -23,7 +24,8 @@ import {
     recordDelta, // <--- ¡AÑADE ESTA LÍNEA!
     recordDeltaFromEntity,
     getMapTileKey,
-    findEntityAt
+    findEntityAt,
+    moveEntityToNewChunk
 } from './world.js';
 import { checkCollision } from './collision.js';
 // ¡Imports modificados/añadidos!
@@ -31,6 +33,8 @@ import { getInventory, removeItem, addItem } from './inventory.js';
 import * as VehicleSystem from './vehicle_logic.js';
 import { createEntity } from './entity.js';
 import { renderHotbar } from './ui.js';
+// --- ¡NUEVO! Importar duraciones de animación ---
+import { CHOP_DURATION, PICKUP_DURATION } from './player_animation.js';
 
 
 // --- ¡NUEVA IMPORTACIÓN! ---
@@ -72,43 +76,56 @@ function findSafeDismountPos(startX, startY) {
 export function updatePlayer(deltaTime, input) {
     let message = null;
     
+    // --- ¡NUEVO! Sistema de Finalización de Acción ---
+    if (player.currentAction) {
+        player.actionTimer -= deltaTime;
+
+        // Detener cualquier movimiento mientras se realiza una acción
+        input.up = input.down = input.left = input.right = false;
+        player.isMovingToTarget = false;
+        player.vx = 0;
+        player.vy = 0;
+
+        if (player.actionTimer <= 0) {
+            // ¡Animación terminada! Completar la acción.
+            const targetEntity = findEntityByUid(player.actionTarget);
+            
+            if (targetEntity && targetEntity.components.InteractableResource) {
+                const comp = targetEntity.components.InteractableResource;
+                
+                if (stats.energia >= comp.energyCost) {
+                    // 1. Dar item
+                    addItem(comp.itemId, comp.quantity);
+                    // 2. Costar energía
+                    stats.energia -= comp.energyCost;
+                    // 3. Eliminar la entidad del mundo
+                    recordDeltaFromEntity(targetEntity, { type: 'REMOVE_ENTITY', uid: targetEntity.uid });
+                    
+                    const itemDef = ITEM_DEFINITIONS[comp.itemId];
+                    message = `¡Has conseguido ${comp.quantity} de ${itemDef.name}!`;
+                } else {
+                    message = "No tienes suficiente energía.";
+                }
+            } else {
+                // El objetivo desapareció o era inválido
+                if (player.actionTarget) { // Evitar spam si solo fue una animación sin objetivo
+                    message = "El objetivo ya no está.";
+                }
+            }
+            
+            // 4. Resetear estado de acción
+            player.currentAction = null;
+            player.actionTarget = null;
+        }
+    }
+    // --- FIN DE NUEVO SISTEMA ---
+
+
     // --- ¡LÓGICA DE MOVIMIENTO REESCRITA! ---
     
-    // 0. Actualizar timer
-    // if (pathRecalculateTimer > 0) { // <-- Comentado
-    //     pathRecalculateTimer -= deltaTime * 1000;
-    // }
-
-    // 1. Movimiento por Pathfinding (tiene prioridad)
-    // if (player.pathWaypoints.length > 0) { // <-- Comentado
-        // Detener input de teclado si estamos siguiendo un path
-        // input.up = input.down = input.left = input.right = false;
-        
-        // const targetWaypoint = player.pathWaypoints[0];
-        // const dx = targetWaypoint.x - player.x;
-        // const dy = targetWaypoint.y - player.y;
-        // const distance = Math.sqrt(dx*dx + dy*dy);
-
-        // const arrivalRadius = 10; // Radio para considerar que hemos llegado
-
-        // if (distance < arrivalRadius) {
-        //     player.pathWaypoints.shift(); // Llegamos, quitamos el waypoint
-        //     if (player.pathWaypoints.length === 0) { // ¿Camino terminado?
-        //         player.vx = 0;
-        //         player.vy = 0;
-        //     }
-        // } else {
-        //     // Moverse hacia el waypoint
-        //     player.vx = (dx / distance) * player.currentSpeed;
-        //     player.vy = (dy / distance) * player.currentSpeed;
-        // }
-        
-    // }
-    // 2. Movimiento por Teclado (solo si no hay path)
-    if (input.up || input.down || input.left || input.right) {
-        // --- ¡AÑADIDO! Detener movimiento de clic si usamos teclado ---
+    // 1. Movimiento por Teclado (solo si no hay acción)
+    if (!player.currentAction && (input.up || input.down || input.left || input.right)) {
         player.isMovingToTarget = false;
-        // --- FIN DE AÑADIDO ---
         let baseVx = 0, baseVy = 0;
         
         if (input.left) baseVx = -1;
@@ -124,9 +141,8 @@ export function updatePlayer(deltaTime, input) {
         player.vx = baseVx * player.currentSpeed;
         player.vy = baseVy * player.currentSpeed;
     } 
-    // --- ¡AÑADIDO! Lógica de clic-to-move (recto) ---
-    else if (player.isMovingToTarget) {
-        // Moverse hacia el objetivo (clic)
+    // 2. Lógica de clic-to-move (solo si no hay acción)
+    else if (!player.currentAction && player.isMovingToTarget) {
         const dx = player.targetX - player.x;
         const dy = player.targetY - player.y;
         const distance = Math.sqrt(dx*dx + dy*dy);
@@ -139,9 +155,7 @@ export function updatePlayer(deltaTime, input) {
             player.vy = (dy / distance) * player.currentSpeed;
         }
     }
-    // --- FIN DE AÑADIDO ---
-    
-    // 3. Sin input
+    // 3. Sin input (o realizando acción)
     else {
         player.vx = 0; player.vy = 0;
     }
@@ -158,7 +172,6 @@ export function updatePlayer(deltaTime, input) {
         if (!checkCollision(newX, player.y).solid) {
             player.x = newX;
         } else {
-             // player.pathWaypoints = []; // ¡Detener path si chocamos! // <-- Comentado
              player.isMovingToTarget = false; // <-- ¡AÑADIDO!
         }
         
@@ -166,22 +179,21 @@ export function updatePlayer(deltaTime, input) {
         if (!checkCollision(player.x, newY).solid) {
             player.y = newY;
         } else {
-             // player.pathWaypoints = []; // ¡Detener path si chocamos! // <-- Comentado
              player.isMovingToTarget = false; // <-- ¡AÑADIDO!
         }
         
         // 3. Actualizar dirección (facing)
         if (player.vx !== 0 || player.vy !== 0) {
-        // Actualizar rotación Y (para 3D)
-        player.rotationY = Math.atan2(player.vx, player.vy);
+            // Actualizar rotación Y (para 3D)
+            player.rotationY = Math.atan2(player.vx, player.vy);
 
-        // Actualizar 'facing' (para 2D o interacciones)
-        if (Math.abs(player.vx) > Math.abs(player.vy)) {
-            player.facing = player.vx > 0 ? 'right' : 'left';
-        } else {
-            player.facing = player.vy > 0 ? 'down' : 'up';
+            // Actualizar 'facing' (para 2D o interacciones)
+            if (Math.abs(player.vx) > Math.abs(player.vy)) {
+                player.facing = player.vx > 0 ? 'right' : 'left';
+            } else {
+                player.facing = player.vy > 0 ? 'down' : 'up';
+            }
         }
-    }
     }
     
     // 4. Sincronizar vehículo si estamos montados
@@ -196,19 +208,13 @@ export function updatePlayer(deltaTime, input) {
             vehicle.x = player.x;
             vehicle.y = player.y; 
             vehicle.facing = player.facing; // Sincronizar dirección
+            vehicle.rotationY = player.rotationY; // Sincronizar rotación 3D
             const newVehicleChunkKey = getChunkKeyForEntity(vehicle);
 
             recordDelta(oldVehicleChunkKey, { type: 'MOVE_ENTITY', uid: vehicle.uid, x: vehicle.x, y: vehicle.y });
             
             if (oldVehicleChunkKey !== newVehicleChunkKey) {
-                // Esta lógica ahora se maneja en 'moveEntityToNewChunk'
-                // pero necesitamos registrar el delta en el chunk antiguo (hecho arriba)
-                // y la lógica de movimiento se encargará del resto.
-                // Sin embargo, `moveEntityToNewChunk` no es llamado aquí.
-                // ¡ERROR EN LÓGICA ANTIGUA! La entidad debe moverse explícitamente.
-                console.warn("Movimiento de vehículo entre chunks no implementado en refactor aún.");
-                // NOTA: La lógica original tampoco movía la entidad entre chunks aquí,
-                // solo marcaba el chunk antiguo como sucio.
+                moveEntityToNewChunk(vehicle, oldVehicleChunkKey, newVehicleChunkKey);
             }
         } else {
             console.warn(`Vehiculo ${player.mountedVehicleUid} no encontrado, desmontando.`);
@@ -217,67 +223,73 @@ export function updatePlayer(deltaTime, input) {
     }
 
     // 5. Sistema "OnEnter" (Collectible)
-    const chunkX = Math.floor(player.x / CHUNK_PX_WIDTH);
-    const chunkY = Math.floor(player.y / CHUNK_PX_HEIGHT);
-    const chunkKey = `${chunkX},${chunkY},${player.z}`; // <-- ¡USAR Z!
-    const chunk = getActiveChunk(chunkKey);
-    
-    if(chunk) {
-        for (let i = chunk.entities.length - 1; i >= 0; i--) {
-            const entity = chunk.entities[i];
-            const comp = entity.components.Collectible;
-            
-            if (comp) {
-                const dx = player.x - entity.x;
-                const dy = player.y - entity.y;
-                const distance = Math.sqrt(dx*dx + dy*dy);
-                const enterRadius = TILE_PX_WIDTH / 2; 
+    // --- ¡MODIFICADO! Solo recoger si no estamos ocupados ---
+    if (!player.currentAction) {
+        const chunkX = Math.floor(player.x / CHUNK_PX_WIDTH);
+        const chunkY = Math.floor(player.y / CHUNK_PX_HEIGHT);
+        const chunkKey = `${chunkX},${chunkY},${player.z}`; // <-- ¡USAR Z!
+        const chunk = getActiveChunk(chunkKey);
+        
+        if(chunk) {
+            for (let i = chunk.entities.length - 1; i >= 0; i--) {
+                const entity = chunk.entities[i];
+                if (!entity) continue; // Seguridad
+                const comp = entity.components.Collectible;
                 
-                if (distance < enterRadius) {
-                    addItem(comp.itemId, comp.quantity);
-                    recordDeltaFromEntity(entity, { type: 'REMOVE_ENTITY', uid: entity.uid });
-                    const itemDef = ITEM_DEFINITIONS[comp.itemId];
-                    message = `¡Has recogido ${comp.quantity} de ${itemDef.name}!`;
+                if (comp) {
+                    const dx = player.x - entity.x;
+                    const dy = player.y - entity.y;
+                    const distance = Math.sqrt(dx*dx + dy*dy);
+                    const enterRadius = TILE_PX_WIDTH / 2; 
+                    
+                    if (distance < enterRadius) {
+                        // --- ¡MODIFICADO! Activar animación de recoger ---
+                        player.currentAction = 'pickup';
+                        player.actionTimer = PICKUP_DURATION;
+                        player.actionTarget = entity.uid;
+                        // ¡Ya no damos el item aquí! Se dará cuando termine la animación.
+                        // message = `Recogiendo ${ITEM_DEFINITIONS[comp.itemId].name}...`;
+                        // Romper el bucle para solo recoger una cosa a la vez
+                        break; 
+                    }
                 }
             }
         }
-    }
+    } // --- FIN DE MODIFICACIÓN (OnEnter) ---
+
     // 6. Encontrar el objetivo más cercano para resaltar (PARA EL CÍRCULO AZUL)
     const HOVER_RANGE = TILE_PX_WIDTH * 2; // Rango de 2 tiles
     let closestEntity = null;
     let minDistance = HOVER_RANGE;
 
-    // --- ¡OPTIMIZACIÓN! ---
-    // Solo comprobar chunks cercanos (3x3)
-    // (Optimización simple: por ahora solo el chunk actual)
-    const playerChunk = getActiveChunk(getChunkKeyForEntity(player));
-    
-    if (playerChunk) {
-        for (const entity of playerChunk.entities) {
-            // Comprobar si es interactuable (¡ignora el vehículo que estás montando!)
-            if (entity.uid === player.mountedVehicleUid) continue;
-            
-            const isInteractable = entity.components.InteractableResource || 
-                                 entity.components.InteractableDialogue ||
-                                 entity.components.InteractableMenu ||
-                                 entity.components.InteractableVehicle ||
-                                 entity.components.InteractableLevelChange;
+    // (Solo buscar si no estamos ocupados)
+    if (!player.currentAction) {
+        const playerChunk = getActiveChunk(getChunkKeyForEntity(player));
+        
+        if (playerChunk) {
+            for (const entity of playerChunk.entities) {
+                if (entity.uid === player.mountedVehicleUid) continue;
+                
+                const isInteractable = entity.components.InteractableResource || 
+                                     entity.components.InteractableDialogue ||
+                                     entity.components.InteractableMenu ||
+                                     entity.components.InteractableVehicle ||
+                                     entity.components.InteractableLevelChange;
 
-            if (isInteractable) {
-                const dx = player.x - entity.x;
-                const dy = player.y - entity.y;
-                const distance = Math.sqrt(dx*dx + dy*dy);
+                if (isInteractable) {
+                    const dx = player.x - entity.x;
+                    const dy = player.y - entity.y;
+                    const distance = Math.sqrt(dx*dx + dy*dy);
 
-                if (distance < minDistance) {
-                    minDistance = distance;
-                    closestEntity = entity;
+                    if (distance < minDistance) {
+                        minDistance = distance;
+                        closestEntity = entity;
+                    }
                 }
             }
         }
-    }
-    // --- FIN DE OPTIMIZACIÓN ---
+    } // --- FIN DE MODIFICACIÓN (Hover) ---
     
-    // Actualizar el estado global
     player.hoveredEntityUID = closestEntity ? closestEntity.uid : null;
     return { message };
 }
@@ -290,36 +302,32 @@ export function updatePlayer(deltaTime, input) {
  */
 export function handleWorldHold(worldX, worldY) {
     
-    // --- ¡NUEVO! Definir la caja de colisión para placement ---
-    // Una caja pequeña centrada en los pies (el ancla) del tile.
-    const PLACEMENT_COLLISION_BOX = { width: 10, height: 10, offsetY: 5 };
+    // --- ¡NUEVO! Comprobar si ya estamos ocupados ---
+    if (player.currentAction) {
+        return { message: "Ocupado..." };
+    }
 
-    // 1. Obtener el item activo del Hotbar
+    const PLACEMENT_COLLISION_BOX = { width: 10, height: 10, offsetY: 5 };
     const inventory = getInventory();
     const activeItem = inventory[player.activeHotbarSlot];
     const itemDef = activeItem ? ITEM_DEFINITIONS[activeItem.itemId] : null;
 
     // --- MODO: Construcción (Paredes/Entidades) ---
-    // if (itemDef && itemDef.buildable_entity) { // <-- LÍNEA ANTIGUA
-    if (itemDef && itemDef.buildable_entity && activeItem.itemId !== 'HAND') { // <-- ¡LÍNEA MODIFICADA!
-        player.isMovingToTarget = false; // Detener movimiento
+    if (itemDef && itemDef.buildable_entity && activeItem.itemId !== 'HAND') { 
+        player.isMovingToTarget = false; 
         
-        // 2. Alinear a la cuadrícula (snap-to-grid)
         const gridX = Math.floor(worldX / TILE_PX_WIDTH);
         const gridY = Math.floor(worldY / TILE_PX_HEIGHT);
         const placeX = (gridX * TILE_PX_WIDTH) + (TILE_PX_WIDTH / 2);
         const placeY = (gridY * TILE_PX_HEIGHT) + (TILE_PX_HEIGHT / 2);
 
-        // 3. Comprobar colisión
-        // --- CÓDIGO MODIFICADO ---
         const collision = checkCollision(placeX, placeY, null, PLACEMENT_COLLISION_BOX);
         if (collision.solid) {
             return { message: "No puedes construir ahí." };
         }
 
-        // 4. Crear entidad
         const entityToBuild = itemDef.buildable_entity;
-        const newUid = `placed_${placeX}_${placeY}_${player.z}`; // UID simple
+        const newUid = `placed_${placeX}_${placeY}_${player.z}`; 
         const newEntity = createEntity(entityToBuild, placeX, placeY, player.z, newUid);
         
         if (!newEntity) {
@@ -329,31 +337,26 @@ export function handleWorldHold(worldX, worldY) {
         const chunkKey = getChunkKeyForEntity(newEntity);
         recordDelta(chunkKey, { type: 'ADD_ENTITY', entity: newEntity });
 
-        // 5. Consumir item
         removeItem(activeItem.itemId, 1);
-        renderHotbar(); // Actualizar UI
+        renderHotbar(); 
         
         return { message: `Has colocado: ${itemDef.name}.` };
     }
 
     // --- MODO: Terraformación (Suelo) ---
-    // if (itemDef && itemDef.terraform_tile) { // <-- LÍNEA ANTIGUA
-    if (itemDef && itemDef.terraform_tile && activeItem.itemId !== 'HAND') { // <-- ¡LÍNEA MODIFICADA!
-        player.isMovingToTarget = false; // Detener movimiento
+    if (itemDef && itemDef.terraform_tile && activeItem.itemId !== 'HAND') { 
+        player.isMovingToTarget = false; 
         
         const gridX = Math.floor(worldX / TILE_PX_WIDTH);
         const gridY = Math.floor(worldY / TILE_PX_HEIGHT);
         const placeX = (gridX * TILE_PX_WIDTH) + (TILE_PX_WIDTH / 2);
         const placeY = (gridY * TILE_PX_HEIGHT) + (TILE_PX_HEIGHT / 2);
 
-        // 3. Comprobar colisión (no se puede terraformar bajo un objeto)
-        // --- CÓDIGO MODIFICADO ---
         const collision = checkCollision(placeX, placeY, null, PLACEMENT_COLLISION_BOX);
         if (collision.solid) {
             return { message: "Hay algo que bloquea el suelo." };
         }
 
-        // 4. Modificar terreno
         const chunkX = Math.floor(placeX / CHUNK_PX_WIDTH);
         const chunkY = Math.floor(placeY / CHUNK_PX_HEIGHT);
         const chunkKey = `${chunkX},${chunkY},${player.z}`;
@@ -367,18 +370,15 @@ export function handleWorldHold(worldX, worldY) {
             tileKey: itemDef.terraform_tile
         });
 
-        // 5. Consumir item
         removeItem(activeItem.itemId, 1);
-        renderHotbar(); // Actualizar UI
+        renderHotbar(); 
 
         return { message: `Has colocado: ${itemDef.name}.` };
     }
     
     // --- MODO: Interacción/Movimiento (Lógica original) ---
-    // (Si el item es un pico, hacha, o manos vacías)
     
     if (player.mountedVehicleUid) {
-        // Intento de desmontar (clic en sí mismo)
         const dx = worldX - player.x;
         const dy = worldY - player.y;
         const distSq = dx*dx + dy*dy;
@@ -391,39 +391,10 @@ export function handleWorldHold(worldX, worldY) {
         }
     }
 
-    // --- ¡MODIFICACIÓN REVERTIDA! ---
-    // Volvemos a la lógica original.
-    // El 'if (player.hoveredEntityUID)' se elimina,
-    // porque impedía el movimiento si un círculo estaba activo.
-    /*
-    if (player.hoveredEntityUID) {
-        const targetEntity = findEntityByUid(player.hoveredEntityUID);
-
-        if (targetEntity) {
-            // 1. Clic para interactuar con la entidad seleccionada (círculo azul)
-            player.isMovingToTarget = false;
-            player.vx = 0; player.vy = 0;
-
-            const dx = player.x - targetEntity.x;
-            const dy = player.y - targetEntity.y;
-            const distance = Math.sqrt(dx*dx + dy*dy);
-
-            if (distance < TILE_PX_WIDTH * 1.5) { // Rango de interacción
-                return playerInteract(targetEntity);
-            } else {
-                return { message: "Estás demasiado lejos." };
-            }
-        }
-    }
-    */
-    // --- FIN DE MODIFICACIÓN ---
-
-    // 2. Clic en el Terreno (si no estábamos apuntando a nada)
-    // --- ¡LÓGICA ORIGINAL RESTAURADA! ---
-    const target = findEntityAt(worldX, worldY); // <-- Esta línea busca BAJO EL CURSOR
-    if (target) { // <-- Si encuentra algo BAJO EL CURSOR
-        // 1. Clic en Entidad Interactuable (debajo del cursor)
-        player.isMovingToTarget = false; // Detener movimiento
+    // Clic en Entidad Interactuable (debajo del cursor)
+    const target = findEntityAt(worldX, worldY); 
+    if (target) { 
+        player.isMovingToTarget = false; 
         player.vx = 0; player.vy = 0;
         
         const dx = player.x - target.entity.x;
@@ -431,13 +402,14 @@ export function handleWorldHold(worldX, worldY) {
         const distance = Math.sqrt(dx*dx + dy*dy);
         
         if (distance < TILE_PX_WIDTH * 1.5) { // Rango de interacción
+            // --- ¡MODIFICADO! playerInteract AHORA inicia la animación ---
             return playerInteract(target.entity);
         } else {
             return { message: "Estás demasiado lejos." };
         }
     }
-    // --- FIN DE LÓGICA RESTAURADA ---
 
+    // Clic en el Terreno
     const gridX = Math.floor(worldX / TILE_PX_WIDTH);
     const gridY = Math.floor(worldY / TILE_PX_HEIGHT);
     const groundTileKey = getMapTileKey(gridX, gridY, player.z);
@@ -446,51 +418,33 @@ export function handleWorldHold(worldX, worldY) {
         return { message: "No puedes caminar ahí." };
     }
     
-    // 3. Moverse al punto (¡Lógica simple en línea recta!)
-    // const newPath = findPath(player.x, player.y, worldX, worldY, player.z); // <-- Comentado
-    
-    // if (newPath && newPath.length > 0) { // <-- Comentado
-    //     player.pathWaypoints = newPath;
-    // } else {
-    //     return { message: "No se puede encontrar una ruta." };
-    // }
-    
-    // player.isHoldingMove = true; // Marcar que estamos manteniendo pulsado // <-- Comentado
-    // pathRecalculateTimer = PATH_RECALCULATE_DELAY; // Iniciar cooldown // <-- Comentado
-
-    // --- ¡AÑADIDO! Lógica simple ---
+    // Moverse al punto
     player.isMovingToTarget = true;
     player.targetX = worldX;
     player.targetY = worldY;
-    // --- FIN DE AÑADIDO ---
 
     return { message: null }; // Fallback
 }
 
 /**
  * Maneja el MOVIMIENTO de un clic/pulsación en el mundo.
- * Se llama desde main.js (processHoldMove).
  */
 export function handleWorldMove(worldX, worldY) {
-    // --- ¡LÓGICA REESCRITA! ---
+    // Si estamos ocupados, no hacer nada
+    if (player.currentAction) return;
 
-    // --- MODO: Construcción o Terraformación (con item activo) ---
     const inventory = getInventory();
     const activeItem = inventory[player.activeHotbarSlot];
     const itemDef = activeItem ? ITEM_DEFINITIONS[activeItem.itemId] : null;
 
     if (itemDef && (itemDef.buildable_entity || itemDef.terraform_tile) && activeItem.itemId !== 'HAND') {
-        // Si estamos construyendo, "pintar" en el mundo
-        // (Llamar a handleWorldHold de nuevo simula un nuevo clic en la nueva posición)
+        // "Pintar" en el mundo (llamar a la lógica de construcción/terraform)
         handleWorldHold(worldX, worldY);
         return;
     }
-    // --- FIN DE MODO CONSTRUCCIÓN ---
-
 
     // Si nos estamos moviendo (porque hemos pulsado), actualizar el destino.
     if (player.isMovingToTarget) {
-        // Comprobar si el destino es válido (no sólido)
         const gridX = Math.floor(worldX / TILE_PX_WIDTH);
         const gridY = Math.floor(worldY / TILE_PX_HEIGHT);
         if (TERRAIN_DATA[getMapTileKey(gridX, gridY, player.z)]?.solid) {
@@ -498,49 +452,37 @@ export function handleWorldMove(worldX, worldY) {
             return; 
         }
         
-        // Actualizar destino
         player.targetX = worldX;
         player.targetY = worldY;
     }
-    // --- FIN DE LÓGICA REESCRITA ---
 }
 
 /**
  * Maneja el FIN de un clic/pulsación en el mundo.
- * Se llama desde main.js (processHoldEnd).
- * --- ¡MODIFICADO! ---
  * @param {boolean} didMove - true si el cursor/dedo se movió desde el 'start'.
  */
-export function handleWorldRelease(didMove) { // <-- Aceptar argumento
-    // --- ¡LÓGICA REESCRITA! ---
-    // player.isHoldingMove = false; // <-- Comentado
+export function handleWorldRelease(didMove) {
     
     // Si el usuario movió el cursor (fue un "drag" o "hold-to-move"),
     // detenemos el movimiento al soltar.
     if (didMove) {
         
-        // --- ¡NUEVO! Comprobar si estábamos construyendo ---
         const inventory = getInventory();
         const activeItem = inventory[player.activeHotbarSlot];
         const itemDef = activeItem ? ITEM_DEFINITIONS[activeItem.itemId] : null;
 
+        // Si estábamos "pintando" (construyendo), no hacemos nada más
         if (itemDef && (itemDef.buildable_entity || itemDef.terraform_tile) && activeItem.itemId !== 'HAND') {
-            // Si estábamos construyendo, no hacer nada más
+            // No detener el movimiento (ya estaba detenido)
         } else {
              // Si estábamos moviéndonos, detener
             player.isMovingToTarget = false;
             player.vx = 0;
             player.vy = 0;
         }
-
     }
     // Si no (didMove == false), fue un "tap" o "click".
-    // NO HACEMOS NADA.
-    // `player.isMovingToTarget` seguirá siendo 'true' (de handleWorldHold)
-    // y el bucle `updatePlayer` seguirá moviendo al jugador
-    // hasta que llegue al `player.targetX/Y`.
-    // (O, si fue un clic de interacción, `isMovingToTarget` ya se puso a 'false')
-    // --- FIN DE LÓGICA REESCRITA! ---
+    // No hacemos nada, el jugador seguirá moviéndose a su destino.
 }
  
 
@@ -548,17 +490,19 @@ export function handleWorldRelease(didMove) { // <-- Aceptar argumento
 /**
  * Maneja una acción de interacción (tecla Espacio o clic).
  * Se llama desde main.js o handleWorldTap.
+ * ¡MODIFICADO! Ahora inicia acciones en lugar de ejecutarlas.
  */
 export function playerInteract(targetEntity = null) {
     
-    // --- ¡AÑADIDO! ---
-    // Detener cualquier movimiento de pathfinding si interactuamos
-    // player.pathWaypoints = []; // <-- Comentado
-    player.isMovingToTarget = false; // <-- ¡AÑADIDO!
+    // --- ¡NUEVO! Comprobar si ya estamos ocupados ---
+    if (player.currentAction) {
+        return { message: "Ocupado..." };
+    }
+    
+    // Detener cualquier movimiento
+    player.isMovingToTarget = false; 
     player.vx = 0;
     player.vy = 0;
-    // player.isHoldingMove = false; // <-- Comentado
-    // --- FIN DE AÑADIDO ---
     
     if (player.mountedVehicleUid) {
         const vehicle = findEntityByUid(player.mountedVehicleUid);
@@ -580,13 +524,10 @@ export function playerInteract(targetEntity = null) {
 
         let closestDist = Infinity;
         
-        // Reutilizamos findEntityAt, pero es menos preciso que el bucle original
-        // Volvamos al bucle original para la interacción por 'facing'
         const chunkX = Math.floor(player.x / CHUNK_PX_WIDTH);
         const chunkY = Math.floor(player.y / CHUNK_PX_HEIGHT);
         const chunkKey = `${chunkX},${chunkY},${player.z}`;
         const chunk = getActiveChunk(chunkKey);
-        // NOTA: Esto solo comprueba el chunk actual, puede fallar en los bordes
         
         if (chunk) {
             for (const entity of chunk.entities) {
@@ -618,10 +559,11 @@ export function playerInteract(targetEntity = null) {
     // 2. Procesar la entidad encontrada
     if (entityToInteract) {
         const comps = entityToInteract.components;
+        const entityKey = entityToInteract.key; // ¡Clave de la entidad!
         
         // --- Sistema de Interacción: Prioridad de componentes ---
 
-        // A. ¿Es un cambio de nivel?
+        // A. ¿Es un cambio de nivel? (Instantáneo)
         if (comps.InteractableLevelChange) {
             const dir = comps.InteractableLevelChange.direction;
             let message = "";
@@ -636,33 +578,46 @@ export function playerInteract(targetEntity = null) {
                 }
                 message = "Subes por la escalera.";
             }
-            // Forzar recarga de chunks (se hará en el próximo 'update' de main)
             return { message: message };
         }
 
-        // B. ¿Es un Vehiculo?
+        // B. ¿Es un Vehiculo? (Instantáneo)
         if (comps.InteractableVehicle && comps.Vehicle) {            
             VehicleSystem.mountVehicle(player, entityToInteract, (key) => recordDelta(key, {}), getChunkKeyForEntity);
             const entityDef = ENTITY_DATA[entityToInteract.key];
             return { message: `Te has montado en: ${entityDef.name}.` };
         }
 
-        // C. ¿Es un Recurso?
+        // C. ¿Es un Recurso? (¡INICIA ANIMACIÓN!)
         if (comps.InteractableResource) {
-            const comp = comps.InteractableResource;
-            if (stats.energia >= comp.energyCost) {
-                // La importación de addItem está local a esta función
-                addItem(comp.itemId, comp.quantity);
-                stats.energia -= comp.energyCost;
-                recordDeltaFromEntity(entityToInteract, { type: 'REMOVE_ENTITY', uid: entityToInteract.uid });
-                const itemDef = ITEM_DEFINITIONS[comp.itemId];
-                return { message: `Has conseguido ${comp.quantity} de ${itemDef.name}.` };
-            } else {
-                return { message: "No tienes suficiente energía." };
+            
+            // --- ¡NUEVA LÓGICA DE ANIMACIÓN! ---
+            
+            // Comprobar si es un árbol
+            if (['TREE','CACTUS', 'ARBOL', 'ACACIA_TREE', 'JUNGLE_TREE', 'SNOW_TREE', 'CASTA_O', 'CEREZO_EN_FLOR'].includes(entityKey)) {
+                player.currentAction = 'chop';
+                player.actionTimer = CHOP_DURATION;
+                player.actionTarget = entityToInteract.uid;
+                return { message: "Talando..." };
             }
+            // Comprobar si es un objeto del suelo
+            else if (['ROCK', 'RAMA_SECA_SUELO', 'PIEDRA', 'RAMA_SECA', 'COGOLOS_MARIHUANA', 'PEPITA_ORO', 'TROZO_CARBON', 'CASTAÑA', 'TOMATE'].includes(entityKey)) {
+                 player.currentAction = 'pickup';
+                 player.actionTimer = PICKUP_DURATION;
+                 player.actionTarget = entityToInteract.uid;
+                 return { message: "Recogiendo..." };
+            }
+            // Fallback para otros recursos (ej. Cactus, Veta de Hierro)
+            else {
+                 player.currentAction = 'pickup'; // Usar anim de recoger
+                 player.actionTimer = PICKUP_DURATION;
+                 player.actionTarget = entityToInteract.uid;
+                 return { message: "Interactuando..." };
+            }
+            // --- FIN DE NUEVA LÓGICA ---
         }
         
-        // D. ¿Es un Menú?
+        // D. ¿Es un Menú? (Instantáneo)
         if (comps.InteractableMenu) {
             const comp = comps.InteractableMenu;
             openMenuCallback(comp.menuId); 
@@ -670,7 +625,7 @@ export function playerInteract(targetEntity = null) {
             return { message: `Abriendo ${entityDef.name}...` };
         }
 
-        // E. ¿Es un Diálogo?
+        // E. ¿Es un Diálogo? (Instantáneo)
         if (comps.InteractableDialogue) {
             const comp = comps.InteractableDialogue;
             if (Array.isArray(comp.message)) {

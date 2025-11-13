@@ -1,0 +1,270 @@
+{
+  "HAND": {
+    "name": "Mano",
+    "description": "Tus manos desnudas. Permiten interactuar con el mundo de forma segura sin colocar bloques.",
+    "imageKey": "MANO",
+    "stackable": false,
+    "maxStack": 1
+  },
+  "BASIC_SWORD": {
+    "name": "Espada Básica",
+    "description": "Una espada de hierro simple. Mejor que tus puños.",
+    "imageKey": "BASIC_SWORD_ICON",
+    "stackable": false,
+    "maxStack": 1,
+    "equipment": {
+      "model": "BASIC_SWORD",
+      "attachPoint": "RIGHT_HAND"
+    }
+  },
+  "WOOD": {
+    "name": "Tronco de Madera",
+    "description": "Un trozo de madera útil para construir.",
+    "imageKey": "TREE",
+    "stackable": true,
+    "maxStack": 99
+  },
+  "STONE": {
+    "name": "Piedra",
+    "description": "Una roca simple, buena para herramientas.",
+    "imageKey": "ROCK",
+    "stackable": true,
+    "maxStack": 99
+  },
+  "GOLD_COIN": {
+    "name": "Oro",
+    "description": "Brillante y valioso.",
+    "imageKey": "ITEM",
+    "stackable": true,
+    "maxStack": 999
+  },
+  "CACTUS_FIBER": {
+    "name": "Fibra",
+    "description": "Fibra resistente de un cactus.",
+    "imageKey": "FIBRAVEGETAL",
+    "stackable": true,
+    "maxStack": 99
+  },
+  "WOOD_PLANK": {
+    "name": "Tablón de Madera",
+    "description": "Madera refinada para construcción.",
+    "imageKey": "TABLON_MADERA",
+    "stackable": true,
+    "maxStack": 99
+  },
+  "STICK": {
+    "name": "Palo",
+    "description": "Un palo simple. Útil para herramientas.",
+    "imageKey": "PALO_MADERA_TRATADA",
+    "stackable": true,
+    "maxStack": 99
+  },
+  "WOODEN_PICKAXE": {
+    "name": "Pico de Madera",
+    "description": "Un pico básico para minar.",
+    "imageKey": "WOODEN_PICKAXE",
+    "stackable": false,
+    "maxStack": 1
+  },
+  "ITEM_WOOD_WALL": {
+    "name": "Pared de Madera",
+    "description": "Una pared de madera básica.",
+    "imageKey": "WALL",
+    "stackable": true,
+    "maxStack": 99,
+    "buildable_entity": "WOOD_WALL_ENTITY"
+  },
+  "ITEM_STONE_PILLAR": {
+    "name": "Pilar de Piedra",
+    "description": "Un pilar de piedra de soporte.",
+    "imageKey": "STATUE",
+    "stackable": true,
+    "maxStack": 99,
+    "buildable_entity": "STONE_PILLAR_ENTITY"
+  },
+  "ITEM_STONE_GROUND_SLAB": {
+    "name": "Adoquín de Piedra",
+    "description": "Un trozo de suelo de piedra.",
+    "imageKey": "STONE_GROUND",
+    "stackable": true,
+    "maxStack": 99,
+    "terraform_tile": "STONE_GROUND"
+  },
+  "ESPADA_KATANA_MAGICA": {
+    "key": "ESPADA_KATANA_MAGICA",
+    "name": "Espada Katana Mágica",
+    "description": "Una poderosa espada katana imbuida de magia, forjada por antiguos hechiceros.",
+    "imageKey": "ESPADA_KATANA_MAGICA",
+    "maxStack": 1,
+    "stackable": false,
+    "equipment": {
+      "model": "KATANA",
+      "attachPoint": "RIGHT_HAND"
+    }
+  },
+  "TRONCO_MADERA": {
+    "key": "TRONCO_MADERA",
+    "name": "Tronco de Madera",
+    "description": "Un tronco de árbol recién cortado.",
+    "imageKey": "TRONCO_MADERA",
+    "maxStack": 99,
+    "stackable": true
+  },
+  "PIEDRA": {
+    "key": "PIEDRA",
+    "name": "Piedra",
+    "description": "Un material básico de construcción.",
+    "imageKey": "PIEDRA",
+    "maxStack": 99,
+    "stackable": true
+  },
+  "PALO_MADERA": {
+    "name": "Palo de Madera",
+    "description": "Un trozo de madera útil.",
+    "imageKey": "PALO_MADERA_TRATADA",
+    "stackable": true,
+    "maxStack": 99
+  },
+  "TRONCO_MADERA_CORTADO": {
+    "key": "TRONCO_MADERA_CORTADO",
+    "name": "Tronco de Madera Cortado",
+    "description": "Un trozo de madera recién cortada, útil para construir.",
+    "imageKey": "TRONCO_MADERA_CORTADO",
+    "maxStack": 99,
+    "stackable": true
+  },
+  "PAN": {
+    "key": "PAN",
+    "name": "Pan",
+    "description": "Comida básica para recuperar energía.",
+    "imageKey": "PAN",
+    "maxStack": 99,
+    "stackable": true
+  },
+  "ARTEFACTO_MAGICO": {
+    "key": "ARTEFACTO_MAGICO",
+    "name": "Artefacto Mágico",
+    "description": "Un objeto antiguo con poderes místicos.",
+    "imageKey": "ARTEFACTO_MAGICO",
+    "maxStack": 1,
+    "stackable": false
+  },
+  "PALO_MADERA_TRATADA": {
+    "key": "PALO_MADERA_TRATADA",
+    "name": "Palo de Madera Tratada",
+    "description": "Un palo de madera reforzado y resistente.",
+    "imageKey": "PALO_MADERA_TRATADA",
+    "maxStack": 99,
+    "stackable": true
+  },
+  "TABLON_MADERA": {
+    "key": "TABLON_MADERA",
+    "name": "Tablón de Madera",
+    "description": "Un tablón de madera resistente, ideal para construir.",
+    "imageKey": "TABLON_MADERA",
+    "maxStack": 99,
+    "stackable": true
+  },
+  "RAMA_SECA": {
+    "name": "Rama Seca",
+    "description": "Rama Seca",
+    "imageKey": "RAMA_SECA_SUELO",
+    "stackable": true,
+    "maxStack": 99
+  },
+  "HACHA_SILEX": {
+    "name": "Hacha de Sílex",
+    "description": "Un hacha rudimentaria hecha con sílex, palo y cuerda. Útil para talar.",
+    "imageKey": "HACHA_VERTICAL",
+    "stackable": false,
+    "maxStack": 1
+  },
+  "POCION_FOTORREALISTA": {
+    "key": "POCION_FOTORREALISTA",
+    "name": "Poción Fotorrealista",
+    "description": "Una poción con un nivel de detalle increíble.",
+    "imageKey": "POCION_FOTORREALISTA",
+    "maxStack": 99,
+    "stackable": true
+  },
+  "COGOLOS_MARIHUANA": {
+    "key": "COGOLOS_MARIHUANA",
+    "name": "Cogollos de Marihuana",
+    "description": "Cogollos de marihuana, listos para cosechar o procesar.",
+    "imageKey": "COGOLOS_MARIHUANA",
+    "maxStack": 99,
+    "stackable": true
+  },
+  "SEMILLAS_MARIHUANA": {
+    "name": "Semillas de Marihuana",
+    "description": "Semillas para cultivar una planta especial.",
+    "imageKey": "SEMILLAS_MARIHUANA",
+    "stackable": true,
+    "maxStack": 99,
+    "buildable_entity": "BROTEMARIHUANA"
+  },
+  "CHARCO_AGUA": {
+    "key": "CHARCO_AGUA",
+    "name": "Charco de Agua",
+    "description": "Un pequeño charco de agua para mojar el suelo.",
+    "imageKey": "CHARCO_AGUA",
+    "maxStack": 99,
+    "stackable": true,
+    "terraform_tile": "CHARCO_AGUA_TERRENO"
+  },
+  "CUBO_AGUA": {
+    "key": "CUBO_AGUA",
+    "name": "Cubo de Agua",
+    "description": "Un cubo lleno de agua.",
+    "imageKey": "CUBO_AGUA",
+    "maxStack": 99,
+    "stackable": true
+  },
+  "LLAVE_FERRARI": {
+    "name": "Llave de Coche Ferrari",
+    "description": "Una llave para arrancar un coche Ferrari.",
+    "imageKey": "LLAVE_FERRARI",
+    "stackable": true,
+    "maxStack": 5,
+    "buildable_entity": "FERRARI_FRENTE"
+  },
+  "LATA_DE_MONSTER": {
+    "key": "LATA_DE_MONSTER",
+    "name": "Lata de Monster",
+    "description": "Una bebida energ\\u00e9tica. \\u00a1Te da un subid\\u00f3n de energ\\u00eda!",
+    "imageKey": "LATA_DE_MONSTER",
+    "maxStack": 99,
+    "stackable": true
+  },
+  "LATA_RED_BULL": {
+    "key": "LATA_RED_BULL",
+    "name": "Lata de Red Bull",
+    "description": "Una bebida energética para recuperar vitalidad.",
+    "imageKey": "LATA_RED_BULL",
+    "maxStack": 99,
+    "stackable": true
+  },
+  "LLAVE_MASERATI": {
+    "key": "LLAVE_MASERATI",
+    "name": "Llave de Maserati",
+    "description": "La llave para arrancar un Maserati.",
+    "imageKey": "LLAVE_MASERATI",
+    "maxStack": 1,
+    "stackable": false
+  },
+  "DAGA": {
+    "name": "Daga",
+    "description": "",
+    "imageKey": "ESPADA",
+    "stackable": true,
+    "maxStack": 99
+  },
+  "KAI_KATANA": {
+    "key": "KAI_KATANA",
+    "name": "Katana Vertical",
+    "description": "Una katana orientada verticalmente, lista para la batalla.",
+    "imageKey": "KAI_KATANA",
+    "maxStack": 1,
+    "stackable": false
+  }
+}

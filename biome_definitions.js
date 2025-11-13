@@ -1,5 +1,6 @@
 // --- biome_definitions.js ---
 // Contiene la LÓGICA para interpretar los datos de biome_definitions.json
+// ¡MODIFICADO! Ahora usa una función getNoise()
 
 // Almacén para las definiciones cargadas desde JSON
 let BIOME_DATA = {};
@@ -18,31 +19,43 @@ export function processBiomeDefinitions(biomeJsonData) {
         
         const data = BIOME_DATA[biomeKey];
         
-        // Creamos una función 'getTileAndEntities' específica para este bioma
-        // que lee sus datos de configuración (data).
+        // --- ¡SIGNATURA MODIFICADA! ---
+        // Ahora recibe 'getNoise' (una función) en lugar de 'noises' (un objeto)
         BIOME_CONFIG[biomeKey] = {
-            getTileAndEntities: (noises, uid, x, y, z, createEntity) => {
+            getTileAndEntities: (getNoise, uid, x, y, z, createEntity) => {
+        // --- FIN DE MODIFICACIÓN ---
                 
                 let tileKey = data.baseTile;
                 const entities = [];
 
-                // 1. Comprobar reglas de terreno (NUEVA LÓGICA)
-                // Ahora iteramos un array, permitiendo múltiples reglas de terreno
+                // 1. Comprobar reglas de terreno
                 if (data.terrainRules && data.terrainRules.length > 0) {
                     for (const rule of data.terrainRules) {
-                        const noiseVal = noises[rule.noise];
+                        // --- ¡MODIFICADO! ---
+                        const noiseVal = getNoise(rule.noise); // Llama a la función
+                        // --- FIN DE MODIFICACIÓN ---
                         if (noiseVal > rule.threshold) {
                             tileKey = rule.tileKey; // La última regla que coincida, gana
                         }
                     }
                 }
 
-                // 2. Comprobar generación de entidades (Lógica anterior)
+                // 2. Comprobar generación de entidades
                 if (data.entities && data.entities.length > 0) {
                     for (const entityRule of data.entities) {
-                        const noiseVal = noises[entityRule.noise];
+                        // --- ¡MODIFICADO! ---
+                        const noiseVal = getNoise(entityRule.noise); // Llama a la función
+                        // --- FIN DE MODIFICACIÓN ---
+                        
                         // Comparamos el ruido (ej. 0.9) con el umbral (ej. 0.85)
                         if (noiseVal > entityRule.threshold) {
+                            
+                            // ¡NUEVO! Log para verificar nuevos tipos
+                            if (entityRule.type !== 'vegetation') {
+                                // console.log(`Generando entidad de tipo [${entityRule.type}] en ${biomeKey}`);
+                            }
+                            // --- FIN DE NUEVO ---
+
                             const entity = createEntity(entityRule.entityKey, x, y, z, `${uid}_${entityRule.entityKey}`);
                             if (entity) {
                                 entities.push(entity);
@@ -56,9 +69,7 @@ export function processBiomeDefinitions(biomeJsonData) {
         };
     }
     
-    // El bioma 'UNDERGROUND' es especial y no sigue estas reglas,
-    // así que nos aseguramos de que tenga una entrada (aunque no se use
-    // su función getTileAndEntities, ya que generateUndergroundChunk tiene prioridad).
+    // El bioma 'UNDERGROUND' es especial
     if (!BIOME_CONFIG['UNDERGROUND']) {
          BIOME_CONFIG['UNDERGROUND'] = {
             getTileAndEntities: () => {

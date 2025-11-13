@@ -3,7 +3,7 @@
 
 import { ITEM_DEFINITIONS } from './items.js';
 
-const MAX_SLOTS = 30; // 5 filas de 6 columnas
+export const MAX_SLOTS = 30; // 5 filas de 6 columnas
 let playerInventory = [];
 
 /**
@@ -69,14 +69,23 @@ export function addItem(itemId, quantity) {
         for (let i = 0; i < playerInventory.length; i++) {
             if (playerInventory[i] === null) {
                 // Encontrado un slot vacío
-                const toAdd = Math.min(quantityToAdd, itemDef.maxStack);
+                // ¡MODIFICADO! Asegurarse de que los stacks nuevos también respeten maxStack
+                const maxStackSize = itemDef.stackable ? itemDef.maxStack : 1;
+                const toAdd = Math.min(quantityToAdd, maxStackSize);
+                
                 playerInventory[i] = {
                     itemId: itemId,
                     quantity: toAdd
                 };
                 quantityToAdd -= toAdd;
 
+                // Si queda más por añadir Y es apilable, seguir buscando slots vacíos
                 if (quantityToAdd === 0) return true; // Terminado
+                if (!itemDef.stackable) {
+                     // Si no es apilable y hemos añadido uno, seguir buscando
+                     // (esto permite añadir múltiples espadas, por ejemplo)
+                     continue;
+                }
             }
         }
     }
@@ -87,8 +96,6 @@ export function addItem(itemId, quantity) {
     console.warn(`Inventario lleno. No se pudo añadir ${quantityToAdd} de ${itemId}`);
     return false; // No se pudo añadir nada
 }
-
-// --- Funciones futuras (no implementadas aún) ---
 
 /**
  * Elimina una cantidad de un objeto del inventario.
@@ -132,12 +139,47 @@ export function removeItem(itemId, quantity) {
 }
 
 /**
+ * ¡NUEVO! Genera un mapa con el conteo total de cada item en el inventario.
+ * @returns {Map<string, number>} - Un mapa de {itemId: totalQuantity}
+ */
+export function getInventoryCounts() {
+    const counts = new Map();
+    for (const slot of playerInventory) {
+        if (slot) {
+            counts.set(slot.itemId, (counts.get(slot.itemId) || 0) + slot.quantity);
+        }
+    }
+    return counts;
+}
+
+/**
+ * ¡NUEVO! Comprueba si el jugador tiene suficientes materiales para una receta.
+ * @param {Array<object>} requirements - ej. [{ itemId: "WOOD", quantity: 2 }]
+ * @returns {boolean}
+ */
+export function hasItems(requirements) {
+    if (!requirements || requirements.length === 0) {
+        return true; // Una receta sin requisitos siempre se puede craftear
+    }
+    
+    const counts = getInventoryCounts();
+    
+    for (const req of requirements) {
+        if ((counts.get(req.itemId) || 0) < req.quantity) {
+            return false; // No hay suficiente de este item
+        }
+    }
+    
+    return true; // Se tienen todos los items
+}
+
+/**
  * Comprueba si el jugador tiene suficiente de un objeto.
  * @param {string} itemId 
  * @param {number} quantity 
  * @returns {boolean}
  */
 export function hasItem(itemId, quantity) {
-    // TODO: Implementar comprobación
-    return false;
+    const counts = getInventoryCounts();
+    return (counts.get(itemId) || 0) >= quantity;
 }

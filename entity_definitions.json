@@ -1,165 +1,2166 @@
 {
-    "TREE": {
-        "name": "un árbol",
-        "renderMode": "cross",
-        "components": [
-            { "type": "Renderable", "args": ["TREE"] },
-            { "type": "Collision", "args": [true, { "width": 40, "height": 20, "offsetY": 60 }] },
-            { "type": "InteractableResource", "args": ["WOOD", 1, 2] } 
+  "TREE": {
+    "name": "un árbol",
+    "renderMode": "cross",
+    "components": [
+      {
+        "type": "Renderable",
+        "args": [
+          "TREE"
         ]
-    },
-    "ROCK": {
-        "name": "una roca",
-        "renderMode": "cross",
-        "components": [
-            { "type": "Renderable", "args": ["ROCK"] },
-            { "type": "Collision", "args": [true, { "width": 60, "height": 30, "offsetY": 30 }] },
-            { "type": "InteractableResource", "args": ["STONE", 1, 1] }
+      },
+      {
+        "type": "Collision",
+        "args": [
+          true,
+          {
+            "width": 40,
+            "height": 20,
+            "offsetY": 60
+          }
         ]
-    },
-    "CACTUS": {
-        "name": "un cactus",
-        "renderMode": "cross",
-        "components": [
-            { "type": "Renderable", "args": ["CACTUS"] },
-            { "type": "Collision", "args": [true, { "width": 30, "height": 20, "offsetY": 50 }] },
-            { "type": "InteractableResource", "args": ["CACTUS_FIBER", 1, 1] }
+      },
+      {
+        "type": "InteractableResource",
+        "args": [
+          "TRONCO_MADERA",
+          1,
+          2
         ]
-    },
-    "ACACIA_TREE": {
-        "name": "una acacia",
-        "renderMode": "cross",
-        "components": [
-            { "type": "Renderable", "args": ["ACACIA_TREE"] },
-            { "type": "Collision", "args": [true, { "width": 40, "height": 20, "offsetY": 60 }] },
-            { "type": "InteractableResource", "args": ["WOOD", 1, 2] }
+      }
+    ]
+  },
+  "ROCK": {
+    "name": "una roca",
+    "renderMode": "cross",
+    "components": [
+      {
+        "type": "Renderable",
+        "args": [
+          "ROCK"
         ]
-    },
-    "JUNGLE_TREE": {
-        "name": "un árbol de jungla",
-        "renderMode": "cross",
-        "components": [
-            { "type": "Renderable", "args": ["JUNGLE_TREE"] },
-            { "type": "Collision", "args": [true, { "width": 40, "height": 20, "offsetY": 60 }] },
-            { "type": "InteractableResource", "args": ["WOOD", 1, 2] }
+      },
+      {
+        "type": "Collision",
+        "args": [
+          true,
+          {
+            "width": 60,
+            "height": 30,
+            "offsetY": 30
+          }
         ]
-    },
-    "SNOW_TREE": {
-        "name": "un árbol nevado",
-        "renderMode": "cross",
-        "components": [
-            { "type": "Renderable", "args": ["SNOW_TREE"] },
-            { "type": "Collision", "args": [true, { "width": 40, "height": 20, "offsetY": 60 }] },
-            { "type": "InteractableResource", "args": ["WOOD", 1, 2] }
+      },
+      {
+        "type": "InteractableResource",
+        "args": [
+          "STONE",
+          1,
+          1
         ]
-    },
-    "IRON_VEIN": {
-        "name": "veta de mineral",
-        "renderMode": "cross",
-        "components": [
-            { "type": "Renderable", "args": ["IRON_VEIN"] },
-            { "type": "Collision", "args": [true, { "width": 60, "height": 30, "offsetY": 30 }] },
-            { "type": "InteractableResource", "args": ["IRON_ORE", 1, 3] }
+      }
+    ]
+  },
+  "CACTUS": {
+    "name": "un cactus",
+    "renderMode": "cross",
+    "components": [
+      {
+        "type": "Renderable",
+        "args": [
+          "CACTUS"
         ]
-    },
-    "NPC": {
-        "name": "una persona",
-        "renderMode": "billboard",
-        "components": [
-            { "type": "Renderable", "args": ["NPC"] },
-            { "type": "Collision", "args": [true, { "width": 40, "height": 20, "offsetY": 40 }] },
-            { "type": "InteractableDialogue", "args": ["Bienvenidos a Planelite!!!"] },
-            { "type": "MovementAI", "args": ["WANDER", 50] } 
+      },
+      {
+        "type": "Collision",
+        "args": [
+          true,
+          {
+            "width": 30,
+            "height": 20,
+            "offsetY": 50
+          }
         ]
-    },
-    "STATUE": {
-        "name": "una estatua enorme",
-        "renderMode": "billboard",
-        "components": [
-            { "type": "Renderable", "args": ["STATUE"] },
-            { "type": "Collision", "args": [true, { "width": 120, "height": 40, "offsetY": 160 }] },
-            { "type": "InteractableDialogue", "args": ["Una estatua imponente. Marca el spawn (0,0,0)."] }
+      },
+      {
+        "type": "InteractableResource",
+        "args": [
+          "CACTUS_FIBER",
+          1,
+          1
         ]
-    },
-    "CRAFTING_TABLE": {
-        "name": "Mesa de Trabajo",
-        "renderMode": "billboard",
-        "components": [
-            { "type": "Renderable", "args": ["MESATRABAJO"] }, 
-            { "type": "Collision", "args": [true, { "width": 70, "height": 30, "offsetY": 30 }] },
-            { "type": "InteractableMenu", "args": ["CRAFTING"] }
+      }
+    ]
+  },
+  "ACACIA_TREE": {
+    "name": "una acacia",
+    "renderMode": "cross",
+    "components": [
+      {
+        "type": "Renderable",
+        "args": [
+          "ACACIA_TREE"
         ]
-    },
-    "STAIRS_DOWN": {
-        "name": "escalera hacia abajo",
-        "renderMode": "billboard",
-        "components": [
-            { "type": "Renderable", "args": ["STAIRS_DOWN"] },
-            { "type": "Collision", "args": [false] },
-            { "type": "InteractableLevelChange", "args": ["down"] }
+      },
+      {
+        "type": "Collision",
+        "args": [
+          true,
+          {
+            "width": 40,
+            "height": 20,
+            "offsetY": 60
+          }
         ]
-    },
-    "STAIRS_UP": {
-        "name": "escalera hacia arriba",
-        "renderMode": "billboard",
-        "components": [
-            { "type": "Renderable", "args": ["STAIRS_UP"] },
-            { "type": "Collision", "args": [false] },
-            { "type": "InteractableLevelChange", "args": ["up"] }
+      },
+      {
+        "type": "InteractableResource",
+        "args": [
+          "TRONCO_MADERA",
+          1,
+          2
         ]
-    },
-    "COCHE": {
-        "name": "un coche",
-        "renderMode": "billboard",
-        "components": [
-            { "type": "Renderable", "args": ["COCHE"] },
-            { "type": "Collision", "args": [true, { "width": 70, "height": 35, "offsetY": 35 }] },
-            { "type": "Vehicle", "args": [400] }, 
-            { "type": "InteractableVehicle", "args": [] }
+      }
+    ]
+  },
+  "JUNGLE_TREE": {
+    "name": "un árbol de jungla",
+    "renderMode": "cross",
+    "components": [
+      {
+        "type": "Renderable",
+        "args": [
+          "JUNGLE_TREE"
         ]
-    },
-    "ITEM_GOLD": {
-        "name": "un objeto brillante",
-        "renderMode": "billboard",
-        "components": [
-            { "type": "Renderable", "args": ["ITEM"] },
-            { "type": "Collision", "args": [false] }, 
-            { "type": "Collectible", "args": ["GOLD_COIN", 10] } 
+      },
+      {
+        "type": "Collision",
+        "args": [
+          true,
+          {
+            "width": 40,
+            "height": 20,
+            "offsetY": 60
+          }
         ]
-    },
-    "SAPLING": {
-        "name": "un brote",
-        "renderMode": "cross",
-        "components": [
-            { "type": "Renderable", "args": ["ITEM"] }, 
-            { "type": "Collision", "args": [false] },
-            { "type": "Growth", "args": [10000, "TREE"] } 
+      },
+      {
+        "type": "InteractableResource",
+        "args": [
+          "TRONCO_MADERA",
+          1,
+          2
         ]
-    },
-    "PLAYER": {
-        "name": "jugador",
-        "renderMode": "billboard",
-        "components": [
-            { "type": "Renderable", "args": ["PLAYER"] },
-            { "type": "Collision", "args": [true, { "width": 40, "height": 20, "offsetY": 40 }] }
+      }
+    ]
+  },
+  "SNOW_TREE": {
+    "name": "un árbol nevado",
+    "renderMode": "cross",
+    "components": [
+      {
+        "type": "Renderable",
+        "args": [
+          "SNOW_TREE"
         ]
-    },
-    "WOOD_WALL_ENTITY": {
-        "name": "Pared de Madera",
-        "renderMode": "cube",
-        "components": [
-            { "type": "Renderable", "args": ["WALL"] },
-            { "type": "Collision", "args": [true, { "width": 70, "height": 70, "offsetY": 35 }] },
-            { "type": "InteractableResource", "args": ["ITEM_WOOD_WALL", 1, 1] }
+      },
+      {
+        "type": "Collision",
+        "args": [
+          true,
+          {
+            "width": 40,
+            "height": 20,
+            "offsetY": 60
+          }
         ]
-    },
-    "STONE_PILLAR_ENTITY": {
-        "name": "Pilar de Piedra",
-        "renderMode": "cube",
-        "components": [
-            { "type": "Renderable", "args": ["STATUE"] },
-            { "type": "Collision", "args": [true, { "width": 50, "height": 100, "offsetY": 50 }] },
-            { "type": "InteractableResource", "args": ["ITEM_STONE_PILLAR", 1, 1] }
+      },
+      {
+        "type": "InteractableResource",
+        "args": [
+          "TRONCO_MADERA",
+          1,
+          2
         ]
-    }
+      }
+    ]
+  },
+  "IRON_VEIN": {
+    "name": "veta de mineral",
+    "renderMode": "cross",
+    "components": [
+      {
+        "type": "Renderable",
+        "args": [
+          "IRON_VEIN"
+        ]
+      },
+      {
+        "type": "Collision",
+        "args": [
+          true,
+          {
+            "width": 60,
+            "height": 30,
+            "offsetY": 30
+          }
+        ]
+      },
+      {
+        "type": "InteractableResource",
+        "args": [
+          "IRON_ORE",
+          1,
+          3
+        ]
+      }
+    ]
+  },
+  "NPC": {
+    "name": "una persona",
+    "renderMode": "billboard",
+    "components": [
+      {
+        "type": "Renderable",
+        "args": [
+          "NPC"
+        ]
+      },
+      {
+        "type": "Collision",
+        "args": [
+          true,
+          {
+            "width": 40,
+            "height": 20,
+            "offsetY": 40
+          }
+        ]
+      },
+      {
+        "type": "InteractableDialogue",
+        "args": [
+          "Bienvenidos a Planelite!!!"
+        ]
+      },
+      {
+        "type": "MovementAI",
+        "args": [
+          "WANDER",
+          50
+        ]
+      }
+    ]
+  },
+  "STATUE": {
+    "name": "una estatua enorme",
+    "renderMode": "billboard",
+    "components": [
+      {
+        "type": "Renderable",
+        "args": [
+          "ESTATUA_GRIEGA"
+        ]
+      },
+      {
+        "type": "Collision",
+        "args": [
+          true,
+          {
+            "width": 40,
+            "height": 20,
+            "offsetY": 60
+          }
+        ]
+      },
+      {
+        "type": "InteractableDialogue",
+        "args": [
+          "Una estatua imponente. Marca el spawn (0,0,0)."
+        ]
+      }
+    ]
+  },
+  "CRAFTING_TABLE": {
+    "name": "Mesa de Carpintero",
+    "renderMode": "billboard",
+    "components": [
+      {
+        "type": "Renderable",
+        "args": [
+          "MESATRABAJO"
+        ]
+      },
+      {
+        "type": "Collision",
+        "args": [
+          true,
+          {
+            "width": 70,
+            "height": 30,
+            "offsetY": 30
+          }
+        ]
+      },
+      {
+        "type": "InteractableMenu",
+        "args": [
+          "CARPENTRY"
+        ]
+      }
+    ]
+  },
+  "ALCHEMY_STATION": {
+    "name": "Mesa de Alquimia",
+    "renderMode": "billboard",
+    "components": [
+      {
+        "type": "Renderable",
+        "args": [
+          "ITEM"
+        ]
+      },
+      {
+        "type": "Collision",
+        "args": [
+          true,
+          {
+            "width": 70,
+            "height": 30,
+            "offsetY": 30
+          }
+        ]
+      },
+      {
+        "type": "InteractableMenu",
+        "args": [
+          "ALCHEMY"
+        ]
+      }
+    ]
+  },
+  "COOKING_POT": {
+    "name": "Caldero",
+    "renderMode": "billboard",
+    "components": [
+      {
+        "type": "Renderable",
+        "args": [
+          "ROCK"
+        ]
+      },
+      {
+        "type": "Collision",
+        "args": [
+          true,
+          {
+            "width": 70,
+            "height": 30,
+            "offsetY": 30
+          }
+        ]
+      },
+      {
+        "type": "InteractableMenu",
+        "args": [
+          "COOKING"
+        ]
+      }
+    ]
+  },
+  "STAIRS_DOWN": {
+    "name": "escalera hacia abajo",
+    "renderMode": "billboard",
+    "components": [
+      {
+        "type": "Renderable",
+        "args": [
+          "ENTRADA_MINA_NATURAL"
+        ]
+      },
+      {
+        "type": "Collision",
+        "args": [
+          true,
+          {
+            "width": 40,
+            "height": 40,
+            "offsetY": 20
+          }
+        ]
+      },
+      {
+        "type": "InteractableLevelChange",
+        "args": [
+          "down"
+        ]
+      }
+    ]
+  },
+  "STAIRS_UP": {
+    "name": "escalera hacia arriba",
+    "renderMode": "billboard",
+    "components": [
+      {
+        "type": "Renderable",
+        "args": [
+          "STAIRS_UP"
+        ]
+      },
+      {
+        "type": "Collision",
+        "args": [
+          false
+        ]
+      },
+      {
+        "type": "InteractableLevelChange",
+        "args": [
+          "up"
+        ]
+      }
+    ]
+  },
+  "COCHE": {
+    "name": "un coche",
+    "renderMode": "billboard",
+    "components": [
+      {
+        "type": "Renderable",
+        "args": [
+          "COCHE"
+        ]
+      },
+      {
+        "type": "Collision",
+        "args": [
+          true,
+          {
+            "width": 70,
+            "height": 35,
+            "offsetY": 35
+          }
+        ]
+      },
+      {
+        "type": "Vehicle",
+        "args": [
+          400
+        ]
+      },
+      {
+        "type": "InteractableVehicle",
+        "args": []
+      }
+    ]
+  },
+  "ITEM_GOLD": {
+    "name": "un objeto brillante",
+    "renderMode": "billboard",
+    "components": [
+      {
+        "type": "Renderable",
+        "args": [
+          "ITEM"
+        ]
+      },
+      {
+        "type": "Collision",
+        "args": [
+          false
+        ]
+      },
+      {
+        "type": "Collectible",
+        "args": [
+          "GOLD_COIN",
+          10
+        ]
+      }
+    ]
+  },
+  "SAPLING": {
+    "name": "un brote",
+    "renderMode": "cross",
+    "components": [
+      {
+        "type": "Renderable",
+        "args": [
+          "ITEM"
+        ]
+      },
+      {
+        "type": "Collision",
+        "args": [
+          false
+        ]
+      },
+      {
+        "type": "Growth",
+        "args": [
+          10000,
+          "TREE"
+        ]
+      }
+    ]
+  },
+  "PLAYER": {
+    "name": "jugador",
+    "renderMode": "billboard",
+    "components": [
+      {
+        "type": "Renderable",
+        "args": [
+          "PLAYER"
+        ]
+      },
+      {
+        "type": "Collision",
+        "args": [
+          true,
+          {
+            "width": 40,
+            "height": 20,
+            "offsetY": 40
+          }
+        ]
+      }
+    ]
+  },
+  "WOOD_WALL_ENTITY": {
+    "name": "Pared de Madera",
+    "renderMode": "cube",
+    "components": [
+      {
+        "type": "Renderable",
+        "args": [
+          "WALL"
+        ]
+      },
+      {
+        "type": "Collision",
+        "args": [
+          true,
+          {
+            "width": 70,
+            "height": 70,
+            "offsetY": 35
+          }
+        ]
+      },
+      {
+        "type": "InteractableResource",
+        "args": [
+          "ITEM_WOOD_WALL",
+          1,
+          1
+        ]
+      }
+    ]
+  },
+  "STONE_PILLAR_ENTITY": {
+    "name": "Pilar de Piedra",
+    "renderMode": "cube",
+    "components": [
+      {
+        "type": "Renderable",
+        "args": [
+          "STATUE"
+        ]
+      },
+      {
+        "type": "Collision",
+        "args": [
+          true,
+          {
+            "width": 50,
+            "height": 100,
+            "offsetY": 50
+          }
+        ]
+      },
+      {
+        "type": "InteractableResource",
+        "args": [
+          "ITEM_STONE_PILLAR",
+          1,
+          1
+        ]
+      }
+    ]
+  },
+  "GUERRERO_MAHORI": {
+    "name": "guerrero mahori",
+    "renderMode": "billboard",
+    "components": [
+      {
+        "type": "Renderable",
+        "args": [
+          "GUERRERO_MAHORI"
+        ]
+      }
+    ]
+  },
+  "UN_VENERABLE_ANCIANO_QUE_TE_CUENTA_UN_POEMA_Y_ANDA_ALEATORIO": {
+    "name": "un venerable anciano que te cuenta un poema y anda aleatorio",
+    "renderMode": "billboard",
+    "components": [
+      {
+        "type": "Renderable",
+        "args": [
+          "UN_VENERABLE_ANCIANO_QUE_TE_CUENTA_UN_POEMA_Y_ANDA_ALEATORIO"
+        ]
+      }
+    ]
+  },
+  "MURO_DE_PIEDRA": {
+    "name": "muro de piedra",
+    "renderMode": "billboard",
+    "components": [
+      {
+        "type": "Renderable",
+        "args": [
+          "MURO_DE_PIEDRA"
+        ]
+      }
+    ]
+  },
+  "ORCO": {
+    "name": "orco",
+    "renderMode": "billboard",
+    "components": [
+      {
+        "type": "Renderable",
+        "args": [
+          "ORCO"
+        ]
+      }
+    ]
+  },
+  "ARBOL": {
+    "key": "ARBOL",
+    "name": "Árbol",
+    "renderMode": "billboard",
+    "components": [
+      {
+        "type": "Renderable",
+        "args": [
+          "ARBOL"
+        ]
+      },
+      {
+        "type": "Collision",
+        "args": [
+          true,
+          {
+            "x": 0,
+            "y": 0,
+            "width": 1,
+            "height": 1
+          }
+        ]
+      },
+      {
+        "type": "InteractableResource",
+        "args": [
+          "MADERA",
+          3,
+          10
+        ]
+      }
+    ]
+  },
+  "HECHICERO_OSCURO": {
+    "name": "Hechicero Oscuro",
+    "renderMode": "billboard",
+    "components": [
+      {
+        "type": "Renderable",
+        "args": [
+          "HECHICEROOSCURO"
+        ]
+      },
+      {
+        "type": "Collision",
+        "args": [
+          true,
+          {
+            "width": 1,
+            "height": 1,
+            "offsetY": 0
+          }
+        ]
+      },
+      {
+        "type": "InteractableDialogue",
+        "args": [
+          "Oh Mai Lord!"
+        ]
+      },
+      {
+        "type": "MovementAI",
+        "args": [
+          "",
+          0
+        ]
+      }
+    ]
+  },
+  "MURO_MADERA": {
+    "key": "MURO_MADERA",
+    "name": "Muro de Madera",
+    "renderMode": "cube",
+    "components": [
+      {
+        "type": "Renderable",
+        "args": [
+          "MURO_MADERA"
+        ]
+      },
+      {
+        "type": "Collision",
+        "args": [
+          true,
+          [
+            0,
+            0,
+            1,
+            1
+          ]
+        ]
+      }
+    ]
+  },
+  "PARED_MADERA": {
+    "key": "PARED_MADERA",
+    "name": "Pared de Madera",
+    "renderMode": "cube",
+    "components": [
+      {
+        "type": "Renderable",
+        "args": [
+          "PARED_MADERA"
+        ]
+      },
+      {
+        "type": "Collision",
+        "args": [
+          true,
+          [
+            0,
+            0,
+            0,
+            1,
+            1,
+            1
+          ]
+        ]
+      }
+    ]
+  },
+  "PERSONA": {
+    "key": "PERSONA",
+    "name": "Persona",
+    "renderMode": "billboard",
+    "components": [
+      {
+        "type": "Renderable",
+        "args": [
+          "PERSONA"
+        ]
+      },
+      {
+        "type": "Collision",
+        "args": [
+          {
+            "isSolid": true,
+            "collisionBox": "{\"x\":0, \"y\":0, \"width\":1, \"height\":1}"
+          }
+        ]
+      }
+    ]
+  },
+  "PERSONAJE": {
+    "key": "PERSONAJE",
+    "name": "Personaje",
+    "renderMode": "billboard",
+    "components": [
+      {
+        "type": "Renderable",
+        "args": [
+          "PERSONAJE"
+        ]
+      }
+    ]
+  },
+  "GNOMO": {
+    "key": "GNOMO",
+    "name": "Gnomo",
+    "renderMode": "billboard",
+    "components": [
+      {
+        "type": "Renderable",
+        "args": [
+          "GNOMO"
+        ]
+      }
+    ]
+  },
+  "SAMURAI": {
+    "key": "SAMURAI",
+    "name": "Samurai",
+    "renderMode": "billboard",
+    "components": [
+      {
+        "type": "Renderable",
+        "args": [
+          "SAMURAI"
+        ]
+      },
+      {
+        "type": "Collision",
+        "args": [
+          {
+            "isSolid": true,
+            "collisionBox": [
+              0,
+              0,
+              1,
+              1
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  "NINJA": {
+    "key": "NINJA",
+    "name": "Ninja",
+    "renderMode": "billboard",
+    "components": [
+      {
+        "type": "Renderable",
+        "args": [
+          "NINJA"
+        ]
+      },
+      {
+        "type": "Collision",
+        "args": [
+          {
+            "isSolid": true
+          },
+          [
+            0,
+            0,
+            1,
+            1
+          ]
+        ]
+      },
+      {
+        "type": "MovementAI",
+        "args": [
+          {
+            "pattern": "WANDER"
+          },
+          {
+            "speed": 3
+          }
+        ]
+      }
+    ]
+  },
+  "ESTATUA_GRIEGA": {
+    "key": "ESTATUA_GRIEGA",
+    "name": "Estatua Griega",
+    "renderMode": "billboard",
+    "components": [
+      {
+        "type": "Renderable",
+        "args": [
+          "ESTATUA_GRIEGA"
+        ]
+      },
+      {
+        "type": "Collision",
+        "args": [
+          {
+            "isSolid": true
+          },
+          {
+            "collisionBox": "{\"x\":0,\"y\":0,\"width\":1,\"height\":1}"
+          }
+        ]
+      }
+    ]
+  },
+  "CACTUS_CON_FLOR": {
+    "key": "CACTUS_CON_FLOR",
+    "name": "Cactus con Flor",
+    "renderMode": "billboard",
+    "components": [
+      {
+        "type": "Renderable",
+        "args": [
+          "CACTUS_CON_FLOR"
+        ]
+      },
+      {
+        "type": "Collision",
+        "args": [
+          {
+            "isSolid": true
+          },
+          {
+            "collisionBox": [
+              0,
+              0,
+              1,
+              1
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  "CACTUS_FLOR_SALVAJE": {
+    "key": "CACTUS_FLOR_SALVAJE",
+    "name": "Cactus con Flor Salvaje",
+    "renderMode": "cross",
+    "components": [
+      {
+        "type": "Renderable",
+        "args": [
+          "CACTUS_FLOR_SALVAJE"
+        ]
+      },
+      {
+        "type": "Collision",
+        "args": [
+          {
+            "id": "isSolid",
+            "value": true
+          },
+          {
+            "id": "collisionBox",
+            "value": [
+              0,
+              0,
+              1,
+              1
+            ]
+          }
+        ]
+      },
+      {
+        "type": "InteractableResource",
+        "args": [
+          {
+            "id": "itemId",
+            "value": "FLOR_CACTUS_SALVAJE"
+          },
+          {
+            "id": "quantity",
+            "value": 1
+          },
+          {
+            "id": "energyCost",
+            "value": 5
+          }
+        ]
+      }
+    ]
+  },
+  "RAMA_SECA": {
+    "name": "Rama Seca",
+    "renderMode": "flat",
+    "components": [
+      {
+        "type": "Renderable",
+        "args": [
+          "RAMA_SECA"
+        ]
+      },
+      {
+        "type": "Collision",
+        "args": [
+          false,
+          {
+            "width": 40,
+            "height": 20,
+            "offsetY": 20
+          }
+        ]
+      },
+      {
+        "type": "InteractableDialogue",
+        "args": [
+          "Soy un palo"
+        ]
+      }
+    ]
+  },
+  "ESCALERA_ABAJO": {
+    "key": "ESCALERA_ABAJO",
+    "name": "Escalera de Mano hacia Abajo",
+    "renderMode": "billboard",
+    "components": [
+      {
+        "type": "Renderable",
+        "args": [
+          "ESCALERA_ABAJO"
+        ]
+      },
+      {
+        "type": "InteractableLevelChange",
+        "args": [
+          {
+            "direction": "down"
+          }
+        ]
+      }
+    ]
+  },
+  "ESCALERAS_ARRIBA": {
+    "name": "Escaleras Hacia Arriba",
+    "renderMode": "billboard",
+    "components": [
+      {
+        "type": "Renderable",
+        "args": [
+          "ESCALERAS_ARRIBA"
+        ]
+      },
+      {
+        "type": "InteractableLevelChange",
+        "args": [
+          "up"
+        ]
+      }
+    ]
+  },
+  "ESCALERAS_AGUJERO_NEGRO_ABAJO": {
+    "key": "ESCALERAS_AGUJERO_NEGRO_ABAJO",
+    "name": "Escaleras hacia Abajo (Agujero Negro)",
+    "renderMode": "billboard",
+    "components": [
+      {
+        "type": "Renderable",
+        "args": [
+          "ESCALERAS_AGUJERO_NEGRO_ABAJO"
+        ]
+      },
+      {
+        "type": "InteractableLevelChange",
+        "args": [
+          {
+            "id": "direction",
+            "value": "down"
+          }
+        ]
+      }
+    ]
+  },
+  "ENTRADA_MINA": {
+    "key": "ENTRADA_MINA",
+    "name": "Entrada a la Mina",
+    "renderMode": "billboard",
+    "components": [
+      {
+        "type": "Renderable",
+        "args": [
+          "ENTRADA_MINA"
+        ]
+      },
+      {
+        "type": "Collision",
+        "args": [
+          true,
+          [
+            0,
+            0,
+            1,
+            1
+          ]
+        ]
+      },
+      {
+        "type": "InteractableLevelChange",
+        "args": [
+          "down"
+        ]
+      }
+    ]
+  },
+  "ENTRADA_MINA_NATURAL": {
+    "name": "Entrada de Mina Natural",
+    "renderMode": "billboard",
+    "components": [
+      {
+        "type": "Renderable",
+        "args": [
+          "ENTRADA_MINA_NATURAL"
+        ]
+      },
+      {
+        "type": "InteractableLevelChange",
+        "args": [
+          "down"
+        ]
+      }
+    ]
+  },
+  "RAMA_SECA_SUELO": {
+    "name": "Rama Seca en el Suelo",
+    "renderMode": "flat",
+    "components": [
+      {
+        "type": "Renderable",
+        "args": [
+          "RAMA_SECA_SUELO"
+        ]
+      },
+      {
+        "type": "InteractableResource",
+        "args": [
+          "RAMA_SECA",
+          1,
+          1
+        ]
+      }
+    ]
+  },
+  "PALASO": {
+    "name": "PALASO",
+    "renderMode": "billboard",
+    "components": [
+      {
+        "type": "Renderable",
+        "args": [
+          "TRONCO_MADERA_CORTADO"
+        ]
+      }
+    ]
+  },
+  "PLANTA_MARIHUANA": {
+    "name": "Planta de Marihuana",
+    "renderMode": "billboard",
+    "components": [
+      {
+        "type": "Renderable",
+        "args": [
+          "PLANTA_MARIHUANA"
+        ]
+      },
+      {
+        "type": "InteractableResource",
+        "args": [
+          "COGOLOS_MARIHUANA",
+          3,
+          0
+        ]
+      }
+    ]
+  },
+  "GNOMO_FOTORREALISTA": {
+    "key": "GNOMO_FOTORREALISTA",
+    "name": "Gnomo Fotorrealista",
+    "renderMode": "billboard",
+    "components": [
+      {
+        "type": "Renderable",
+        "args": [
+          "GNOMO_FOTORREALISTA"
+        ]
+      },
+      {
+        "type": "InteractableDialogue",
+        "args": [
+          {
+            "message": "¡Hola, viajero! ¿Has visto a mi seta perdida?"
+          }
+        ]
+      },
+      {
+        "type": "MovementAI",
+        "args": [
+          {
+            "pattern": "WANDER"
+          },
+          {
+            "speed": 0.5
+          }
+        ]
+      }
+    ]
+  },
+  "CHARCOAGUA": {
+    "name": "Charco de Agua",
+    "renderMode": "flat",
+    "components": [
+      {
+        "type": "Renderable",
+        "args": [
+          "CHARCO_AGUA"
+        ]
+      }
+    ]
+  },
+  "ESTALACTITA": {
+    "key": "ESTALACTITA",
+    "name": "Estalactita",
+    "renderMode": "billboard",
+    "components": [
+      {
+        "type": "Renderable",
+        "args": [
+          "ESTALACTITA"
+        ]
+      },
+      {
+        "type": "Collision",
+        "args": [
+          {
+            "isSolid": true
+          },
+          {
+            "collisionBox": [
+              0,
+              0,
+              1,
+              1
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  "ESTALAGMITA": {
+    "key": "ESTALAGMITA",
+    "name": "Estalagmita",
+    "renderMode": "billboard",
+    "components": [
+      {
+        "type": "Renderable",
+        "args": [
+          "ESTALAGMITA"
+        ]
+      },
+      {
+        "type": "Collision",
+        "args": [
+          {
+            "isSolid": true
+          },
+          {
+            "collisionBox": [
+              0,
+              0,
+              1,
+              1
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  "PEPITA_ORO": {
+    "key": "PEPITA_ORO",
+    "name": "Pepita de Oro",
+    "renderMode": "billboard",
+    "components": [
+      {
+        "type": "Renderable",
+        "args": [
+          "PEPITA_ORO"
+        ]
+      },
+      {
+        "type": "Collectible",
+        "args": [
+          {
+            "itemId": "ORO",
+            "quantity": 1
+          }
+        ]
+      }
+    ]
+  },
+  "TROZO_CARBON": {
+    "key": "TROZO_CARBON",
+    "name": "Trozo de Carbón",
+    "renderMode": "billboard",
+    "components": [
+      {
+        "type": "Renderable",
+        "args": [
+          "TROZO_CARBON"
+        ]
+      },
+      {
+        "type": "Collectible",
+        "args": [
+          {
+            "itemId": "CARBON",
+            "quantity": 1
+          }
+        ]
+      }
+    ]
+  },
+  "FERRARI_FRENTE": {
+    "name": "Ferrari de Frente",
+    "renderMode": "billboard",
+    "components": [
+      {
+        "type": "Renderable",
+        "args": [
+          "FERRARI_FRENTE"
+        ]
+      },
+      {
+        "type": "Vehicle",
+        "args": [
+          430
+        ]
+      },
+      {
+        "type": "InteractableVehicle",
+        "args": []
+      },
+      {
+        "type": "Collision",
+        "args": [
+          true,
+          {
+            "width": 0,
+            "height": 0,
+            "offsetY": 0
+          }
+        ]
+      }
+    ]
+  },
+  "BROTE_MARIHUANA": {
+    "key": "BROTE_MARIHUANA",
+    "name": "Brote de Marihuana",
+    "renderMode": "billboard",
+    "components": [
+      {
+        "type": "Renderable",
+        "args": [
+          "BROTE_MARIHUANA"
+        ]
+      },
+      {
+        "type": "Growth",
+        "args": [
+          {
+            "timeToGrowMs": 300000
+          },
+          {
+            "nextEntityKey": "PLANTA_MARIHUANA"
+          }
+        ]
+      }
+    ]
+  },
+  "BROTE_VERDE": {
+    "key": "BROTE_VERDE",
+    "name": "Brote Verde",
+    "renderMode": "billboard",
+    "components": [
+      {
+        "type": "Renderable",
+        "args": [
+          "BROTE_VERDE"
+        ]
+      },
+      {
+        "type": "Growth",
+        "args": [
+          {
+            "timeToGrowMs": 30000,
+            "nextEntityKey": "PLANTA_PEQUENA"
+          }
+        ]
+      }
+    ]
+  },
+  "BROTEMARIHUANA": {
+    "name": "Brote de Marihuana",
+    "renderMode": "cross",
+    "components": [
+      {
+        "type": "Renderable",
+        "args": [
+          "MARIA1"
+        ]
+      },
+      {
+        "type": "Growth",
+        "args": [
+          6000,
+          "MARIAHUANA2"
+        ]
+      }
+    ]
+  },
+  "MARIAHUANA2": {
+    "name": "Marihuana Jóven",
+    "renderMode": "cross",
+    "components": [
+      {
+        "type": "Renderable",
+        "args": [
+          "MARIA2"
+        ]
+      },
+      {
+        "type": "Growth",
+        "args": [
+          12000,
+          "MARIHUANA3"
+        ]
+      }
+    ]
+  },
+  "MARIHUANA3": {
+    "name": "Marihuana en Crecimiento",
+    "renderMode": "cross",
+    "components": [
+      {
+        "type": "Renderable",
+        "args": [
+          "MARIA3"
+        ]
+      },
+      {
+        "type": "Growth",
+        "args": [
+          24000,
+          "MARIHUANA4"
+        ]
+      }
+    ]
+  },
+  "MARIHUANA4": {
+    "name": "Marihuana en Floración",
+    "renderMode": "cross",
+    "components": [
+      {
+        "type": "Renderable",
+        "args": [
+          "MARIA4"
+        ]
+      },
+      {
+        "type": "InteractableResource",
+        "args": [
+          "COGOLOS_MARIHUANA",
+          5,
+          1
+        ]
+      }
+    ]
+  },
+  "PROTAGONISTA": {
+    "key": "PROTAGONISTA",
+    "name": "Protagonista",
+    "renderMode": "billboard",
+    "components": [
+      {
+        "type": "Renderable",
+        "args": [
+          "PROTAGONISTA"
+        ]
+      },
+      {
+        "type": "Collision",
+        "args": [
+          {
+            "isSolid": true,
+            "collisionBox": [
+              -0.4,
+              -0.4,
+              0.8,
+              0.8
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  "NATHY_PELUSO_CHARACTER": {
+    "key": "NATHY_PELUSO_CHARACTER",
+    "name": "Nathy Peluso",
+    "renderMode": "billboard",
+    "components": [
+      {
+        "type": "Renderable",
+        "args": [
+          "NATHY_PELUSO_CHARACTER"
+        ]
+      }
+    ]
+  },
+  "SAMURAY_BEBOP": {
+    "key": "SAMURAY_BEBOP",
+    "name": "Samuray Bebop",
+    "renderMode": "billboard",
+    "components": [
+      {
+        "type": "Renderable",
+        "args": [
+          "SAMURAY_BEBOP"
+        ]
+      },
+      {
+        "type": "Collision",
+        "args": [
+          {
+            "isSolid": true
+          },
+          {
+            "collisionBox": [
+              0,
+              0,
+              1,
+              1
+            ]
+          }
+        ]
+      },
+      {
+        "type": "InteractableDialogue",
+        "args": [
+          {
+            "message": "¡Hola! ¿Listo para una aventura al ritmo del jazz espacial?"
+          }
+        ]
+      }
+    ]
+  },
+  "CIERVO": {
+    "name": "Ciervo",
+    "renderMode": "billboard",
+    "components": [
+      {
+        "type": "Renderable",
+        "args": [
+          "CIERVO"
+        ]
+      },
+      {
+        "type": "MovementAI",
+        "args": [
+          "WANDER",
+          3
+        ]
+      }
+    ]
+  },
+  "OSO_PARDO": {
+    "name": "Oso Pardo",
+    "renderMode": "billboard",
+    "components": [
+      {
+        "type": "Renderable",
+        "args": [
+          "OSO_PARDO"
+        ]
+      },
+      {
+        "type": "Collision",
+        "args": [
+          true,
+          {
+            "width": 0,
+            "height": 0,
+            "offsetY": 0
+          }
+        ]
+      },
+      {
+        "type": "MovementAI",
+        "args": [
+          "WANDER",
+          1
+        ]
+      }
+    ]
+  },
+  "ZORRO": {
+    "key": "ZORRO",
+    "name": "Zorro",
+    "renderMode": "billboard",
+    "components": [
+      {
+        "type": "Renderable",
+        "args": [
+          "ZORRO"
+        ]
+      },
+      {
+        "type": "Collision",
+        "args": [
+          true,
+          {
+            "x": 0.25,
+            "y": 0,
+            "z": 0.25,
+            "width": 0.5,
+            "height": 0.5,
+            "depth": 0.5
+          }
+        ]
+      },
+      {
+        "type": "MovementAI",
+        "args": [
+          "WANDER",
+          2
+        ]
+      }
+    ]
+  },
+  "COLUMNA_GRIEGA": {
+    "name": "Columna Griega",
+    "renderMode": "cross",
+    "components": [
+      {
+        "type": "Renderable",
+        "args": [
+          "COLUMNA_GRIEGA"
+        ]
+      },
+      {
+        "type": "Collision",
+        "args": [
+          true,
+          {
+            "width": 0,
+            "height": 0,
+            "offsetY": 0
+          }
+        ]
+      }
+    ]
+  },
+  "ESFINGE": {
+    "key": "ESFINGE",
+    "name": "Esfinge",
+    "renderMode": "billboard",
+    "components": [
+      {
+        "type": "Renderable",
+        "args": [
+          "ESFINGE"
+        ]
+      },
+      {
+        "type": "Collision",
+        "args": [
+          true,
+          {
+            "x": 0,
+            "y": 0,
+            "width": 1,
+            "height": 1
+          }
+        ]
+      },
+      {
+        "type": "InteractableDialogue",
+        "args": [
+          "¡Saludos, viajero! Resuelve mi enigma si quieres pasar."
+        ]
+      }
+    ]
+  },
+  "MONJE_SHINTOISTA": {
+    "key": "MONJE_SHINTOISTA",
+    "name": "Monje Shintoista",
+    "renderMode": "billboard",
+    "components": [
+      {
+        "type": "Renderable",
+        "args": [
+          "MONJE_SHINTOISTA"
+        ]
+      },
+      {
+        "type": "Collision",
+        "args": [
+          {
+            "isSolid": true
+          }
+        ]
+      },
+      {
+        "type": "InteractableDialogue",
+        "args": [
+          {
+            "message": "Bienvenido al santuario. Que la paz te guíe."
+          }
+        ]
+      }
+    ]
+  },
+  "SACERDOTISA_SHINTOISTA": {
+    "key": "SACERDOTISA_SHINTOISTA",
+    "name": "Sacerdotisa Shintoista",
+    "renderMode": "billboard",
+    "components": [
+      {
+        "type": "Renderable",
+        "args": [
+          "SACERDOTISA_SHINTOISTA"
+        ]
+      },
+      {
+        "type": "InteractableDialogue",
+        "args": [
+          {
+            "message": "Bienvenido, viajero. ¿Cómo puedo ayudarte?"
+          }
+        ]
+      },
+      {
+        "type": "Collision",
+        "args": [
+          {
+            "isSolid": true
+          },
+          {
+            "collisionBox": [
+              0,
+              0,
+              1,
+              1
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  "MONJE_BUDISTA": {
+    "key": "MONJE_BUDISTA",
+    "name": "Monje Budista",
+    "renderMode": "billboard",
+    "components": [
+      {
+        "type": "Renderable",
+        "args": [
+          "MONJE_BUDISTA"
+        ]
+      },
+      {
+        "type": "Collision",
+        "args": [
+          true,
+          [
+            0,
+            0,
+            1,
+            1
+          ]
+        ]
+      },
+      {
+        "type": "InteractableDialogue",
+        "args": [
+          "La paz sea contigo."
+        ]
+      },
+      {
+        "type": "MovementAI",
+        "args": [
+          "WANDER",
+          0.5
+        ]
+      }
+    ]
+  },
+  "GEISHA": {
+    "key": "GEISHA",
+    "name": "Geisha",
+    "renderMode": "billboard",
+    "components": [
+      {
+        "type": "Renderable",
+        "args": [
+          "GEISHA"
+        ]
+      },
+      {
+        "type": "InteractableDialogue",
+        "args": [
+          {
+            "message": "¡Bienvenido, viajero! ¿En qué puedo ayudarte?"
+          }
+        ]
+      }
+    ]
+  },
+  "SAMURAI_EDO": {
+    "key": "SAMURAI_EDO",
+    "name": "Samurai de Edo",
+    "renderMode": "billboard",
+    "components": [
+      {
+        "type": "Renderable",
+        "args": [
+          "SAMURAI_EDO"
+        ]
+      },
+      {
+        "type": "InteractableDialogue",
+        "args": [
+          "Saludos, viajero."
+        ]
+      }
+    ]
+  },
+  "CEREZO_EN_FLOR": {
+    "name": "Cerezo en Flor",
+    "renderMode": "cross",
+    "components": [
+      {
+        "type": "Renderable",
+        "args": [
+          "CEREZO_EN_FLOR"
+        ]
+      },
+      {
+        "type": "Collision",
+        "args": [
+          true,
+          {
+            "width": 0,
+            "height": 0,
+            "offsetY": 0
+          }
+        ]
+      }
+    ]
+  },
+  "KABUKI_ACTOR": {
+    "key": "KABUKI_ACTOR",
+    "name": "Actor Kabuki",
+    "renderMode": "billboard",
+    "components": [
+      {
+        "type": "Renderable",
+        "args": [
+          "KABUKI_ACTOR"
+        ]
+      },
+      {
+        "type": "InteractableDialogue",
+        "args": [
+          {
+            "message": "¡Bienvenidos al teatro Kabuki! Preparaos para la función."
+          }
+        ]
+      }
+    ]
+  },
+  "LUCHADOR_DE_SUMO": {
+    "key": "LUCHADOR_DE_SUMO",
+    "name": "Luchador de Sumo",
+    "renderMode": "billboard",
+    "components": [
+      {
+        "type": "Renderable",
+        "args": [
+          "LUCHADOR_DE_SUMO"
+        ]
+      },
+      {
+        "type": "Collision",
+        "args": [
+          {
+            "isSolid": true
+          },
+          {
+            "collisionBox": [
+              0,
+              0,
+              1,
+              1
+            ]
+          }
+        ]
+      },
+      {
+        "type": "MovementAI",
+        "args": [
+          {
+            "pattern": "WANDER"
+          },
+          {
+            "speed": 1
+          }
+        ]
+      },
+      {
+        "type": "InteractableDialogue",
+        "args": [
+          {
+            "message": "¡Hoo! ¡Heia! ¡Prepárate para un desafío!"
+          }
+        ]
+      }
+    ]
+  },
+  "MASERATI_FRENTE": {
+    "name": "Maserati de Frente",
+    "renderMode": "billboard",
+    "components": [
+      {
+        "type": "Renderable",
+        "args": [
+          "MASERATI_FRENTE"
+        ]
+      },
+      {
+        "type": "Collision",
+        "args": [
+          true,
+          {
+            "width": 40,
+            "height": 40,
+            "offsetY": 20
+          }
+        ]
+      },
+      {
+        "type": "Vehicle",
+        "args": [
+          400
+        ]
+      },
+      {
+        "type": "InteractableVehicle",
+        "args": []
+      }
+    ]
+  },
+  "MASERATI_FRONT": {
+    "key": "MASERATI_FRONT",
+    "name": "Maserati Frente",
+    "renderMode": "billboard",
+    "components": [
+      {
+        "type": "Renderable",
+        "args": [
+          "MASERATI_FRONT"
+        ]
+      },
+      {
+        "type": "Collision",
+        "args": [
+          {
+            "isSolid": true
+          },
+          {
+            "collisionBox": [
+              0,
+              0,
+              1,
+              1
+            ]
+          }
+        ]
+      },
+      {
+        "type": "InteractableVehicle",
+        "args": []
+      },
+      {
+        "type": "Vehicle",
+        "args": [
+          {
+            "speed": 5
+          }
+        ]
+      }
+    ]
+  },
+  "MAQUINA_BEBIDAS_FRIAS": {
+    "key": "MAQUINA_BEBIDAS_FRIAS",
+    "name": "Máquina de Bebidas Frías",
+    "renderMode": "billboard",
+    "components": [
+      {
+        "type": "Renderable",
+        "args": [
+          "MAQUINA_BEBIDAS_FRIAS"
+        ]
+      },
+      {
+        "type": "Collision",
+        "args": [
+          {
+            "isSolid": true,
+            "collisionBox": [
+              0,
+              0,
+              1,
+              1
+            ]
+          }
+        ]
+      },
+      {
+        "type": "InteractableMenu",
+        "args": [
+          {
+            "menuId": "MAQUINA_BEBIDAS_MENU"
+          }
+        ]
+      }
+    ]
+  },
+  "MAQUINA_EXPENDEDORA": {
+    "key": "MAQUINA_EXPENDEDORA",
+    "name": "Máquina Expendedora de Patatas y Golosinas",
+    "renderMode": "cube",
+    "components": [
+      {
+        "type": "Renderable",
+        "args": [
+          "MAQUINA_EXPENDEDORA"
+        ]
+      },
+      {
+        "type": "Collision",
+        "args": [
+          {
+            "id": "isSolid",
+            "value": true
+          },
+          {
+            "id": "collisionBox",
+            "value": [
+              1,
+              1,
+              1
+            ]
+          }
+        ]
+      },
+      {
+        "type": "InteractableMenu",
+        "args": [
+          {
+            "id": "menuId",
+            "value": "VENDING_MACHINE_MENU"
+          }
+        ]
+      }
+    ]
+  },
+  "CASTA_O": {
+    "key": "CASTA_O",
+    "name": "Castaño",
+    "renderMode": "billboard",
+    "components": [
+      {
+        "type": "Renderable",
+        "args": [
+          "CASTA_O"
+        ]
+      },
+      {
+        "type": "Collision",
+        "args": [
+          {
+            "isSolid": true
+          },
+          {
+            "collisionBox": [
+              0,
+              0,
+              1,
+              1
+            ]
+          }
+        ]
+      },
+      {
+        "type": "InteractableResource",
+        "args": [
+          {
+            "itemId": "MADERA_CASTA_O"
+          },
+          {
+            "quantity": 3
+          },
+          {
+            "energyCost": 5
+          }
+        ]
+      }
+    ]
+  },
+  "CASTAÑA": {
+    "key": "CASTAÑA",
+    "name": "Castaña",
+    "renderMode": "billboard",
+    "components": [
+      {
+        "type": "Renderable",
+        "args": [
+          "CASTAÑA"
+        ]
+      },
+      {
+        "type": "Collectible",
+        "args": [
+          {
+            "itemId": "CASTAÑA",
+            "quantity": 1
+          }
+        ]
+      }
+    ]
+  },
+  "TOMATE": {
+    "key": "TOMATE",
+    "name": "Tomate",
+    "renderMode": "billboard",
+    "components": [
+      {
+        "type": "Renderable",
+        "args": [
+          "TOMATE"
+        ]
+      },
+      {
+        "type": "Collectible",
+        "args": [
+          {
+            "itemId": "TOMATE_ITEM",
+            "quantity": 1
+          }
+        ]
+      }
+    ]
+  },
+  "HACHA_VERTICAL": {
+    "key": "HACHA_VERTICAL",
+    "name": "Hacha Vertical",
+    "renderMode": "billboard",
+    "components": [
+      {
+        "type": "Renderable",
+        "args": [
+          "HACHA_VERTICAL"
+        ]
+      }
+    ]
+  }
 }

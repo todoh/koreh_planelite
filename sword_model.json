@@ -1,0 +1,29 @@
+{
+    "materials": {
+        "blade": { "color": "#c0c0c0" },
+        "guard": { "color": "#a0522d" },
+        "hilt": { "color": "#4b3621" }
+    },
+    "geometries": {
+        "blade": {
+            "width": 1.5,
+            "height": 30,
+            "depth": 0.5
+        },
+        "guard": {
+            "width": 6,
+            "height": 1.5,
+            "depth": 1.5
+        },
+        "hilt": {
+            "width": 1.5,
+            "height": 8,
+            "depth": 1.5
+        }
+    },
+    "positions": {
+        "blade": { "x": 0, "y": 19, "z": 0 },
+        "guard": { "x": 0, "y": 4.75, "z": 0 },
+        "hilt": { "x": 0, "y": 0, "z": 0 }
+    }
+}

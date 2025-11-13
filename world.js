@@ -349,8 +349,7 @@ export function getVisibleObjects() {
             const renderComp = entity.components.Renderable;
             if (!renderComp) continue; 
             
-            // --- ¡CORRECCIÓN AÑADIDA! ---
-            const aiComp = entity.components.MovementAI; // Obtener componente de IA
+            const aiComp = entity.components.MovementAI;
             const isHovered = (entity.uid === player.hoveredEntityUID);
             objectsToRender.push({
                 uid: entity.uid,
@@ -358,16 +357,16 @@ export function getVisibleObjects() {
                 entityKey: entity.key,         
                 x: entity.x,
                 y: entity.y,
+                z: entity.z, // <-- ¡AÑADIDO! Pasar el Z de la entidad
                 zIndex: entity.y, 
                 isGround: false,
                 name: null,
                 facing: entity.facing || 'right',
-                vx: aiComp ? aiComp.currentVelocity.x : 0, // <-- VExt_
-                vy: aiComp ? aiComp.currentVelocity.y : 0, // <-- VExt_
+                vx: aiComp ? aiComp.currentVelocity.x : 0,
+                vy: aiComp ? aiComp.currentVelocity.y : 0,
                 rotationY: entity.rotationY || 0,
                 isHovered: isHovered
             });
-            // --- FIN DE CORRECCIÓN ---
         }
     }
 
@@ -381,13 +380,14 @@ export function getVisibleObjects() {
             entityKey: 'PLAYER', 
             x: player.x,
             y: player.y,
+            z: player.z, // <-- ¡¡LA CORRECCIÓN CLAVE!!
             zIndex: player.y,
             isGround: false,
             name: null,
             facing: player.facing,
-            vx: player.vx, // <-- VExt_
-            vy: player.vy, // <-- VExt_
-            rotationY: player.rotationY || 0 // <-- ¡NUEVO!
+            vx: player.vx,
+            vy: player.vy,
+            rotationY: player.rotationY || 0
         });
         // --- FIN DE CORRECCIÓN ---
     }
@@ -402,19 +402,19 @@ export function getVisibleObjects() {
             entityKey: p.key, 
             x: p.x,
             y: p.y,
+            z: p.z, // <-- ¡AÑADIDO!
             zIndex: p.y,
             isGround: false,
             name: p.name,
             facing: p.facing || 'right',
-            vx: 0, // <-- VExt_
-            vy: 0, // <-- VExt_
-            rotationY: p.rotationY || 0 // <-- ¡NUEVO!
+            vx: 0,
+            vy: 0,
+            rotationY: p.rotationY || 0
         });
         // --- FIN DE CORRECCIÓN ---
     }
     
     // 4. Y-SORTING (¡Importante!)
-    // Ahora solo ordena entidades dinámicas, lo cual es mucho más rápido.
     objectsToRender.sort((a, b) => a.zIndex - b.zIndex);
     
     return objectsToRender;

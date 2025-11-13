@@ -1,0 +1,56 @@
+[
+  {
+    "itemId": "HAND",
+    "quantity": 1
+  },
+  {
+    "itemId": "ITEM_WOOD_WALL",
+    "quantity": 99
+  },
+  {
+    "itemId": "HACHA_SILEX",
+    "quantity": 1
+  },
+  {
+    "itemId": "DAGA",
+    "quantity": 1
+  },
+  {
+    "itemId": "SEMILLAS_MARIHUANA",
+    "quantity": 50
+  },
+  {
+    "itemId": "LLAVE_FERRARI",
+    "quantity": 5
+  },
+  {
+    "itemId": "LLAVE_MASERATI",
+    "quantity": 5
+  },
+  {
+    "itemId": "KAI_KATANA",
+    "quantity": 1
+  },
+  null,
+  null,
+  null,
+  null,
+  null,
+  null,
+  null,
+  null,
+  null,
+  null,
+  null,
+  null,
+  null,
+  null,
+  null,
+  null,
+  null,
+  null,
+  null,
+  null,
+  null,
+  null
+]

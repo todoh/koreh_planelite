@@ -61,7 +61,8 @@ import {
     render3DFrame,
     handle3DZoom,
     handle3DCameraRotate,
-    getWorldCoordsFromScreen
+    getWorldCoordsFromScreen,
+    playerMesh
 } from './engine_3d.js'; 
 // --- FIN DE CAMBIO ---
 
@@ -333,7 +334,6 @@ async function main() {
         const $loadFileInput = document.getElementById('load-file-input');
 
         initializeCamera($canvas); // Inofensivo, lo dejamos
-        
         // --- ¡CORRECCIÓN DE ORDEN! ---
         // El motor 3D (la 'escena') debe existir ANTES de cargar la lógica del juego,
         // ya que la lógica del juego (al cargar chunks) intenta añadir meshes a la escena.
@@ -359,7 +359,8 @@ async function main() {
             onRotateRight: () => handle3DCameraRotate(true), 
             $loadFileInput: $loadFileInput,
             onCloudLoad: handleCloudEnter, 
-            onDisconnect: handleDisconnect 
+            onDisconnect: handleDisconnect ,
+            playerMesh: playerMesh
         });
         
         initializeInput($canvas, {

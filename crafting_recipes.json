@@ -1,0 +1,63 @@
+{
+  "CARPENTRY": [
+    {
+      "itemId": "WOOD_PLANK",
+      "name": "Tablón de Madera",
+      "quantity": 4,
+      "requirements": [
+        {
+          "itemId": "TRONCO_MADERA",
+          "quantity": 1
+        }
+      ]
+    },
+    {
+      "itemId": "STICK",
+      "name": "Palo",
+      "quantity": 4,
+      "requirements": [
+        {
+          "itemId": "WOOD_PLANK",
+          "quantity": 2
+        }
+      ]
+    },
+    {
+      "itemId": "ITEM_WOOD_WALL",
+      "name": "Pared de Madera",
+      "requirements": [
+        {
+          "itemId": "WOOD_PLANK",
+          "quantity": 4
+        }
+      ]
+    },
+    {
+      "itemId": "WOODEN_PICKAXE",
+      "name": "Pico de Madera",
+      "requirements": [
+        {
+          "itemId": "WOOD_PLANK",
+          "quantity": 3
+        },
+        {
+          "itemId": "STICK",
+          "quantity": 2
+        }
+      ]
+    },
+    {
+      "itemId": "ITEM_STONE_PILLAR",
+      "name": "Pilar de Piedra (Decorativo)",
+      "requirements": [
+        {
+          "itemId": "STONE",
+          "quantity": 10
+        }
+      ]
+    }
+  ],
+  "COOKING": [],
+  "ALCHEMY": [],
+  "STUDY": []
+}

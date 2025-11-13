@@ -11,6 +11,9 @@
  
     <link rel="stylesheet" href="styles.css">
 
+    <!-- ¡Estilos de Crafteo Modificados! -->
+    
+
     <script type="importmap">
     {
         "imports": {
@@ -26,7 +29,16 @@
 
     <div id="game-container" class="flex-grow relative">
         <canvas id="game-canvas"></canvas>
+        <!-- BOTÓN DE CONFIGURACIÓN (EXISTENTE) -->
         <button id="firebase-toggle-btn" class="absolute top-4 left-4 z-20 w-10 h-10 bg-gray-700 text-cyan-400 rounded-md font-bold text-lg hover:bg-gray-600">⚙️</button>
+        
+        <!-- ¡NUEVO BOTÓN DE ASPECTO! -->
+        <button id="player-aspect-btn" class="absolute top-16 left-4 z-20 w-10 h-10 bg-gray-700 text-cyan-400 rounded-md font-bold text-lg hover:bg-gray-600 flex items-center justify-center">
+            <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6" viewBox="0 0 20 20" fill="currentColor">
+              <path fill-rule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clip-rule="evenodd" />
+            </svg>
+        </button>
+
         <button id="online-status-btn" class="absolute top-4 right-4 z-20 w-10 h-10 bg-gray-700 text-red-500 rounded-md font-bold text-lg hover:bg-gray-600 hidden">🔴</button>
 
         <div class="absolute bottom-4 right-4 z-20 flex space-x-2">
@@ -80,6 +92,7 @@
         </div>
     </div>
 
+    <!-- Modal de Menú (existente) -->
     <div id="menu-modal" class="modal-overlay hidden">
         <div class="modal-content">
             <button id="close-modal-btn" class="modal-close-btn">&times;</button>
@@ -93,6 +106,7 @@
             </div>
     </div>
 
+    <!-- Modal de Firebase (existente) -->
     <div id="firebase-modal" class="modal-overlay hidden">
         <div class="modal-content">
             <button id="firebase-close-btn" class="modal-close-btn">&times;</button>
@@ -124,6 +138,7 @@
         </div>
     </div>
 
+    <!-- Modal de Inventario (existente) -->
     <div id="inventory-modal" class="modal-overlay hidden">
         <div class="modal-content !max-w-3xl"> <button id="inventory-close-btn" class="modal-close-btn">&times;</button>
             <h2 class="text-xl font-bold text-cyan-400 mb-4">Inventario</h2>
@@ -133,25 +148,66 @@
         </div>
     </div>
 
+    <!-- ¡MODAL DE CRAFTEO SIMPLIFICADO! -->
     <div id="crafting-modal" class="modal-overlay hidden">
-        <div class="modal-content !max-w-3xl">
+        <div class="modal-content !max-w-3xl" data-menu-id="">
             <button id="crafting-close-btn" class="modal-close-btn">&times;</button>
-            <h2 class="text-xl font-bold text-cyan-400 mb-4">Mesa de Trabajo</h2>
-            <div id="crafting-grid" class="p-2 bg-gray-900 rounded-md">
-                <p class="text-gray-400">¡Aquí podrías craftear! (WIP)</p>
+            <h2 id="crafting-modal-title" class="text-xl font-bold text-cyan-400 mb-4">Mesa de Trabajo</h2>
+            
+            <!-- ¡PESTAÑAS ELIMINADAS! -->
+
+            <!-- ¡Panel ÚNICO de Recetas Disponibles! -->
+            <!-- Se han movido los estilos de .crafting-panel aquí y se ha añadido 'block' -->
+            <div id="crafting-panel-available" class="block p-4 bg-gray-900 rounded-b-lg max-h-[60vh] overflow-y-auto">
+                <div id="crafting-available-list" class="space-y-3">
+                    <!-- Las recetas se insertarán aquí por JS -->
+                    <p class="text-gray-400">No tienes materiales para craftear nada en esta mesa.</p>
                 </div>
+            </div>
+
+            <!-- ¡PANEL "ALL" ELIMINADO! -->
+
         </div>
     </div>
+    <!-- Fin del Modal de Crafteo -->
 
-    <!-- ¡NUEVO! Barra de Acceso Rápido (Hotbar) -->
+    <!-- ¡MODAL DE ASPECTO MODIFICADO! -->
+    <div id="player-aspect-modal" class="modal-overlay hidden">
+        <div class="modal-content !max-w-md !p-0"> <!-- Contenido sin padding para que el canvas se pegue -->
+            <!-- Botón de Cierre (dentro del preview para estar por encima) -->
+            <button id="player-aspect-close-btn" class="absolute top-2 right-2 z-10 w-8 h-8 bg-gray-900 bg-opacity-50 text-white rounded-full text-2xl leading-none hover:bg-opacity-75">&times;</button>
+            
+            <!-- 1. Vista Previa 3D -->
+            <div id="player-aspect-preview" class="flex-shrink-0 h-64 md:h-80 relative bg-gray-800 rounded-t-lg">
+                <canvas id="player-aspect-canvas" class="w-full h-full"></canvas>
+            </div>
+
+            <!-- 2. Controles con Scroll -->
+            <div id="player-aspect-controls" class="flex-grow overflow-y-auto p-4 bg-gray-900 rounded-b-lg space-y-4">
+                <h3 class="text-lg font-semibold text-white">Personalizar Aspecto</h3>
+                
+                <!-- Grupo de Control: Color de Piel -->
+                <div class="aspect-control-group">
+                    <label for="aspect-color-skin" class="text-gray-300">Color de Piel</label>
+                    <input type="color" id="aspect-color-skin" value="#cc9966" class="bg-gray-700 border-gray-600 rounded">
+                </div>
+                
+                <!-- Controles de ropa eliminados -->
+
+                <!-- Más controles (placeholders) -->
+                <div class="pt-4 border-t border-gray-700">
+                    <p class="text-gray-500 text-sm">Próximamente: Pelo, Barba, Equipamiento...</p>
+                </div>
+
+            </div>
+        </div>
+    </div>
+    <!-- Fin del Modal de Aspecto -->
+
+
+    <!-- Hotbar (existente) -->
     <div id="hotbar" class="absolute bottom-4 left-1/2 -translate-x-1/2 z-20 flex justify-center space-x-1 p-1 bg-black bg-opacity-50 rounded-lg border border-gray-700">
         <!-- Los slots se generarán dinámicamente por ui.js -->
-        <!-- Ejemplo de slot:
-        <div class="hotbar-slot hotbar-slot-active">
-            <img src="./assets/wall.png" alt="Pared">
-            <span class="hotbar-quantity">99</span>
-        </div>
-        -->
     </div>
 
     <script type="module" src="main.js"></script>

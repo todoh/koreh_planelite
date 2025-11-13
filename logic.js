@@ -1,12 +1,13 @@
 // --- logic.js ---
 // Contiene el ESTADO (Modelo) y las REGLAS del juego.
 // Exporta constantes, estado global e inicialización.
+// ¡MODIFICADO! Añadido estado de acción al jugador.
 
 import { 
     initializeMetadata, 
     IMAGES as AssetImages 
 } from './generation.js';
-import { initializeInventory } from './inventory.js';
+import { initializeInventory, MAX_SLOTS } from './inventory.js'; // <-- ¡MODIFICADO! Importar MAX_SLOTS
 import { 
     getTerrainDefinitions, 
     getEntityDefinitions 
@@ -43,7 +44,13 @@ export const player = {
     currentSpeed: PLAYER_SPEED,
 
     activeHotbarSlot: 0 ,
-    hoveredEntityUID: null
+    hoveredEntityUID: null,
+    
+    // --- ¡NUEVO! Estado de Animación de Acción ---
+    currentAction: null, // 'chop', 'pickup', null
+    actionTimer: 0,      // Contador para la duración
+    actionTarget: null   // UID de la entidad objetivo
+    // --- FIN DE NUEVO ESTADO ---
 };
 
 export const stats = {
@@ -68,6 +75,17 @@ export { ITEM_DEFINITIONS } from './items.js';
 export let openMenuCallback = (menuId) => {
     console.warn(`openMenuCallback no inicializado. Se intentó abrir: ${menuId}`);
 };
+
+// --- ¡NUEVO! Función de fallback para el inventario inicial ---
+function createFallbackInventory() {
+    console.warn("No se pudo cargar 'initial_inventory.json'. Usando inventario de fallback.");
+    const defaultItems = new Array(MAX_SLOTS).fill(null);
+    defaultItems[0] = { itemId: 'HAND', quantity: 1 };
+    defaultItems[1] = { itemId: 'ITEM_WOOD_WALL', quantity: 10 };
+    defaultItems[2] = { itemId: 'ITEM_STONE_GROUND_SLAB', quantity: 10 };
+    return defaultItems;
+}
+
 
 // --- INICIALIZACIÓN ---
 
@@ -96,27 +114,39 @@ export async function initializeGameLogic(callbacks) {
             }
             localStorage.removeItem("GAME_STATE_LOAD");
         } else {
-            // --- ESTE ES EL BLOQUE QUE NECESITAS CAMBIAR ---
-            console.log("No hay estado de jugador. Empezando en spawn por defecto.");
+            // --- ¡BLOQUE MODIFICADO! ---
+            console.log("No hay estado de jugador. Empezando en spawn por defecto y cargando inventario inicial...");
             player.x = (30.5 * TILE_PX_WIDTH);
             player.y = (30.5 * TILE_PX_HEIGHT);
             player.z = 0; 
             player.facing = 'right'; 
-            player.rotationY = 0; // <-- ¡CORRECCIÓN AÑADIDA!
+            player.rotationY = 0;
             
-            // --- MODIFICACIÓN AQUÍ ---
-            // LÍNEA ANTIGUA:
-            // initializeInventory(null);
+            // Intentar cargar el inventario inicial desde JSON
+            let initialItems = null;
+            try {
+                const response = await fetch('./initial_inventory.json');
+                if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+                initialItems = await response.json();
+                
+                // Validar que sea un array y tenga la longitud correcta
+                if (!Array.isArray(initialItems)) {
+                    console.warn("initial_inventory.json no es un array. Usando fallback.");
+                    initialItems = createFallbackInventory();
+                } else if (initialItems.length < MAX_SLOTS) {
+                     console.warn(`initial_inventory.json tiene ${initialItems.length} slots, se rellenará hasta ${MAX_SLOTS}.`);
+                    initialItems.push(...new Array(MAX_SLOTS - initialItems.length).fill(null));
+                } else if (initialItems.length > MAX_SLOTS) {
+                    console.warn(`initial_inventory.json tiene ${initialItems.length} slots, se truncará a ${MAX_SLOTS}.`);
+                    initialItems = initialItems.slice(0, MAX_SLOTS);
+                }
+
+            } catch (e) {
+                console.error("Error al cargar 'initial_inventory.json':", e);
+                initialItems = createFallbackInventory();
+            }
             
-            // LÍNEAS NUEVAS:
-            const defaultItems = new Array(30).fill(null); // 30 es MAX_SLOTS de inventory.js
-            defaultItems[0] = { itemId: 'HAND', quantity: 1 }; // <-- ¡LÍNEA NUEVA!
-            defaultItems[1] = { itemId: 'ITEM_WOOD_WALL', quantity: 99 }; // <-- ¡ESTE ES EL MURO!
-            defaultItems[2] = { itemId: 'ITEM_STONE_GROUND_SLAB', quantity: 99 }; // <-- ¡LÍNEA NUEVA! (Índice 2)
-            defaultItems[3] = { itemId: 'ITEM_STONE_PILLAR', quantity: 50 }; // <-- ¡LÍNEA NUEVA! (Índice 3)
-            
-           
-            initializeInventory(defaultItems);
+            initializeInventory(initialItems);
             // --- FIN DE MODIFICACIÓN ---
         }
     } catch (e) {
@@ -128,17 +158,9 @@ export async function initializeGameLogic(callbacks) {
         player.rotationY = 0; // <-- ¡CORRECCIÓN AÑADIDA!
         localStorage.removeItem("GAME_STATE_LOAD");
         
-        // --- MODIFICACIÓN AQUÍ ---
-        // LÍNEA ANTIGUA:
-        // initializeInventory(null);
-        
-        // LÍNEAS NUEVAS:
-        const defaultItems = new Array(30).fill(null); // 30 es MAX_SLOTS de inventory.js
-        defaultItems[0] = { itemId: 'HAND', quantity: 1 }; // <-- ¡LÍNEA NUEVA!
-        defaultItems[1] = { itemId: 'ITEM_WOOD_WALL', quantity: 99 }; // <-- ¡LÍNEA NUEVA! (Índice 1)
-        defaultItems[2] = { itemId: 'ITEM_STONE_GROUND_SLAB', quantity: 99 }; // <-- ¡LÍNEA NUEVA! (Índice 2)
-        defaultItems[3] = { itemId: 'ITEM_STONE_PILLAR', quantity: 50 }; // <-- ¡LÍNEA NUEVA! (Índice 3)
-        
+        // --- ¡BLOQUE MODIFICADO! ---
+        // Usar el fallback también en el catch
+        const defaultItems = createFallbackInventory();
         initializeInventory(defaultItems);
         // --- FIN DE MODIFICACIÓN ---
     }

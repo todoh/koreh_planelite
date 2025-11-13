@@ -5,7 +5,14 @@
     "SAVANNA": 5,
     "JUNGLE": 3,
     "ROCKY": 4,
-    "TUNDRA": 2
+    "TUNDRA": 2,
+    "VILLAGE": 3,
+    "EDO": 2,
+    "EGIPTO": 2,
+    "GOMINOLA": 2,
+    "GRECIA": 2,
+    "MAYA": 2,
+    "STEAMPUNK": 2
   },
   "BIOME_DEFINITIONS": {
     "OCEAN": {
@@ -18,12 +25,19 @@
     },
     "DESERT": {
       "baseTile": "SAND",
+      "terrainRules": [],
       "entities": [
         {
           "type": "vegetation",
           "entityKey": "CACTUS",
           "noise": "vegetation",
           "threshold": 0.97
+        },
+        {
+          "type": "vegetation",
+          "entityKey": "RAMA_SECA_SUELO",
+          "noise": "vegetation",
+          "threshold": 0.94
         }
       ]
     },
@@ -51,12 +65,49 @@
     },
     "PLAINS": {
       "baseTile": "GRASS",
+      "terrainRules": [],
       "entities": [
         {
           "type": "vegetation",
           "entityKey": "TREE",
           "noise": "vegetation",
           "threshold": 0.9
+        },
+        {
+          "type": "vegetation",
+          "entityKey": "RAMA_SECA_SUELO",
+          "noise": "vegetation",
+          "threshold": 0.8
+        },
+        {
+          "type": "npc",
+          "entityKey": "GNOMO_FOTORREALISTA",
+          "noise": "npc",
+          "threshold": 0.995
+        },
+        {
+          "type": "animal",
+          "entityKey": "CIERVO",
+          "noise": "animal",
+          "threshold": 0.98
+        },
+        {
+          "type": "mineral",
+          "entityKey": "ROCK",
+          "noise": "mineral",
+          "threshold": 0.7
+        },
+        {
+          "type": "enemy",
+          "entityKey": "ORCO",
+          "noise": "enemy",
+          "threshold": 0.97
+        },
+        {
+          "type": "special",
+          "entityKey": "COLUMNA_GRIEGA",
+          "noise": "special",
+          "threshold": 0.999
         }
       ]
     },
@@ -71,7 +122,7 @@
       ],
       "entities": [
         {
-          "type": "rock",
+          "type": "mineral",
           "entityKey": "ROCK",
           "noise": "vegetation",
           "threshold": 0.85
@@ -80,17 +131,77 @@
     },
     "TUNDRA": {
       "baseTile": "SNOW",
+      "terrainRules": [],
       "entities": [
         {
           "type": "vegetation",
           "entityKey": "SNOW_TREE",
           "noise": "vegetation",
           "threshold": 0.95
+        },
+        {
+          "type": "vegetation",
+          "entityKey": "RAMA_SECA_SUELO",
+          "noise": "vegetation",
+          "threshold": 0.7
         }
       ]
     },
     "UNDERGROUND": {
       "baseTile": "ROCK_WALL",
+      "entities": []
+    },
+    "VILLAGE": {
+      "baseTile": "DIRT",
+      "entities": []
+    },
+    "EDO": {
+      "baseTile": "GRASS",
+      "terrainRules": [],
+      "entities": [
+        {
+          "type": "npc",
+          "entityKey": "SAMURAI_EDO",
+          "noise": "npc",
+          "threshold": 0.95
+        },
+        {
+          "type": "vegetation",
+          "entityKey": "CEREZO_EN_FLOR",
+          "noise": "vegetation",
+          "threshold": 0.85
+        },
+        {
+          "type": "npc",
+          "entityKey": "LUCHADOR_DE_SUMO",
+          "noise": "npc",
+          "threshold": 0.99
+        }
+      ]
+    },
+    "EGIPTO": {
+      "baseTile": "SAND",
+      "terrainRules": [],
+      "entities": []
+    },
+    "MAYA": {
+      "baseTile": "GRASS",
+      "terrainRules": [],
+      "entities": []
+    },
+    "GRECIA": {
+      "baseTile": "GRASS",
+      "terrainRules": [],
+      "entities": []
+    },
+    "STEAMPUNK": {
+      "baseTile": "GRASS",
+      "terrainRules": [],
+      "entities": []
+    },
+    "GOMINOLA": {
+      "baseTile": "GRASS",
+      "terrainRules": [],
       "entities": []
     }
   }

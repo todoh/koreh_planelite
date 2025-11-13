@@ -51,6 +51,7 @@ body {
     align-items: center;
     justify-content: center;
     z-index: 50; 
+    transition: opacity 0.15s ease-out; /* ¡AÑADIDA TRANSICIÓN! */
 }
 
 .modal-content {
@@ -62,6 +63,9 @@ body {
     width: 90%;
     max-width: 400px;
     box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+    display: flex; /* ¡AÑADIDO! */
+    flex-direction: column; /* ¡AÑADIDO! */
+    max-height: 90vh; /* ¡AÑADIDO! */
 }
 
 .modal-close-btn {
@@ -74,6 +78,7 @@ body {
     background: none;
     border: none;
     cursor: pointer;
+    z-index: 10; /* ¡AÑADIDO! */
 }
 
 .modal-close-btn:hover {
@@ -126,4 +131,128 @@ body {
     font-weight: 700; /* font-bold */
     color: white;
     text-shadow: 1px 1px 2px black;
+}
+
+/* --- ¡ESTILOS DE PESTAÑAS ELIMINADOS! --- */
+/* .crafting-tab { ... } */
+/* .crafting-tab-active { ... } */
+/* .crafting-panel { ... } */
+/* .crafting-panel-active { ... } */
+
+/* --- Estilos de Tarjeta (Aún necesarios) --- */
+.recipe-card {
+    display: flex;
+    flex-direction: column;
+    padding: 0.75rem; /* p-3 */
+    background-color: #1f2937; /* bg-gray-800 */
+    border-radius: 0.5rem; /* rounded-lg */
+    border: 1px solid #374151; /* border border-gray-700 */
+}
+@media (min-width: 768px) {
+    .recipe-card {
+        flex-direction: row; /* md:flex-row */
+        align-items: center; /* md:items-center */
+        justify-content: space-between; /* md:justify-between */
+    }
+}
+/* Este crea el "marco" cuadrado de 14x14 */
+.recipe-card-img-wrapper {
+    width: 3.5rem; /* w-14 */
+    height: 3.5rem; /* h-14 */
+    background-color: #111827; /* bg-gray-900 */
+    border-radius: 0.375rem; /* rounded-md */
+    border: 1px solid #374151; /* border-gray-700 */
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    padding: 0.25rem; /* p-1 */
+}
+
+/* Este hace que la imagen (de cualquier tamaño) quepa DENTRO del marco */
+.recipe-card-img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    image-rendering: pixelated;
+}
+.craft-button {
+    padding: 0.5rem 1rem; /* py-2 px-4 */
+    background-color: #16a34a; /* bg-green-600 */
+    color: white;
+    border-radius: 0.375rem; /* rounded-md */
+    font-size: 0.875rem; /* text-sm */
+    font-weight: 500; /* font-medium */
+    width: 100%;
+}
+.craft-button:hover {
+    background-color: #15803d; /* hover:bg-green-700 */
+}
+.craft-button:disabled {
+    background-color: #4b5563; /* disabled:bg-gray-600 */
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+@media (min-width: 768px) {
+    .craft-button {
+        width: auto; /* md:w-auto */
+    }
+}
+
+/* --- ¡NUEVOS ESTILOS PARA EL MODAL DE ASPECTO! --- */
+#player-aspect-canvas {
+    width: 100%;
+    height: 100%;
+    display: block;
+}
+
+#player-aspect-preview {
+    flex-shrink: 0;
+    position: relative;
+    background-color: #1f2937; /* bg-gray-800 */
+    border-bottom: 1px solid #4b5563; /* border-gray-600 */
+}
+
+#player-aspect-controls {
+    flex-grow: 1;
+    overflow-y: auto;
+    padding: 1rem;
+    background-color: #111827; /* bg-gray-900 */
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.aspect-control-group {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding-bottom: 0.5rem;
+    border-bottom: 1px solid #374151; /* border-gray-700 */
+}
+/* Estilo para los inputs de color */
+.aspect-control-group input[type="color"] {
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
+    width: 40px;
+    height: 40px;
+    padding: 0;
+    border: 2px solid #4b5563; /* border-gray-600 */
+    border-radius: 0.375rem; /* rounded-md */
+    cursor: pointer;
+    background-color: transparent;
+}
+.aspect-control-group input[type="color"]::-webkit-color-swatch-wrapper {
+    padding: 0;
+    border-radius: 0.25rem;
+}
+.aspect-control-group input[type="color"]::-webkit-color-swatch {
+    border: none;
+    border-radius: 0.25rem;
+}
+.aspect-control-group input[type="color"]::-moz-color-swatch {
+    border: none;
+    border-radius: 0.25rem;
 }

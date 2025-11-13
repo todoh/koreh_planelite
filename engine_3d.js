@@ -12,9 +12,9 @@
 // - Modificado render3DFrame para posicionar BoxGeometry
 // --- ¡MODIFICADO (Modos de Render)! ---
 // - Eliminado 'PlaceableComponent'
-// - Añadido 'renderMode' ("billboard", "cross", "cube")
-// - 'getOrCreateInstancedMesh' ahora crea 3 tipos de geometría
-// - 'render3DFrame' ahora escala/posiciona 3 tipos de geometría
+// - Añadido 'renderMode' ("billboard", "cross", "cube", "flat")
+// - 'getOrCreateInstancedMesh' ahora crea 4 tipos de geometría
+// - 'render3DFrame' ahora escala/posiciona 4 tipos de geometría
 // --- ¡FIX v5! ---
 // - 'getOrCreateInstancedMesh' ahora crea un material OPACO para 'cube'
 // --- ¡FIX v6! ---
@@ -22,11 +22,14 @@
 // --- ¡FIX v7! (Tu corrección) ---
 // - 'getOrCreateInstancedMesh' para 'cube' usa 'box_1x1'
 // - 'render3DFrame' para 'cube' escala usando 'img.naturalHeight'
+// --- ¡MODIFICADO (Iluminación del Jugador)! ---
+// - Se eliminó el tinte manual del jugador en render3DFrame.
 
 import * as THREE from 'three';
 import { TILE_PX_WIDTH, TILE_PX_HEIGHT, IMAGES, CHUNK_GRID_WIDTH, CHUNK_GRID_HEIGHT, ENTITY_DATA } from './logic.js';
 // (BufferGeometryUtils no se usará, la fusión manual ya está implementada)
-
+import { createPlayerMesh } from './player_model.js';
+import { updatePlayerAnimation } from './player_animation.js';
 const raycaster = new THREE.Raycaster();
 const mouse = new THREE.Vector2();
 let $canvas;
@@ -51,7 +54,7 @@ const tempQuaternion = new THREE.Quaternion();
 const tempScale = new THREE.Vector3();
 // ¡NUEVO! Almacén para los meshes estáticos del terreno (chunkKey -> THREE.Group)
 const chunkTerrainMeshes = new Map();
-
+export let playerMesh = null;
 
 // --- ESTADO DE CÁMARA ---
 const CAMERA_ANGLE_X = -Math.PI / 4; // -45 grados de inclinación
@@ -63,8 +66,8 @@ const CAMERA_ROTATION_SPEED = 5.0; // <-- ¡NUEVA LÍNEA! (Ajusta esto para más
 
 // Constantes de Zoom
 const ZOOM_STEP = 150;
-const MIN_ZOOM_DISTANCE = 400;
-const MAX_ZOOM_DISTANCE = 1000;
+const MIN_ZOOM_DISTANCE = 210;
+const MAX_ZOOM_DISTANCE = 1500;
 
 
 /**
@@ -81,8 +84,7 @@ export function initialize3DEngine($canvasElement) {
     renderer.setPixelRatio(window.devicePixelRatio);
     renderer.setSize($canvas.clientWidth, $canvas.clientHeight);
     renderer.outputColorSpace = THREE.SRGBColorSpace;
-
-    // 2. Escena
+renderer.clear(true, true, true); // <--- CAMBIA ESTA LÍNEA    // 2. Escena
     scene = new THREE.Scene();
     scene.background = new THREE.Color(0x1a1a1a);
 
@@ -99,7 +101,7 @@ export function initialize3DEngine($canvasElement) {
     directionalLight = new THREE.DirectionalLight(0xfff8e1, 0.5); 
     directionalLight.position.set(0, 10, 5); //
     scene.add(directionalLight);
-
+playerMesh = createPlayerMesh();    scene.add(playerMesh);
     // 5. Crear el Suelo (Plano de Raycasting)
     const raycastGeometry = new THREE.PlaneGeometry(100000, 100000); // Gigante
     const raycastMaterial = new THREE.MeshBasicMaterial({ 
@@ -198,7 +200,7 @@ function updateLighting(timeOfDay) {
 
     const brightness = (Math.cos((timeOfDay - 0.5) * 2 * Math.PI) + 1) / 2;
 
-    // 1. Actualizar luces del TERRENO
+    // 1. Actualizar luces del TERRENO (y ahora también del JUGADOR)
     const minAmbient = 0.3;
     const maxAmbient = 1.0; 
     ambientLight.intensity = minAmbient + (maxAmbient - minAmbient) * brightness;
@@ -379,15 +381,14 @@ function getOrCreateInstancedMesh(key, img) {
     // Determinar la clave de geometría
     switch(renderMode) {
         case 'cube':
-            // --- ¡MODIFICADO! ---
-            // const collisionComp = template?.components.find(c => c.type === 'Collision');
-            // const boxSize = collisionComp?.args[1] || { width: TILE_PX_WIDTH, height: TILE_PX_HEIGHT, offsetY: TILE_PX_HEIGHT / 2 };
-            // geometryKey = `box_${boxSize.width}x${boxSize.height}`;
             geometryKey = 'box_1x1'; // Geometría base de cubo (1x1x1)
             break;
         case 'cross':
             geometryKey = 'cross_1x1'; // Geometría base en cruz (1x1x1)
             break;
+        // --- AÑADIDO ---
+        case 'flat':
+        // --- FIN AÑADIDO ---
         case 'billboard':
         default:
             geometryKey = 'plane_1x1'; // Geometría base de plano (1x1)
@@ -411,21 +412,15 @@ function getOrCreateInstancedMesh(key, img) {
     // 2. Geometría (¡MODIFICADA!)
     let geometry = geometryCache.get(geometryKey);
     if (!geometry) {
-        switch (renderMode) {
-            case 'cube':
-                // --- ¡MODIFICADO! ---
-                // // Lógica de Cubo (sin cambios)
-                // const collisionComp = template?.components.find(c => c.type === 'Collision');
-                // const boxSize = collisionComp?.args[1] || { width: TILE_PX_WIDTH, height: TILE_PX_HEIGHT, offsetY: TILE_PX_HEIGHT / 2 };
-                // geometry = new THREE.BoxGeometry(boxSize.width, boxSize.height, boxSize.width);
-                
-                // --- ¡NUEVO! Usar un cubo genérico 1x1x1 ---
+        // --- MODIFICADO ---
+        // La switch ahora usa geometryKey para agrupar 'flat' y 'billboard'
+        switch (geometryKey) {
+            case 'box_1x1':
                 geometry = new THREE.BoxGeometry(1, 1, 1);
                 break;
             
-            case 'cross':
+            case 'cross_1x1':
                 // ¡NUEVA Lógica de Cruz!
-                // Creamos una geometría con 2 planos (8 vértices, 4 caras)
                 const positions = [
                     -0.5, -0.5, 0.0,  // plano 1 (frontal)
                      0.5, -0.5, 0.0,
@@ -460,44 +455,39 @@ function getOrCreateInstancedMesh(key, img) {
                 geometry.computeVertexNormals(); // Necesario
                 break;
 
-            case 'billboard':
+            case 'plane_1x1': // Usado por 'billboard' y 'flat'
             default:
-                // Lógica de Plano (sin cambios)
                 geometry = new THREE.PlaneGeometry(1, 1);
                 break;
         }
+        // --- FIN MODIFICADO ---
         geometryCache.set(geometryKey, geometry);
     }
     
     // 3. Material (Cacheado)
-    // --- ¡MODIFICACIÓN CLAVE! ---
     let material = materialCache.get(cacheKey); // Usar cacheKey
     if (!material) {
         
         if (renderMode === 'cube') {
-            // --- ¡NUEVO! Material para Cubos ---
-            // Los cubos son opacos y no necesitan alphaTest
             material = new THREE.MeshBasicMaterial({
                 map: texture,
                 transparent: false
-                // side: THREE.FrontSide (por defecto)
             });
         } else {
-            // --- Material para Sprites (billboard, cross) ---
+            // Material para Sprites (billboard, cross, flat)
             material = new THREE.MeshBasicMaterial({
                 map: texture,
                 transparent: true,
                 alphaTest: 0.1,
-                side: THREE.DoubleSide // Esencial para 'cross' y 'billboard'
+                side: THREE.DoubleSide // Esencial para 'cross', 'billboard' y 'flat'
             });
         }
         
         materialCache.set(cacheKey, material);
     }
-    // --- FIN DE MODIFICACIÓN ---
 
     // 4. Crear InstancedMesh
-    const MAX_INSTANCES_PER_TYPE = 1000;
+    const MAX_INSTANCES_PER_TYPE = 33000;
     const instancedMesh = new THREE.InstancedMesh(geometry, material, MAX_INSTANCES_PER_TYPE);
     instancedMesh.count = 0;
     instancedMesh.frustumCulled = false;
@@ -511,12 +501,11 @@ function getOrCreateInstancedMesh(key, img) {
 
 /**
  * Dibuja el frame 3D.
- * ¡MODIFICADO! Para posicionar y escalar los 3 modos de render.
+ * ¡MODIFICADO! Para posicionar y escalar los 4 modos de render.
  */
 export function render3DFrame(playerX, playerY, playerZ, objectsToRender, timeOfDay, deltaTime) { // <-- ¡deltaTime AÑADIDO!
     if (!renderer) return; 
-    
-    // --- Actualizar plano de raycasting ---
+renderer.clear(true, true, true); // <--- CAMBIA ESTA LÍNEA    // --- Actualizar plano de raycasting ---
     const worldYLevel = playerZ * TILE_PX_HEIGHT;
     if (raycastPlane) {
         raycastPlane.position.y = worldYLevel;
@@ -524,10 +513,8 @@ export function render3DFrame(playerX, playerY, playerZ, objectsToRender, timeOf
 const hoveredObject = objectsToRender.find(obj => obj.isHovered);
 
     if (hoveredObject) {
-        // Posicionarlo en el (X, Z) 3D del objeto,
-        // y ligeramente por encima del suelo (worldYLevel + 1)
         selectorMesh.position.set(
-            hoveredObject.x,    // Coordenada X
+            hoveredObject.x,
             worldYLevel + 1,    // Altura (justo sobre el suelo)
             hoveredObject.y     // Coordenada Z (usamos 'y' 2D)
         );
@@ -536,17 +523,13 @@ const hoveredObject = objectsToRender.find(obj => obj.isHovered);
         selectorMesh.visible = false; // Ocultar si no hay nada
     }
     // --- ¡NUEVO! 1. Interpolar Rotación de Cámara ---
-    // Calculamos la diferencia y la suavizamos usando el deltaTime.
     const rotationDifference = targetCameraRotationY - currentCameraRotationY;
     
-    // Usamos un "damping" (amortiguación) que es framerate-independent
-    if (Math.abs(rotationDifference) > 0.0001) { // Si no estamos ya en el objetivo
+    if (Math.abs(rotationDifference) > 0.0001) { 
          currentCameraRotationY += rotationDifference * CAMERA_ROTATION_SPEED * deltaTime;
     } else {
-         currentCameraRotationY = targetCameraRotationY; // "Snap" al final
+         currentCameraRotationY = targetCameraRotationY; 
     }
-    // --- FIN DE NUEVA LÓGICA ---
-
 
     // --- 1. Mover la Cámara --- (Ahora es paso 2)
     const playerWorldZ_3D = playerY;
@@ -555,49 +538,71 @@ const hoveredObject = objectsToRender.find(obj => obj.isHovered);
     const horizontalOffset = currentCameraDistance * Math.cos(CAMERA_ANGLE_X);
     const verticalOffset = currentCameraDistance * Math.sin(-CAMERA_ANGLE_X);
 
-    // Estas líneas ahora usan el 'currentCameraRotationY' suavizado
     const camX = target.x + (horizontalOffset * Math.sin(currentCameraRotationY));
     const camZ = target.z + (horizontalOffset * Math.cos(currentCameraRotationY));
     const camY = target.y + verticalOffset;
 
     camera.position.set(camX, camY, camZ);
     camera.lookAt(target);
-
-    // --- 2. Actualizar Luces y Tinte --- (Ahora es paso 3)
+// --- 3. Actualizar Luces y Tinte ---
     const entityTint = updateLighting(timeOfDay); 
 
-    // --- 3. ¡NUEVA LÓGICA DE RESETEO! --- (Ahora es paso 4)
-    // ... (resto de la función sin cambios) ...
+    // --- 4. Reseteo de InstancedMesh ---
     for (const mesh of instancedMeshPool.values()) {
         mesh.count = 0;
     }
 
-    // --- 4. Agrupar objetos visibles por 'key' (tipo de entidad) ---
-    // --- ¡¡¡MODIFICACIÓN IMPORTANTE!!! ---
-    const dynamicObjectsByKey = new Map();
-    for (const obj of objectsToRender) {
-        if (!obj.entityKey) continue; // <-- USAR entityKey
+    // --- 5. ¡LÓGICA DE RENDER MODIFICADA! ---
+    
+    // --- 5a. Encontrar al jugador y a las "otras" entidades ---
+    const playerObject = objectsToRender.find(obj => obj.uid === 'PLAYER');
+    // Filtramos al jugador Y a los otros jugadores (que también usan 'PLAYER' key)
+    const otherObjects = objectsToRender.filter(obj => obj.entityKey !== 'PLAYER');
 
-        if (!dynamicObjectsByKey.has(obj.entityKey)) { // <-- USAR entityKey
-            dynamicObjectsByKey.set(obj.entityKey, []); // <-- USAR entityKey
-        }
-        dynamicObjectsByKey.get(obj.entityKey).push(obj); // <-- USAR entityKey
+    // --- 5b. Actualizar el playerMesh (Nuestro jugador) ---
+if (playerObject && playerMesh) {        // 1. Actualizar Posición y Rotación
+        playerMesh.position.x = playerObject.x;
+        playerMesh.position.z = playerObject.y; // Y 2D es Z 3D
+        playerMesh.rotation.y = playerObject.rotationY; // Sincronizar rotación
+        
+        // 2. Actualizar Animación (Altura Y y Rebote)
+        // (playerObject tiene x, y, z, vx, vy, rotationY)
+updatePlayerAnimation(playerMesh, playerObject, deltaTime);        
+        
+        // 3. Aplicar tinte de luz
+        // --- ¡BLOQUE ELIMINADO! ---
+        // El playerMesh ahora usa MeshLambertMaterial y es iluminado
+        // automáticamente por las luces de la escena (ambient y directional).
+        /*
+        playerMesh.traverse((child) => {
+            if (child.isMesh && child.material.userData && child.material.userData.baseColor) {
+                child.material.color.copy(child.material.userData.baseColor).multiply(entityTint);
+            }
+        });
+        */
     }
 
-    // --- 5. Actualizar las matrices de cada InstancedMesh ---
-    for (const [key, objects] of dynamicObjectsByKey.entries()) { // <-- 'key' ES AHORA entityKey
+    // --- 5c. Agrupar OTRAS entidades (NPCs, árboles, rocas, otros jugadores) ---
+    const dynamicObjectsByKey = new Map();
+    for (const obj of otherObjects) {
+        if (!obj.entityKey) continue; 
+        if (!dynamicObjectsByKey.has(obj.entityKey)) {
+            dynamicObjectsByKey.set(obj.entityKey, []); 
+        }
+        dynamicObjectsByKey.get(obj.entityKey).push(obj); 
+    }
+
+    // --- 5d. Actualizar las matrices de cada InstancedMesh (sin cambios) ---
+    for (const [key, objects] of dynamicObjectsByKey.entries()) {
         
-        // --- ¡¡¡MODIFICACIÓN IMPORTANTE!!! ---
-        // Obtenemos la imageKey del primer objeto (todos la comparten)
         const img = IMAGES[objects[0].imageKey]; 
         if (!img || !img.naturalWidth) continue; 
 
-        const instancedMesh = getOrCreateInstancedMesh(key, img); // <-- 'key' es la entityKey
+        const instancedMesh = getOrCreateInstancedMesh(key, img);
         instancedMesh.material.color.set(entityTint);
         instancedMesh.visible = true;
 
-        // --- ¡NUEVO! Obtener renderMode desde la plantilla ---
-        const template = ENTITY_DATA[key]; // <-- 'key' es la entityKey
+        const template = ENTITY_DATA[key]; 
         const renderMode = template?.renderMode || 'billboard';
 
         let instanceIndex = 0;
@@ -605,64 +610,55 @@ const hoveredObject = objectsToRender.find(obj => obj.isHovered);
             if (instanceIndex >= instancedMesh.instanceCount) break; 
             const obj = objects[instanceIndex];
 
-            // Calcular posición base
             const worldX_3D = obj.x;
             const worldZ_3D = obj.y;
             
-            // --- ¡NUEVO! Switch para los 3 modos ---
+            // ... (El switch(renderMode) para 'cube', 'cross', 'flat', 'billboard' no cambia) ...
             switch (renderMode) {
                 
                 case 'cube':
-                    // --- ¡MODIFICADO! Lógica para Cubos (Paredes) ---
                     const collisionComp = template?.components.find(c => c.type === 'Collision');
-                    // Usar el ancho de colisión para X/Z, pero la altura de la textura para Y
                     const boxWidth = collisionComp?.args[1]?.width || TILE_PX_WIDTH;
-                    const boxHeight = img.naturalHeight; // <-- ¡EL CAMBIO CLAVE!
+                    const boxHeight = img.naturalHeight; 
                     
-                    // El centro Y es la mitad de la altura de la textura, sobre el nivel del suelo
                     const worldY_3D_Entity = (boxHeight / 2) + worldYLevel; 
                     
-                    // Escalar el cubo 1x1x1
                     tempMatrix.makeScale(boxWidth, boxHeight, boxWidth); 
                     tempMatrix.setPosition(worldX_3D, worldY_3D_Entity, worldZ_3D);
                     break;
 
                 case 'cross':
-                    // --- Lógica para Cruz (Árboles) ---
                     const worldY_3D_Cross = (img.naturalHeight / 2) + worldYLevel;
-                    // Escalar la geometría base (1x1x1) al tamaño de la imagen
                     tempMatrix.makeScale(img.naturalWidth, img.naturalHeight, img.naturalWidth);
                     tempMatrix.setPosition(worldX_3D, worldY_3D_Cross, worldZ_3D);
                     break;
+                
+                case 'flat':
+                    const worldY_3D_Flat = worldYLevel + 1;
+                    tempPosition.set(worldX_3D, worldY_3D_Flat, worldZ_3D);
+                    tempRotation.set(-Math.PI / 2, 0, 0, 'YXZ');
+                    tempQuaternion.setFromEuler(tempRotation);
+                    tempScale.set(img.naturalWidth, img.naturalHeight, 1);
+                    tempMatrix.compose(tempPosition, tempQuaternion, tempScale);
+                    break;
 
-             case 'billboard':
+                case 'billboard':
                 default:
-                    // --- ¡LÓGICA DE ROTACIÓN REESCRITA (v3) ---
-                    
-                    // 1. Determinar si la entidad es dinámica (Jugador/IA) o estática (Estatua)
                     const isDynamic = template?.components.some(c => c.type === 'MovementAI') || key === 'PLAYER';
-                    
-                    // 2. Calcular Posición
                     const worldY_3D_Plane = (img.naturalHeight / 2) + worldYLevel; 
                     tempPosition.set(worldX_3D, worldY_3D_Plane, worldZ_3D);
 
-                    // 3. Calcular Rotación
                     let yRotation = 0;
                     if (isDynamic) {
-                        // ENTIDAD DINÁMICA: Usar la rotación guardada (calculada en la simulación)
                         yRotation = obj.rotationY || 0;
                     } else {
-                        // ENTIDAD ESTÁTICA: Orientar siempre hacia la cámara
                         yRotation = currentCameraRotationY;
                     }
-                    tempRotation.set(0, yRotation, 0, 'YXZ'); // Orden de ejes 'YXZ'
+                    tempRotation.set(0, yRotation, 0, 'YXZ'); 
                     tempQuaternion.setFromEuler(tempRotation);
 
-                    // 4. Calcular Escala (Siempre positiva, la rotación hace el trabajo)
                     let scaleX_Plane = img.naturalWidth;
                     tempScale.set(scaleX_Plane, img.naturalHeight, 1);
-
-                    // 5. Componer la matriz final
                     tempMatrix.compose(tempPosition, tempQuaternion, tempScale);
                     break;
             }
