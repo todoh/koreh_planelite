@@ -1,0 +1,1028 @@
+{
+    "geometries": {
+        "Torso": {
+            "shape": "cylinder",
+            "geoParams": {
+                "radiusTop": 9.44206009207204,
+                "radiusBottom": 11.802575115090052,
+                "height": 18.88412018414408,
+                "radialSegments": 32
+            }
+        },
+        "Neck": {
+            "shape": "cylinder",
+            "geoParams": {
+                "radiusTop": 3.7768240368288164,
+                "radiusBottom": 4.72103004603602,
+                "height": 23.605150230180104,
+                "radialSegments": 16
+            }
+        },
+        "Head": {
+            "shape": "sphere",
+            "geoParams": {
+                "radius": 3.7768240368288164,
+                "widthSegments": 16,
+                "heightSegments": 16
+            }
+        },
+        "Beak": {
+            "shape": "",
+            "geoParams": {
+                "width": 3.8372093048595097,
+                "height": 1.2790697682865033,
+                "depth": 7.6744186097190195
+            }
+        },
+        "Leg_L": {
+            "shape": "cylinder",
+            "geoParams": {
+                "radiusTop": 1.416309013810806,
+                "radiusBottom": 1.416309013810806,
+                "height": 9.44206009207204,
+                "radialSegments": 8
+            }
+        },
+        "Leg_R": {
+            "shape": "cylinder",
+            "geoParams": {
+                "radiusTop": 1.416309013810806,
+                "radiusBottom": 1.416309013810806,
+                "height": 9.44206009207204,
+                "radialSegments": 8
+            }
+        },
+        "Crest_Stem_Center": {
+            "shape": "cylinder",
+            "geoParams": {
+                "radiusTop": 0.23605150230180102,
+                "radiusBottom": 0.23605150230180102,
+                "height": 4.72103004603602,
+                "radialSegments": 6
+            }
+        },
+        "Crest_Tip_Center": {
+            "shape": "sphere",
+            "geoParams": {
+                "radius": 0.708154506905403
+            }
+        },
+        "F1_Stem": {
+            "shape": "cylinder",
+            "geoParams": {
+                "radiusTop": 0.708154506905403,
+                "radiusBottom": 1.180257511509005,
+                "height": 28.32618027621612,
+                "radialSegments": 8
+            }
+        },
+        "F1_Ocellus_B": {
+            "shape": "sphere",
+            "geoParams": {
+                "radius": 2.36051502301801
+            }
+        },
+        "F1_Ocellus_G": {
+            "shape": "sphere",
+            "geoParams": {
+                "radius": 1.416309013810806
+            }
+        },
+        "F1_Ocellus_Y": {
+            "shape": "sphere",
+            "geoParams": {
+                "radius": 0.708154506905403
+            }
+        },
+        "F2_Stem": {
+            "shape": "cylinder",
+            "geoParams": {
+                "radiusTop": 0.708154506905403,
+                "radiusBottom": 1.180257511509005,
+                "height": 28.32618027621612,
+                "radialSegments": 8
+            }
+        },
+        "F2_Ocellus_B": {
+            "shape": "sphere",
+            "geoParams": {
+                "radius": 2.36051502301801
+            }
+        },
+        "F2_Ocellus_G": {
+            "shape": "sphere",
+            "geoParams": {
+                "radius": 1.416309013810806
+            }
+        },
+        "F2_Ocellus_Y": {
+            "shape": "sphere",
+            "geoParams": {
+                "radius": 0.708154506905403
+            }
+        },
+        "F3_Stem": {
+            "shape": "cylinder",
+            "geoParams": {
+                "radiusTop": 0.708154506905403,
+                "radiusBottom": 1.180257511509005,
+                "height": 28.32618027621612,
+                "radialSegments": 8
+            }
+        },
+        "F3_Ocellus_B": {
+            "shape": "sphere",
+            "geoParams": {
+                "radius": 2.36051502301801
+            }
+        },
+        "F3_Ocellus_G": {
+            "shape": "sphere",
+            "geoParams": {
+                "radius": 1.416309013810806
+            }
+        },
+        "F3_Ocellus_Y": {
+            "shape": "sphere",
+            "geoParams": {
+                "radius": 0.708154506905403
+            }
+        },
+        "F4_Stem": {
+            "shape": "cylinder",
+            "geoParams": {
+                "radiusTop": 0.708154506905403,
+                "radiusBottom": 1.180257511509005,
+                "height": 28.32618027621612,
+                "radialSegments": 8
+            }
+        },
+        "F4_Ocellus_B": {
+            "shape": "sphere",
+            "geoParams": {
+                "radius": 2.36051502301801
+            }
+        },
+        "F4_Ocellus_G": {
+            "shape": "sphere",
+            "geoParams": {
+                "radius": 1.416309013810806
+            }
+        },
+        "F4_Ocellus_Y": {
+            "shape": "sphere",
+            "geoParams": {
+                "radius": 0.708154506905403
+            }
+        },
+        "F5_Stem": {
+            "shape": "cylinder",
+            "geoParams": {
+                "radiusTop": 0.708154506905403,
+                "radiusBottom": 1.180257511509005,
+                "height": 28.32618027621612,
+                "radialSegments": 8
+            }
+        },
+        "F5_Ocellus_B": {
+            "shape": "sphere",
+            "geoParams": {
+                "radius": 2.36051502301801
+            }
+        },
+        "F5_Ocellus_G": {
+            "shape": "sphere",
+            "geoParams": {
+                "radius": 1.416309013810806
+            }
+        },
+        "F5_Ocellus_Y": {
+            "shape": "sphere",
+            "geoParams": {
+                "radius": 0.708154506905403
+            }
+        },
+        "F6_Stem": {
+            "shape": "cylinder",
+            "geoParams": {
+                "radiusTop": 0.708154506905403,
+                "radiusBottom": 1.180257511509005,
+                "height": 28.32618027621612,
+                "radialSegments": 8
+            }
+        },
+        "F6_Ocellus_B": {
+            "shape": "sphere",
+            "geoParams": {
+                "radius": 2.36051502301801
+            }
+        },
+        "F6_Ocellus_G": {
+            "shape": "sphere",
+            "geoParams": {
+                "radius": 1.416309013810806
+            }
+        },
+        "F6_Ocellus_Y": {
+            "shape": "sphere",
+            "geoParams": {
+                "radius": 0.708154506905403
+            }
+        },
+        "F7_Stem": {
+            "shape": "cylinder",
+            "geoParams": {
+                "radiusTop": 0.708154506905403,
+                "radiusBottom": 1.180257511509005,
+                "height": 28.32618027621612,
+                "radialSegments": 8
+            }
+        },
+        "F7_Ocellus_B": {
+            "shape": "sphere",
+            "geoParams": {
+                "radius": 2.36051502301801
+            }
+        },
+        "F7_Ocellus_G": {
+            "shape": "sphere",
+            "geoParams": {
+                "radius": 1.416309013810806
+            }
+        },
+        "F7_Ocellus_Y": {
+            "shape": "sphere",
+            "geoParams": {
+                "radius": 0.708154506905403
+            }
+        },
+        "F8_Stem": {
+            "shape": "cylinder",
+            "geoParams": {
+                "radiusTop": 0.708154506905403,
+                "radiusBottom": 1.180257511509005,
+                "height": 28.32618027621612,
+                "radialSegments": 8
+            }
+        },
+        "F8_Ocellus_B": {
+            "shape": "sphere",
+            "geoParams": {
+                "radius": 2.36051502301801
+            }
+        },
+        "F8_Ocellus_G": {
+            "shape": "sphere",
+            "geoParams": {
+                "radius": 1.416309013810806
+            }
+        },
+        "F8_Ocellus_Y": {
+            "shape": "sphere",
+            "geoParams": {
+                "radius": 0.708154506905403
+            }
+        },
+        "F9_Stem": {
+            "shape": "cylinder",
+            "geoParams": {
+                "radiusTop": 0.708154506905403,
+                "radiusBottom": 1.180257511509005,
+                "height": 28.32618027621612,
+                "radialSegments": 8
+            }
+        },
+        "F9_Ocellus_B": {
+            "shape": "sphere",
+            "geoParams": {
+                "radius": 2.36051502301801
+            }
+        },
+        "F9_Ocellus_G": {
+            "shape": "sphere",
+            "geoParams": {
+                "radius": 1.416309013810806
+            }
+        },
+        "F9_Ocellus_Y": {
+            "shape": "sphere",
+            "geoParams": {
+                "radius": 0.708154506905403
+            }
+        },
+        "Eye_L": {
+            "shape": "sphere",
+            "geoParams": {
+                "radius": 0.708154506905403,
+                "widthSegments": 16,
+                "heightSegments": 16
+            }
+        },
+        "Eye_R": {
+            "shape": "sphere",
+            "geoParams": {
+                "radius": 0.708154506905403,
+                "widthSegments": 16,
+                "heightSegments": 16
+            }
+        }
+    },
+    "materials": {
+        "Torso": {
+            "color": "#0a4b40",
+            "texture": "PLUMAS_VERDES"
+        },
+        "Neck": {
+            "color": "#0055aa",
+            "texture": "PLUMAS_AZULES"
+        },
+        "Head": {
+            "color": "#0055aa",
+            "texture": "PLUMAS_AZULES"
+        },
+        "Beak": {
+            "color": "#ffa500",
+            "texture": ""
+        },
+        "Leg_L": {
+            "color": "#666666",
+            "texture": ""
+        },
+        "Leg_R": {
+            "color": "#666666",
+            "texture": ""
+        },
+        "Crest_Stem_Center": {
+            "color": "#0055AA",
+            "texture": ""
+        },
+        "Crest_Tip_Center": {
+            "color": "#0055AA",
+            "texture": ""
+        },
+        "F1_Stem": {
+            "color": "#336633",
+            "texture": ""
+        },
+        "F1_Ocellus_B": {
+            "color": "#0066CC",
+            "texture": ""
+        },
+        "F1_Ocellus_G": {
+            "color": "#00AA00",
+            "texture": ""
+        },
+        "F1_Ocellus_Y": {
+            "color": "#CC9900",
+            "texture": ""
+        },
+        "F2_Stem": {
+            "color": "#336633",
+            "texture": ""
+        },
+        "F2_Ocellus_B": {
+            "color": "#0066CC",
+            "texture": ""
+        },
+        "F2_Ocellus_G": {
+            "color": "#00AA00",
+            "texture": ""
+        },
+        "F2_Ocellus_Y": {
+            "color": "#CC9900",
+            "texture": ""
+        },
+        "F3_Stem": {
+            "color": "#336633",
+            "texture": ""
+        },
+        "F3_Ocellus_B": {
+            "color": "#0066CC",
+            "texture": ""
+        },
+        "F3_Ocellus_G": {
+            "color": "#00AA00",
+            "texture": ""
+        },
+        "F3_Ocellus_Y": {
+            "color": "#CC9900",
+            "texture": ""
+        },
+        "F4_Stem": {
+            "color": "#336633",
+            "texture": ""
+        },
+        "F4_Ocellus_B": {
+            "color": "#0066CC",
+            "texture": ""
+        },
+        "F4_Ocellus_G": {
+            "color": "#00AA00",
+            "texture": ""
+        },
+        "F4_Ocellus_Y": {
+            "color": "#CC9900",
+            "texture": ""
+        },
+        "F5_Stem": {
+            "color": "#336633",
+            "texture": ""
+        },
+        "F5_Ocellus_B": {
+            "color": "#0066CC",
+            "texture": ""
+        },
+        "F5_Ocellus_G": {
+            "color": "#00AA00",
+            "texture": ""
+        },
+        "F5_Ocellus_Y": {
+            "color": "#CC9900",
+            "texture": ""
+        },
+        "F6_Stem": {
+            "color": "#336633",
+            "texture": ""
+        },
+        "F6_Ocellus_B": {
+            "color": "#0066CC",
+            "texture": ""
+        },
+        "F6_Ocellus_G": {
+            "color": "#00AA00",
+            "texture": ""
+        },
+        "F6_Ocellus_Y": {
+            "color": "#CC9900",
+            "texture": ""
+        },
+        "F7_Stem": {
+            "color": "#336633",
+            "texture": ""
+        },
+        "F7_Ocellus_B": {
+            "color": "#0066CC",
+            "texture": ""
+        },
+        "F7_Ocellus_G": {
+            "color": "#00AA00",
+            "texture": ""
+        },
+        "F7_Ocellus_Y": {
+            "color": "#CC9900",
+            "texture": ""
+        },
+        "F8_Stem": {
+            "color": "#336633",
+            "texture": ""
+        },
+        "F8_Ocellus_B": {
+            "color": "#0066CC",
+            "texture": ""
+        },
+        "F8_Ocellus_G": {
+            "color": "#00AA00",
+            "texture": ""
+        },
+        "F8_Ocellus_Y": {
+            "color": "#CC9900",
+            "texture": ""
+        },
+        "F9_Stem": {
+            "color": "#336633",
+            "texture": ""
+        },
+        "F9_Ocellus_B": {
+            "color": "#0066CC",
+            "texture": ""
+        },
+        "F9_Ocellus_G": {
+            "color": "#00AA00",
+            "texture": ""
+        },
+        "F9_Ocellus_Y": {
+            "color": "#CC9900",
+            "texture": ""
+        },
+        "Eye_L": {
+            "color": "#000000",
+            "texture": ""
+        },
+        "Eye_R": {
+            "color": "#000000",
+            "texture": ""
+        }
+    },
+    "positions": {
+        "Torso": {
+            "x": 0,
+            "y": 16.139335273658027,
+            "z": 0
+        },
+        "Neck": {
+            "x": 0,
+            "y": 32.6629404347841,
+            "z": 0
+        },
+        "Head": {
+            "x": 0,
+            "y": 46.826030572892165,
+            "z": 0
+        },
+        "Beak": {
+            "x": 0,
+            "y": 45.546960804605604,
+            "z": 3.7768240368288164
+        },
+        "Leg_L": {
+            "x": -2.36051502301801,
+            "y": 4.336760158567973,
+            "z": 0
+        },
+        "Leg_R": {
+            "x": 2.36051502301801,
+            "y": 4.336760158567973,
+            "z": 0
+        },
+        "Crest_Stem_Center": {
+            "x": 0,
+            "y": 51.547060618928185,
+            "z": 0
+        },
+        "Crest_Tip_Center": {
+            "x": 0,
+            "y": 53.90757564194618,
+            "z": 0
+        },
+        "F1_Stem": {
+            "x": -11.61373391324861,
+            "y": 16.139335273658027,
+            "z": -13.83261803488554
+        },
+        "F1_Ocellus_B": {
+            "x": -25.085665252616998,
+            "y": 19.804743001400393,
+            "z": -11.457467818724817
+        },
+        "F1_Ocellus_G": {
+            "x": -25.085665252616998,
+            "y": 19.804743001400393,
+            "z": -11.457467818724817
+        },
+        "F1_Ocellus_Y": {
+            "x": -25.085665252616998,
+            "y": 19.804743001400393,
+            "z": -11.457467818724817
+        },
+        "F2_Stem": {
+            "x": -10.244635199898164,
+            "y": 16.139335273658027,
+            "z": -17.703862672635076
+        },
+        "F2_Ocellus_B": {
+            "x": -22.098669542490004,
+            "y": 19.804743001400393,
+            "z": -10.86403434193809
+        },
+        "F2_Ocellus_G": {
+            "x": -22.098669542490004,
+            "y": 19.804743001400393,
+            "z": -10.86403434193809
+        },
+        "F2_Ocellus_Y": {
+            "x": -22.098669542490004,
+            "y": 19.804743001400393,
+            "z": -10.86403434193809
+        },
+        "F3_Stem": {
+            "x": -7.600858374117994,
+            "y": 16.139335273658027,
+            "z": -20.44206009933597
+        },
+        "F3_Ocellus_B": {
+            "x": -16.390472113827858,
+            "y": 19.804743001400393,
+            "z": -9.952403440048535
+        },
+        "F3_Ocellus_G": {
+            "x": -16.390472113827858,
+            "y": 19.804743001400393,
+            "z": -9.952403440048535
+        },
+        "F3_Ocellus_Y": {
+            "x": -16.390472113827858,
+            "y": 19.804743001400393,
+            "z": -9.952403440048535
+        },
+        "F4_Stem": {
+            "x": -4.060085839590977,
+            "y": 16.139335273658027,
+            "z": -22.8969957232747
+        },
+        "F4_Ocellus_B": {
+            "x": -8.738626615212675,
+            "y": 19.804743001400393,
+            "z": -10.042103010923219
+        },
+        "F4_Ocellus_G": {
+            "x": -8.738626615212675,
+            "y": 19.804743001400393,
+            "z": -10.042103010923219
+        },
+        "F4_Ocellus_Y": {
+            "x": -8.738626615212675,
+            "y": 19.804743001400393,
+            "z": -10.042103010923219
+        },
+        "F5_Stem": {
+            "x": 0,
+            "y": 16.139335273658027,
+            "z": -23.605150230180104
+        },
+        "F5_Ocellus_B": {
+            "x": 0,
+            "y": 19.804743001400393,
+            "z": -9.925021465781525
+        },
+        "F5_Ocellus_G": {
+            "x": 0,
+            "y": 19.804743001400393,
+            "z": -9.925021465781525
+        },
+        "F5_Ocellus_Y": {
+            "x": 0,
+            "y": 19.804743001400393,
+            "z": -9.925021465781525
+        },
+        "F6_Stem": {
+            "x": 4.060085839590977,
+            "y": 16.139335273658027,
+            "z": -22.8969957232747
+        },
+        "F6_Ocellus_B": {
+            "x": 8.738626615212675,
+            "y": 19.804743001400393,
+            "z": -10.042103010923219
+        },
+        "F6_Ocellus_G": {
+            "x": 8.738626615212675,
+            "y": 19.804743001400393,
+            "z": -10.042103010923219
+        },
+        "F6_Ocellus_Y": {
+            "x": 8.738626615212675,
+            "y": 19.804743001400393,
+            "z": -10.042103010923219
+        },
+        "F7_Stem": {
+            "x": 7.600858374117994,
+            "y": 16.139335273658027,
+            "z": -20.44206009933597
+        },
+        "F7_Ocellus_B": {
+            "x": 16.390472113827858,
+            "y": 19.804743001400393,
+            "z": -9.952403440048535
+        },
+        "F7_Ocellus_G": {
+            "x": 16.390472113827858,
+            "y": 19.804743001400393,
+            "z": -9.952403440048535
+        },
+        "F7_Ocellus_Y": {
+            "x": 16.390472113827858,
+            "y": 19.804743001400393,
+            "z": -9.952403440048535
+        },
+        "F8_Stem": {
+            "x": 10.244635199898164,
+            "y": 16.139335273658027,
+            "z": -17.703862672635076
+        },
+        "F8_Ocellus_B": {
+            "x": 22.098669542490004,
+            "y": 19.804743001400393,
+            "z": -10.86403434193809
+        },
+        "F8_Ocellus_G": {
+            "x": 22.098669542490004,
+            "y": 19.804743001400393,
+            "z": -10.86403434193809
+        },
+        "F8_Ocellus_Y": {
+            "x": 22.098669542490004,
+            "y": 19.804743001400393,
+            "z": -10.86403434193809
+        },
+        "F9_Stem": {
+            "x": 11.61373391324861,
+            "y": 16.139335273658027,
+            "z": -13.83261803488554
+        },
+        "F9_Ocellus_B": {
+            "x": 25.085665252616998,
+            "y": 19.804743001400393,
+            "z": -11.457467818724817
+        },
+        "F9_Ocellus_G": {
+            "x": 25.085665252616998,
+            "y": 19.804743001400393,
+            "z": -11.457467818724817
+        },
+        "F9_Ocellus_Y": {
+            "x": 25.085665252616998,
+            "y": 19.804743001400393,
+            "z": -11.457467818724817
+        },
+        "Eye_L": {
+            "x": -1.6523605161126071,
+            "y": 47.770236582099365,
+            "z": 3.540772534527015
+        },
+        "Eye_R": {
+            "x": 1.6523605161126071,
+            "y": 47.770236582099365,
+            "z": 3.540772534527015
+        }
+    },
+    "rotations": {
+        "Torso": {
+            "x": 0,
+            "y": 0,
+            "z": 1
+        },
+        "Neck": {
+            "x": 0,
+            "y": 0,
+            "z": -1
+        },
+        "Head": {
+            "x": 0,
+            "y": 0,
+            "z": 4
+        },
+        "Beak": {
+            "x": 0,
+            "y": 0,
+            "z": 0
+        },
+        "Leg_L": {
+            "x": 0,
+            "y": 0,
+            "z": 0
+        },
+        "Leg_R": {
+            "x": 0,
+            "y": 0,
+            "z": 0
+        },
+        "Crest_Stem_Center": {
+            "x": 0,
+            "y": 0,
+            "z": 0
+        },
+        "Crest_Tip_Center": {
+            "x": 0,
+            "y": 0,
+            "z": 0
+        },
+        "F1_Stem": {
+            "x": 0,
+            "y": 0,
+            "z": 0
+        },
+        "F1_Ocellus_B": {
+            "x": 0,
+            "y": 0,
+            "z": 0
+        },
+        "F1_Ocellus_G": {
+            "x": 0,
+            "y": 0,
+            "z": 0
+        },
+        "F1_Ocellus_Y": {
+            "x": 0,
+            "y": 0,
+            "z": 0
+        },
+        "F2_Stem": {
+            "x": 0,
+            "y": 0,
+            "z": 0
+        },
+        "F2_Ocellus_B": {
+            "x": 0,
+            "y": 0,
+            "z": 0
+        },
+        "F2_Ocellus_G": {
+            "x": 0,
+            "y": 0,
+            "z": 0
+        },
+        "F2_Ocellus_Y": {
+            "x": 0,
+            "y": 0,
+            "z": 0
+        },
+        "F3_Stem": {
+            "x": 0,
+            "y": 0,
+            "z": 0
+        },
+        "F3_Ocellus_B": {
+            "x": 0,
+            "y": 0,
+            "z": 0
+        },
+        "F3_Ocellus_G": {
+            "x": 0,
+            "y": 0,
+            "z": 0
+        },
+        "F3_Ocellus_Y": {
+            "x": 0,
+            "y": 0,
+            "z": 0
+        },
+        "F4_Stem": {
+            "x": 0,
+            "y": 0,
+            "z": 0
+        },
+        "F4_Ocellus_B": {
+            "x": 0,
+            "y": 0,
+            "z": 0
+        },
+        "F4_Ocellus_G": {
+            "x": 0,
+            "y": 0,
+            "z": 0
+        },
+        "F4_Ocellus_Y": {
+            "x": 0,
+            "y": 0,
+            "z": 0
+        },
+        "F5_Stem": {
+            "x": 0,
+            "y": 0,
+            "z": 0
+        },
+        "F5_Ocellus_B": {
+            "x": 0,
+            "y": 0,
+            "z": 0
+        },
+        "F5_Ocellus_G": {
+            "x": 0,
+            "y": 0,
+            "z": 0
+        },
+        "F5_Ocellus_Y": {
+            "x": 0,
+            "y": 0,
+            "z": 0
+        },
+        "F6_Stem": {
+            "x": 0,
+            "y": 0,
+            "z": 0
+        },
+        "F6_Ocellus_B": {
+            "x": 0,
+            "y": 0,
+            "z": 0
+        },
+        "F6_Ocellus_G": {
+            "x": 0,
+            "y": 0,
+            "z": 0
+        },
+        "F6_Ocellus_Y": {
+            "x": 0,
+            "y": 0,
+            "z": 0
+        },
+        "F7_Stem": {
+            "x": 0,
+            "y": 0,
+            "z": 0
+        },
+        "F7_Ocellus_B": {
+            "x": 0,
+            "y": 0,
+            "z": 0
+        },
+        "F7_Ocellus_G": {
+            "x": 0,
+            "y": 0,
+            "z": 0
+        },
+        "F7_Ocellus_Y": {
+            "x": 0,
+            "y": 0,
+            "z": 0
+        },
+        "F8_Stem": {
+            "x": 0,
+            "y": 0,
+            "z": 0
+        },
+        "F8_Ocellus_B": {
+            "x": 0,
+            "y": 0,
+            "z": 0
+        },
+        "F8_Ocellus_G": {
+            "x": 0,
+            "y": 0,
+            "z": 0
+        },
+        "F8_Ocellus_Y": {
+            "x": 0,
+            "y": 0,
+            "z": 0
+        },
+        "F9_Stem": {
+            "x": 0,
+            "y": 0,
+            "z": 0
+        },
+        "F9_Ocellus_B": {
+            "x": 0,
+            "y": 0,
+            "z": 0
+        },
+        "F9_Ocellus_G": {
+            "x": 0,
+            "y": 0,
+            "z": 0
+        },
+        "F9_Ocellus_Y": {
+            "x": 0,
+            "y": 0,
+            "z": 0
+        },
+        "Eye_L": {
+            "x": 0,
+            "y": 0,
+            "z": 0
+        },
+        "Eye_R": {
+            "x": 0,
+            "y": 0,
+            "z": 0
+        }
+    },
+    "parenting": {
+        "Torso": "SCENE",
+        "Neck": "SCENE",
+        "Head": "SCENE",
+        "Beak": "SCENE",
+        "Leg_L": "SCENE",
+        "Leg_R": "SCENE",
+        "Crest_Stem_Center": "SCENE",
+        "Crest_Tip_Center": "SCENE",
+        "F1_Stem": "SCENE",
+        "F1_Ocellus_B": "SCENE",
+        "F1_Ocellus_G": "SCENE",
+        "F1_Ocellus_Y": "SCENE",
+        "F2_Stem": "SCENE",
+        "F2_Ocellus_B": "SCENE",
+        "F2_Ocellus_G": "SCENE",
+        "F2_Ocellus_Y": "SCENE",
+        "F3_Stem": "SCENE",
+        "F3_Ocellus_B": "SCENE",
+        "F3_Ocellus_G": "SCENE",
+        "F3_Ocellus_Y": "SCENE",
+        "F4_Stem": "SCENE",
+        "F4_Ocellus_B": "SCENE",
+        "F4_Ocellus_G": "SCENE",
+        "F4_Ocellus_Y": "SCENE",
+        "F5_Stem": "SCENE",
+        "F5_Ocellus_B": "SCENE",
+        "F5_Ocellus_G": "SCENE",
+        "F5_Ocellus_Y": "SCENE",
+        "F6_Stem": "SCENE",
+        "F6_Ocellus_B": "SCENE",
+        "F6_Ocellus_G": "SCENE",
+        "F6_Ocellus_Y": "SCENE",
+        "F7_Stem": "SCENE",
+        "F7_Ocellus_B": "SCENE",
+        "F7_Ocellus_G": "SCENE",
+        "F7_Ocellus_Y": "SCENE",
+        "F8_Stem": "SCENE",
+        "F8_Ocellus_B": "SCENE",
+        "F8_Ocellus_G": "SCENE",
+        "F8_Ocellus_Y": "SCENE",
+        "F9_Stem": "SCENE",
+        "F9_Ocellus_B": "SCENE",
+        "F9_Ocellus_G": "SCENE",
+        "F9_Ocellus_Y": "SCENE",
+        "Eye_L": "SCENE",
+        "Eye_R": "SCENE"
+    }
+}

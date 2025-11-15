@@ -1,0 +1,458 @@
+{
+    "geometries": {
+        "cuerpo": {
+            "shape": "sphere",
+            "geoParams": {
+                "radius": 28.24901093929328,
+                "widthSegments": 32,
+                "heightSegments": 16
+            }
+        },
+        "cabeza": {
+            "shape": "sphere",
+            "geoParams": {
+                "radius": 11.097825726150932
+            }
+        },
+        "morro": {
+            "shape": "sphere",
+            "geoParams": {
+                "radius": 6.053359486991417
+            }
+        },
+        "ojo_izquierdo": {
+            "shape": "sphere",
+            "geoParams": {
+                "radius": 1.2106718973982835
+            }
+        },
+        "ojo_derecho": {
+            "shape": "sphere",
+            "geoParams": {
+                "radius": 1.2106718973982835
+            }
+        },
+        "oreja_izquierda": {
+            "shape": "sphere",
+            "geoParams": {
+                "radius": 5.044466239159515,
+                "widthSegments": 32,
+                "heightSegments": 16
+            }
+        },
+        "oreja_derecha": {
+            "shape": "sphere",
+            "geoParams": {
+                "radius": 5.044466239159515,
+                "widthSegments": 32,
+                "heightSegments": 16
+            }
+        },
+        "pata_delantera_cercana": {
+            "shape": "cylinder",
+            "geoParams": {
+                "radiusTop": 4.035572991327611,
+                "radiusBottom": 4.035572991327611,
+                "height": 20.17786495663806
+            }
+        },
+        "pezuña_delantera_cercana": {
+            "shape": "cylinder",
+            "geoParams": {
+                "radiusTop": 4.540019615243562,
+                "radiusBottom": 4.540019615243562,
+                "height": 4.035572991327611
+            }
+        },
+        "pata_trasera_cercana": {
+            "shape": "cylinder",
+            "geoParams": {
+                "radiusTop": 4.540019615243562,
+                "radiusBottom": 4.540019615243562,
+                "height": 20.17786495663806
+            }
+        },
+        "pezuña_trasera_cercana": {
+            "shape": "cylinder",
+            "geoParams": {
+                "radiusTop": 5.044466239159515,
+                "radiusBottom": 5.044466239159515,
+                "height": 4.035572991327611
+            }
+        },
+        "pata_delantera_lejana": {
+            "shape": "cylinder",
+            "geoParams": {
+                "radiusTop": 3.53112636741166,
+                "radiusBottom": 3.53112636741166,
+                "height": 20.17786495663806
+            }
+        },
+        "pezuña_delantera_lejana": {
+            "shape": "cylinder",
+            "geoParams": {
+                "radiusTop": 4.035572991327611,
+                "radiusBottom": 4.035572991327611,
+                "height": 4.035572991327611
+            }
+        },
+        "pata_trasera_lejana": {
+            "shape": "cylinder",
+            "geoParams": {
+                "radiusTop": 4.035572991327611,
+                "radiusBottom": 4.035572991327611,
+                "height": 20.17786495663806
+            }
+        },
+        "pezuña_trasera_lejana": {
+            "shape": "cylinder",
+            "geoParams": {
+                "radiusTop": 4.540019615243562,
+                "radiusBottom": 4.540019615243562,
+                "height": 4.035572991327611
+            }
+        },
+        "ubre": {
+            "shape": "sphere",
+            "geoParams": {
+                "radius": 7.06225273482332,
+                "widthSegments": 35,
+                "heightSegments": 16
+            }
+        },
+        "cola": {
+            "shape": "cylinder",
+            "geoParams": {
+                "radiusTop": 0.6053359486991418,
+                "radiusBottom": 0.4035572991327612,
+                "height": 25.22233119579757
+            }
+        },
+        "punta_cola": {
+            "shape": "sphere",
+            "geoParams": {
+                "radius": 2.5222331195797576
+            }
+        },
+        "mancha_cuerpo_1": {
+            "shape": "sphere",
+            "geoParams": {
+                "radius": 10.08893247831903
+            }
+        },
+        "mancha_cuerpo_2": {
+            "shape": "sphere",
+            "geoParams": {
+                "radius": 8.071145982655223
+            }
+        }
+    },
+    "materials": {
+        "cuerpo": {
+            "color": "#ffffff",
+            "texture": "PIEL_VACA"
+        },
+        "cabeza": {
+            "color": "#FFFFFF",
+            "texture": ""
+        },
+        "morro": {
+            "color": "#F5C4B8",
+            "texture": ""
+        },
+        "ojo_izquierdo": {
+            "color": "#1C1C1C",
+            "texture": ""
+        },
+        "ojo_derecho": {
+            "color": "#1C1C1C",
+            "texture": ""
+        },
+        "oreja_izquierda": {
+            "color": "#ffffff",
+            "texture": ""
+        },
+        "oreja_derecha": {
+            "color": "#ffffff",
+            "texture": ""
+        },
+        "pata_delantera_cercana": {
+            "color": "#FFFFFF",
+            "texture": ""
+        },
+        "pezuña_delantera_cercana": {
+            "color": "#4A3F35",
+            "texture": ""
+        },
+        "pata_trasera_cercana": {
+            "color": "#FFFFFF",
+            "texture": ""
+        },
+        "pezuña_trasera_cercana": {
+            "color": "#4A3F35",
+            "texture": ""
+        },
+        "pata_delantera_lejana": {
+            "color": "#E0E0E0",
+            "texture": ""
+        },
+        "pezuña_delantera_lejana": {
+            "color": "#4A3F35",
+            "texture": ""
+        },
+        "pata_trasera_lejana": {
+            "color": "#E0E0E0",
+            "texture": ""
+        },
+        "pezuña_trasera_lejana": {
+            "color": "#4A3F35",
+            "texture": ""
+        },
+        "ubre": {
+            "color": "#fad1c9",
+            "texture": ""
+        },
+        "cola": {
+            "color": "#1C1C1C",
+            "texture": ""
+        },
+        "punta_cola": {
+            "color": "#1C1C1C",
+            "texture": ""
+        },
+        "mancha_cuerpo_1": {
+            "color": "#1C1C1C",
+            "texture": ""
+        },
+        "mancha_cuerpo_2": {
+            "color": "#1C1C1C",
+            "texture": ""
+        }
+    },
+    "positions": {
+        "cuerpo": {
+            "x": 0,
+            "y": 35,
+            "z": 0
+        },
+        "cabeza": {
+            "x": -32.28458393062089,
+            "y": 45.08893247831903,
+            "z": 0
+        },
+        "morro": {
+            "x": -42.37351640893992,
+            "y": 40.04446623915952,
+            "z": 0
+        },
+        "ojo_izquierdo": {
+            "x": -41.36462316110802,
+            "y": 49.12450546964664,
+            "z": 6.053359486991417
+        },
+        "ojo_derecho": {
+            "x": -41.36462316110802,
+            "y": 49.12450546964664,
+            "z": -6.053359486991417
+        },
+        "oreja_izquierda": {
+            "x": -32.28458393062089,
+            "y": 51.14229196531045,
+            "z": 8.071145982655223
+        },
+        "oreja_derecha": {
+            "x": -32.28458393062089,
+            "y": 51.14229196531045,
+            "z": -8.071145982655223
+        },
+        "pata_delantera_cercana": {
+            "x": -18.160078460974248,
+            "y": 12.804348547698137,
+            "z": 11.097825726150932
+        },
+        "pezuña_delantera_cercana": {
+            "x": -18.160078460974248,
+            "y": 1.7065228215472033,
+            "z": 11.097825726150932
+        },
+        "pata_trasera_cercana": {
+            "x": 18.160078460974248,
+            "y": 12.804348547698137,
+            "z": 11.097825726150932
+        },
+        "pezuña_trasera_cercana": {
+            "x": 18.160078460974248,
+            "y": 1.7065228215472033,
+            "z": 11.097825726150932
+        },
+        "pata_delantera_lejana": {
+            "x": -18.160078460974248,
+            "y": 12.804348547698137,
+            "z": -11.097825726150932
+        },
+        "pezuña_delantera_lejana": {
+            "x": -18.160078460974248,
+            "y": 1.7065228215472033,
+            "z": -11.097825726150932
+        },
+        "pata_trasera_lejana": {
+            "x": 18.160078460974248,
+            "y": 12.804348547698137,
+            "z": -11.097825726150932
+        },
+        "pezuña_trasera_lejana": {
+            "x": 18.160078460974248,
+            "y": 1.7065228215472033,
+            "z": -11.097825726150932
+        },
+        "ubre": {
+            "x": 10.08893247831903,
+            "y": 13,
+            "z": 0
+        },
+        "cola": {
+            "x": 27.240117691461375,
+            "y": 29.955533760840485,
+            "z": 0
+        },
+        "punta_cola": {
+            "x": 27.240117691461375,
+            "y": 17.3443681629417,
+            "z": 0
+        },
+        "mancha_cuerpo_1": {
+            "x": 5.044466239159515,
+            "y": 40.04446623915952,
+            "z": 10.08893247831903
+        },
+        "mancha_cuerpo_2": {
+            "x": -15.133398717478544,
+            "y": 37.017786495663806,
+            "z": -12.106718973982835
+        }
+    },
+    "rotations": {
+        "cuerpo": {
+            "x": 0,
+            "y": 90,
+            "z": 3
+        },
+        "cabeza": {
+            "x": 0,
+            "y": 90,
+            "z": 0
+        },
+        "morro": {
+            "x": 0,
+            "y": 90,
+            "z": 0
+        },
+        "ojo_izquierdo": {
+            "x": 0,
+            "y": 90,
+            "z": 0
+        },
+        "ojo_derecho": {
+            "x": 0,
+            "y": 90,
+            "z": 0
+        },
+        "oreja_izquierda": {
+            "x": 0,
+            "y": 90,
+            "z": 0
+        },
+        "oreja_derecha": {
+            "x": 0,
+            "y": 90,
+            "z": 1
+        },
+        "pata_delantera_cercana": {
+            "x": 0,
+            "y": 90,
+            "z": 0
+        },
+        "pezuña_delantera_cercana": {
+            "x": 0,
+            "y": 90,
+            "z": 0
+        },
+        "pata_trasera_cercana": {
+            "x": 0,
+            "y": 90,
+            "z": 0
+        },
+        "pezuña_trasera_cercana": {
+            "x": 0,
+            "y": 90,
+            "z": 0
+        },
+        "pata_delantera_lejana": {
+            "x": 0,
+            "y": 90,
+            "z": 0
+        },
+        "pezuña_delantera_lejana": {
+            "x": 0,
+            "y": 90,
+            "z": 0
+        },
+        "pata_trasera_lejana": {
+            "x": 0,
+            "y": 90,
+            "z": 0
+        },
+        "pezuña_trasera_lejana": {
+            "x": 0,
+            "y": 90,
+            "z": 0
+        },
+        "ubre": {
+            "x": 0,
+            "y": 90,
+            "z": 0
+        },
+        "cola": {
+            "x": 0,
+            "y": 90,
+            "z": 0
+        },
+        "punta_cola": {
+            "x": 0,
+            "y": 90,
+            "z": 0
+        },
+        "mancha_cuerpo_1": {
+            "x": 0,
+            "y": 90,
+            "z": 0
+        },
+        "mancha_cuerpo_2": {
+            "x": 0,
+            "y": 90,
+            "z": 0
+        }
+    },
+    "parenting": {
+        "cuerpo": "SCENE",
+        "cabeza": "SCENE",
+        "morro": "SCENE",
+        "ojo_izquierdo": "SCENE",
+        "ojo_derecho": "SCENE",
+        "oreja_izquierda": "SCENE",
+        "oreja_derecha": "SCENE",
+        "pata_delantera_cercana": "SCENE",
+        "pezuña_delantera_cercana": "SCENE",
+        "pata_trasera_cercana": "SCENE",
+        "pezuña_trasera_cercana": "SCENE",
+        "pata_delantera_lejana": "SCENE",
+        "pezuña_delantera_lejana": "SCENE",
+        "pata_trasera_lejana": "SCENE",
+        "pezuña_trasera_lejana": "SCENE",
+        "ubre": "SCENE",
+        "cola": "SCENE",
+        "punta_cola": "SCENE",
+        "mancha_cuerpo_1": "SCENE",
+        "mancha_cuerpo_2": "SCENE"
+    }
+}

@@ -1,0 +1,14 @@
+{
+    "geometries": {
+        "cuerpo": { "width": 10, "height": 20, "depth": 10 },
+        "cabeza": { "width": 8, "height": 8, "depth": 8 }
+    },
+    "materials": {
+        "cuerpo": { "color": "#0000FF" },
+        "cabeza": { "color": "#FFCC00" }
+    },
+    "positions": {
+        "cuerpo": { "x": 0, "y": 10, "z": 0 },
+        "cabeza": { "x": 0, "y": 24, "z": 0 }
+    }
+}

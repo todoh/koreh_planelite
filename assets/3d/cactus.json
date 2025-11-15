@@ -1,0 +1,199 @@
+{
+    "geometries": {
+        "tronco_principal": {
+            "shape": "cylinder",
+            "geoParams": {
+                "radiusTop": 12.148099906232298,
+                "radiusBottom": 14.577719887478757,
+                "height": 113.38226579150145,
+                "radialSegments": 32
+            }
+        },
+        "brazo_izquierdo": {
+            "shape": "cylinder",
+            "geoParams": {
+                "radiusTop": 6.478986616657226,
+                "radiusBottom": 8.098733270821532,
+                "height": 56.69113289575073,
+                "radialSegments": 24
+            }
+        },
+        "brazo_derecho": {
+            "shape": "cylinder",
+            "geoParams": {
+                "radiusTop": 6.478986616657226,
+                "radiusBottom": 8.098733270821532,
+                "height": 56.69113289575073,
+                "radialSegments": 24
+            }
+        },
+        "pincho_t1_f": {
+            "shape": "box",
+            "geoParams": {
+                "width": 7.960526571394055,
+                "height": 6.478986616657226,
+                "depth": 7.960526571394055
+            }
+        },
+        "pincho_t2_f": {
+            "shape": "box",
+            "geoParams": {
+                "width": 7.960526571394055,
+                "height": 6.478986616657226,
+                "depth": 7.960526571394055
+            }
+        },
+        "pincho_t3_f": {
+            "shape": "box",
+            "geoParams": {
+                "width": 7.960526571394055,
+                "height": 6.478986616657226,
+                "depth": 7.960526571394055
+            }
+        },
+        "pincho_l1": {
+            "shape": "box",
+            "geoParams": {
+                "width": 6.368421257115244,
+                "height": 7.960526571394055,
+                "depth": 7.960526571394055
+            }
+        },
+        "pincho_r1": {
+            "shape": "box",
+            "geoParams": {
+                "width": 7.960526571394055,
+                "height": 6.478986616657226,
+                "depth": 7.960526571394055
+            }
+        }
+    },
+    "materials": {
+        "tronco_principal": {
+            "color": "#3CB371",
+            "texture": ""
+        },
+        "brazo_izquierdo": {
+            "color": "#3CB371",
+            "texture": ""
+        },
+        "brazo_derecho": {
+            "color": "#3CB371",
+            "texture": ""
+        },
+        "pincho_t1_f": {
+            "color": "#ffffe0",
+            "texture": ""
+        },
+        "pincho_t2_f": {
+            "color": "#ffffe0",
+            "texture": ""
+        },
+        "pincho_t3_f": {
+            "color": "#ffffe0",
+            "texture": ""
+        },
+        "pincho_l1": {
+            "color": "#ffffe0",
+            "texture": ""
+        },
+        "pincho_r1": {
+            "color": "#ffffe0",
+            "texture": ""
+        }
+    },
+    "positions": {
+        "tronco_principal": {
+            "x": 0,
+            "y": 55.72368599975839,
+            "z": 0
+        },
+        "brazo_izquierdo": {
+            "x": -20.246833177053826,
+            "y": 92.16798571845528,
+            "z": 0
+        },
+        "brazo_derecho": {
+            "x": 20.246833177053826,
+            "y": 92.16798571845528,
+            "z": 0
+        },
+        "pincho_t1_f": {
+            "x": 12.148099906232298,
+            "y": 96.21735235386605,
+            "z": 8.098733270821532
+        },
+        "pincho_t2_f": {
+            "x": 8.098733270821532,
+            "y": 63.822419270579914,
+            "z": 12.148099906232298
+        },
+        "pincho_t3_f": {
+            "x": 4.049366635410766,
+            "y": 23.32875291647226,
+            "z": 13.767846560396602
+        },
+        "pincho_l1": {
+            "x": -36.44429971869689,
+            "y": 112.4148188955091,
+            "z": 8.098733270821532
+        },
+        "pincho_r1": {
+            "x": 36.44429971869689,
+            "y": 112.4148188955091,
+            "z": 8.098733270821532
+        }
+    },
+    "rotations": {
+        "tronco_principal": {
+            "x": 0,
+            "y": 0,
+            "z": 0
+        },
+        "brazo_izquierdo": {
+            "x": 0,
+            "y": 0,
+            "z": 35
+        },
+        "brazo_derecho": {
+            "x": 0,
+            "y": 0,
+            "z": -35
+        },
+        "pincho_t1_f": {
+            "x": 20,
+            "y": 0,
+            "z": 0
+        },
+        "pincho_t2_f": {
+            "x": 25,
+            "y": 0,
+            "z": 0
+        },
+        "pincho_t3_f": {
+            "x": 25,
+            "y": 0,
+            "z": 0
+        },
+        "pincho_l1": {
+            "x": 15,
+            "y": 0,
+            "z": 35
+        },
+        "pincho_r1": {
+            "x": 15,
+            "y": 0,
+            "z": -35
+        }
+    },
+    "parenting": {
+        "tronco_principal": "SCENE",
+        "brazo_izquierdo": "SCENE",
+        "brazo_derecho": "SCENE",
+        "pincho_t1_f": "SCENE",
+        "pincho_t2_f": "SCENE",
+        "pincho_t3_f": "SCENE",
+        "pincho_l1": "SCENE",
+        "pincho_r1": "SCENE"
+    }
+}

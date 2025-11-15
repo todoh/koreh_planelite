@@ -1,0 +1,312 @@
+{
+    "geometries": {
+        "tronco_principal": {
+            "shape": "cylinder",
+            "geoParams": {
+                "radiusTop": 11.579971716118118,
+                "radiusBottom": 14.474964645147647,
+                "height": 192.99952860196862,
+                "radialSegments": 16
+            }
+        },
+        "base_corona": {
+            "shape": "sphere",
+            "geoParams": {
+                "radius": 16.51989572301732,
+                "widthSegments": 23,
+                "heightSegments": 16
+            }
+        },
+        "coco_1": {
+            "shape": "sphere",
+            "geoParams": {
+                "radius": 7.719981144078746,
+                "widthSegments": 12,
+                "heightSegments": 12
+            }
+        },
+        "coco_2": {
+            "shape": "sphere",
+            "geoParams": {
+                "radius": 8.684978787088589,
+                "widthSegments": 12,
+                "heightSegments": 12
+            }
+        },
+        "coco_3": {
+            "shape": "sphere",
+            "geoParams": {
+                "radius": 6.754983501068903,
+                "widthSegments": 12,
+                "heightSegments": 12
+            }
+        },
+        "fronda_caida_1": {
+            "shape": "box",
+            "geoParams": {
+                "width": 115.79971716118118,
+                "height": 1.9299952860196865,
+                "depth": 9.649976430098434
+            }
+        },
+        "fronda_caida_2": {
+            "shape": "box",
+            "geoParams": {
+                "width": 115.79971716118118,
+                "height": 1.9299952860196865,
+                "depth": 9.649976430098434
+            }
+        },
+        "fronda_caida_3": {
+            "shape": "box",
+            "geoParams": {
+                "width": 115.79971716118118,
+                "height": 1.9299952860196865,
+                "depth": 9.649976430098434
+            }
+        },
+        "fronda_caida_4": {
+            "shape": "box",
+            "geoParams": {
+                "width": 115.79971716118118,
+                "height": 1.9299952860196865,
+                "depth": 9.649976430098434
+            }
+        },
+        "fronda_caida_5": {
+            "shape": "box",
+            "geoParams": {
+                "width": 115.79971716118118,
+                "height": 1.9299952860196865,
+                "depth": 9.649976430098434
+            }
+        },
+        "fronda_rigida_1": {
+            "shape": "box",
+            "geoParams": {
+                "width": 77.19981144078747,
+                "height": 1.9299952860196865,
+                "depth": 7.719981144078746
+            }
+        },
+        "fronda_rigida_2": {
+            "shape": "box",
+            "geoParams": {
+                "width": 77.19981144078747,
+                "height": 1.9299952860196865,
+                "depth": 7.719981144078746
+            }
+        },
+        "fronda_rigida_3": {
+            "shape": "box",
+            "geoParams": {
+                "width": 77.19981144078747,
+                "height": 1.9299952860196865,
+                "depth": 7.719981144078746
+            }
+        }
+    },
+    "materials": {
+        "tronco_principal": {
+            "color": "#CDB891",
+            "texture": ""
+        },
+        "base_corona": {
+            "color": "#654321",
+            "texture": ""
+        },
+        "coco_1": {
+            "color": "#E7741E",
+            "texture": ""
+        },
+        "coco_2": {
+            "color": "#B85F18",
+            "texture": ""
+        },
+        "coco_3": {
+            "color": "#E7741E",
+            "texture": ""
+        },
+        "fronda_caida_1": {
+            "color": "#008000",
+            "texture": ""
+        },
+        "fronda_caida_2": {
+            "color": "#008000",
+            "texture": ""
+        },
+        "fronda_caida_3": {
+            "color": "#008000",
+            "texture": ""
+        },
+        "fronda_caida_4": {
+            "color": "#008000",
+            "texture": ""
+        },
+        "fronda_caida_5": {
+            "color": "#008000",
+            "texture": ""
+        },
+        "fronda_rigida_1": {
+            "color": "#00A859",
+            "texture": ""
+        },
+        "fronda_rigida_2": {
+            "color": "#00A859",
+            "texture": ""
+        },
+        "fronda_rigida_3": {
+            "color": "#00A859",
+            "texture": ""
+        }
+    },
+    "positions": {
+        "tronco_principal": {
+            "x": 0,
+            "y": 89.39496819514258,
+            "z": 0
+        },
+        "base_corona": {
+            "x": 0,
+            "y": 174.60415628255396,
+            "z": 0
+        },
+        "coco_1": {
+            "x": 11.579971716118118,
+            "y": 171.41976785097924,
+            "z": 4.824988215049217
+        },
+        "coco_2": {
+            "x": -14.474964645147647,
+            "y": 176.2447560660285,
+            "z": -9.649976430098434
+        },
+        "coco_3": {
+            "x": 0,
+            "y": 166.59477963593005,
+            "z": 14.474964645147647
+        },
+        "fronda_caida_1": {
+            "x": 57.89985858059059,
+            "y": 185.8947324961269,
+            "z": 0
+        },
+        "fronda_caida_2": {
+            "x": 40.91590006361735,
+            "y": 185.8947324961269,
+            "z": 40.91590006361735
+        },
+        "fronda_caida_3": {
+            "x": 0,
+            "y": 185.8947324961269,
+            "z": 57.89985858059059
+        },
+        "fronda_caida_4": {
+            "x": -40.91590006361735,
+            "y": 185.8947324961269,
+            "z": 40.91590006361735
+        },
+        "fronda_caida_5": {
+            "x": -57.89985858059059,
+            "y": 185.8947324961269,
+            "z": 0
+        },
+        "fronda_rigida_1": {
+            "x": 36.28391137717011,
+            "y": 185.8947324961269,
+            "z": 13.220467709234851
+        },
+        "fronda_rigida_2": {
+            "x": -13.220467709234851,
+            "y": 185.8947324961269,
+            "z": 36.28391137717011
+        },
+        "fronda_rigida_3": {
+            "x": -36.28391137717011,
+            "y": 185.8947324961269,
+            "z": -13.220467709234851
+        }
+    },
+    "rotations": {
+        "tronco_principal": {
+            "x": 0,
+            "y": 6.000000000000001,
+            "z": 0
+        },
+        "base_corona": {
+            "x": 0,
+            "y": 6.000000000000001,
+            "z": 0
+        },
+        "coco_1": {
+            "x": 0,
+            "y": 6.000000000000001,
+            "z": 0
+        },
+        "coco_2": {
+            "x": 0,
+            "y": 6.000000000000001,
+            "z": 0
+        },
+        "coco_3": {
+            "x": 0,
+            "y": 6.000000000000001,
+            "z": 0
+        },
+        "fronda_caida_1": {
+            "x": 0,
+            "y": 6.000000000000001,
+            "z": -35
+        },
+        "fronda_caida_2": {
+            "x": 0,
+            "y": 51,
+            "z": -35
+        },
+        "fronda_caida_3": {
+            "x": 0,
+            "y": 96,
+            "z": -30
+        },
+        "fronda_caida_4": {
+            "x": 0,
+            "y": 141,
+            "z": -25
+        },
+        "fronda_caida_5": {
+            "x": 0,
+            "y": 186,
+            "z": -15
+        },
+        "fronda_rigida_1": {
+            "x": 0,
+            "y": 26,
+            "z": 20
+        },
+        "fronda_rigida_2": {
+            "x": 0,
+            "y": 116,
+            "z": 20
+        },
+        "fronda_rigida_3": {
+            "x": 0,
+            "y": 206,
+            "z": 20
+        }
+    },
+    "parenting": {
+        "tronco_principal": "SCENE",
+        "base_corona": "SCENE",
+        "coco_1": "SCENE",
+        "coco_2": "SCENE",
+        "coco_3": "SCENE",
+        "fronda_caida_1": "SCENE",
+        "fronda_caida_2": "SCENE",
+        "fronda_caida_3": "SCENE",
+        "fronda_caida_4": "SCENE",
+        "fronda_caida_5": "SCENE",
+        "fronda_rigida_1": "SCENE",
+        "fronda_rigida_2": "SCENE",
+        "fronda_rigida_3": "SCENE"
+    }
+}

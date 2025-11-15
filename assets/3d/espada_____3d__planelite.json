@@ -1,0 +1,120 @@
+{
+    "geometries": {
+        "hoja_principal": {
+            "shape": "box",
+            "geoParams": {
+                "width": 8,
+                "height": 75,
+                "depth": 0.4
+            }
+        },
+        "fuller": {
+            "shape": "box",
+            "geoParams": {
+                "width": 4,
+                "height": 50,
+                "depth": 0.1
+            }
+        },
+        "punta_hoja": {
+            "shape": "cone",
+            "geoParams": {
+                "radius": 4,
+                "height": 10,
+                "radialSegments": 12
+            }
+        },
+        "guardia_cruzada": {
+            "shape": "box",
+            "geoParams": {
+                "width": 20,
+                "height": 3,
+                "depth": 3
+            }
+        },
+        "empuñadura_cuero": {
+            "shape": "cylinder",
+            "geoParams": {
+                "radiusTop": 4.5,
+                "radiusBottom": 5,
+                "height": 18,
+                "radialSegments": 32
+            }
+        },
+        "pomo_esfera": {
+            "shape": "sphere",
+            "geoParams": {
+                "radius": 5
+            }
+        },
+        "pomo_detalle_central": {
+            "shape": "cylinder",
+            "geoParams": {
+                "radiusTop": 1.5,
+                "radiusBottom": 1.5,
+                "height": 0.5,
+                "radialSegments": 16
+            }
+        }
+    },
+    "materials": {
+        "hoja_principal": {
+            "color": "#E0E0E0"
+        },
+        "fuller": {
+            "color": "#444444"
+        },
+        "punta_hoja": {
+            "color": "#E0E0E0"
+        },
+        "guardia_cruzada": {
+            "color": "#333333"
+        },
+        "empuñadura_cuero": {
+            "color": "#3A2114"
+        },
+        "pomo_esfera": {
+            "color": "#666666"
+        },
+        "pomo_detalle_central": {
+            "color": "#333333"
+        }
+    },
+    "positions": {
+        "hoja_principal": {
+            "x": 0,
+            "y": 38.5,
+            "z": 0
+        },
+        "fuller": {
+            "x": 0,
+            "y": 30,
+            "z": 0.15
+        },
+        "punta_hoja": {
+            "x": 0,
+            "y": 78,
+            "z": 0
+        },
+        "guardia_cruzada": {
+            "x": 0,
+            "y": 1.5,
+            "z": 0
+        },
+        "empuñadura_cuero": {
+            "x": 0,
+            "y": -9.5,
+            "z": 0
+        },
+        "pomo_esfera": {
+            "x": 0,
+            "y": -20,
+            "z": 0
+        },
+        "pomo_detalle_central": {
+            "x": 0,
+            "y": -20,
+            "z": 5
+        }
+    }
+}

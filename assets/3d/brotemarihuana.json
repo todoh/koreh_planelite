@@ -1,0 +1,14 @@
+{
+    "geometries": {
+        "base": { "width": 10, "height": 30, "depth": 10 },
+        "bloque_flotante": { "width": 12, "height": 12, "depth": 12 }
+    },
+    "materials": {
+        "base": { "color": "#444444" },
+        "bloque_flotante": { "color": "#FF0000" }
+    },
+    "positions": {
+        "base": { "x": 0, "y": 15, "z": 0 },
+        "bloque_flotante": { "x": 0, "y": 45, "z": 0 }
+    }
+}

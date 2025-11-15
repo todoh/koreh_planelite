@@ -1,0 +1,111 @@
+{
+    "geometries": {
+        "parte_1": {
+            "shape": "cylinder",
+            "geoParams": {
+                "radiusTop": 7.530120486871795,
+                "radiusBottom": 21.084337363241026,
+                "height": 141.56626515318973,
+                "radialSegments": 16
+            }
+        },
+        "parte_2": {
+            "shape": "sphere",
+            "geoParams": {
+                "radius": 42.946428599626095,
+                "widthSegments": 32,
+                "heightSegments": 16
+            }
+        },
+        "parte_3": {
+            "shape": "sphere",
+            "geoParams": {
+                "radius": 44.10714288610247,
+                "widthSegments": 32,
+                "heightSegments": 16
+            }
+        },
+        "parte_4": {
+            "shape": "sphere",
+            "geoParams": {
+                "radius": 60.24096389497436,
+                "widthSegments": 35,
+                "heightSegments": 16
+            }
+        },
+        "parte_5": {
+            "shape": "sphere",
+            "geoParams": {
+                "radius": 45.18072292123077,
+                "widthSegments": 32,
+                "heightSegments": 16
+            }
+        },
+        "parte_6": {
+            "shape": "sphere",
+            "geoParams": {
+                "radius": 36.144578336984615,
+                "widthSegments": 32,
+                "heightSegments": 16
+            }
+        }
+    },
+    "materials": {
+        "parte_1": {
+            "color": "#ffffff",
+            "texture": "madera.png"
+        },
+        "parte_2": {
+            "color": "#ffffff",
+            "texture": "verde.png"
+        },
+        "parte_3": {
+            "color": "#dbdbdb",
+            "texture": "verde.png"
+        },
+        "parte_4": {
+            "color": "#a3a5a1",
+            "texture": "verde.png"
+        },
+        "parte_5": {
+            "color": "#787878",
+            "texture": "verde.png"
+        },
+        "parte_6": {
+            "color": "#bababa",
+            "texture": "verde.png"
+        }
+    },
+    "positions": {
+        "parte_1": {
+            "x": 0,
+            "y": 70.78313257659487,
+            "z": 0
+        },
+        "parte_2": {
+            "x": 0,
+            "y": 165.66265071117948,
+            "z": 0
+        },
+        "parte_3": {
+            "x": 36.144578336984615,
+            "y": 150.6024097374359,
+            "z": 27.10843375273846
+        },
+        "parte_4": {
+            "x": -30.12048194748718,
+            "y": 156.62650612693332,
+            "z": -24.09638555798974
+        },
+        "parte_5": {
+            "x": 6.024096389497435,
+            "y": 195.78313265866666,
+            "z": 9.036144584246154
+        },
+        "parte_6": {
+            "x": -15.06024097374359,
+            "y": 180.72289168492307,
+            "z": 39.15662653173333
+        }
+    }
+}

@@ -1,0 +1,337 @@
+{
+    "geometries": {
+        "fondo_tunel": {
+            "shape": "box",
+            "geoParams": {
+                "width": 112.86894846023266,
+                "height": 112.86894846023266,
+                "depth": 35.74183367907368
+            }
+        },
+        "viga_superior": {
+            "shape": "box",
+            "geoParams": {
+                "width": 94.05745705019388,
+                "height": 7.524596564015511,
+                "depth": 7.524596564015511
+            }
+        },
+        "soporte_izquierdo": {
+            "shape": "box",
+            "geoParams": {
+                "width": 7.524596564015511,
+                "height": 103.46320275521327,
+                "depth": 7.524596564015511
+            }
+        },
+        "soporte_derecho": {
+            "shape": "box",
+            "geoParams": {
+                "width": 7.524596564015511,
+                "height": 103.46320275521327,
+                "depth": 7.524596564015511
+            }
+        },
+        "senal_peligro": {
+            "shape": "box",
+            "geoParams": {
+                "width": 14.108618557529082,
+                "height": 18.811491410038776,
+                "depth": 0.9405745705019388
+            }
+        },
+        "carro_cuerpo": {
+            "shape": "box",
+            "geoParams": {
+                "width": 37.62298282007755,
+                "height": 18.811491410038776,
+                "depth": 28.217237115058165
+            }
+        },
+        "rueda_1_carro": {
+            "shape": "cylinder",
+            "geoParams": {
+                "radiusTop": 4.702872852509694,
+                "radiusBottom": 4.702872852509694,
+                "height": 2.8217237115058165,
+                "radialSegments": 16
+            }
+        },
+        "mineral_esparcido": {
+            "shape": "cone",
+            "geoParams": {
+                "radius": 14.108618557529082,
+                "height": 4.702872852509694,
+                "radialSegments": 12
+            }
+        },
+        "pala_mango": {
+            "shape": "cylinder",
+            "geoParams": {
+                "radiusTop": 1.4108618557529082,
+                "radiusBottom": 1.4108618557529082,
+                "height": 56.43447423011633,
+                "radialSegments": 8
+            }
+        },
+        "pala_cabeza": {
+            "shape": "box",
+            "geoParams": {
+                "width": 9.405745705019388,
+                "height": 14.108618557529082,
+                "depth": 0.9405745705019388
+            }
+        },
+        "pico_mango": {
+            "shape": "cylinder",
+            "geoParams": {
+                "radiusTop": 1.4108618557529082,
+                "radiusBottom": 1.4108618557529082,
+                "height": 47.02872852509694,
+                "radialSegments": 8
+            }
+        },
+        "pico_cabeza": {
+            "shape": "box",
+            "geoParams": {
+                "width": 37.62298282007755,
+                "height": 4.702872852509694,
+                "depth": 4.702872852509694
+            }
+        },
+        "roca_grande_izquierda": {
+            "shape": "sphere",
+            "geoParams": {
+                "radius": 9.405745705019388,
+                "widthSegments": 16,
+                "heightSegments": 16
+            }
+        },
+        "roca_derecha": {
+            "shape": "sphere",
+            "geoParams": {
+                "radius": 4.702872852509694,
+                "widthSegments": 12,
+                "heightSegments": 12
+            }
+        }
+    },
+    "materials": {
+        "fondo_tunel": {
+            "color": "#000000",
+            "texture": ""
+        },
+        "viga_superior": {
+            "color": "#8B694A",
+            "texture": ""
+        },
+        "soporte_izquierdo": {
+            "color": "#6E4F32",
+            "texture": ""
+        },
+        "soporte_derecho": {
+            "color": "#6E4F32",
+            "texture": ""
+        },
+        "senal_peligro": {
+            "color": "#FFE066",
+            "texture": ""
+        },
+        "carro_cuerpo": {
+            "color": "#A0522D",
+            "texture": ""
+        },
+        "rueda_1_carro": {
+            "color": "#333333",
+            "texture": ""
+        },
+        "mineral_esparcido": {
+            "color": "#7B5B3E",
+            "texture": ""
+        },
+        "pala_mango": {
+            "color": "#6E4F32",
+            "texture": ""
+        },
+        "pala_cabeza": {
+            "color": "#A0A0A0",
+            "texture": ""
+        },
+        "pico_mango": {
+            "color": "#8B694A",
+            "texture": ""
+        },
+        "pico_cabeza": {
+            "color": "#555555",
+            "texture": ""
+        },
+        "roca_grande_izquierda": {
+            "color": "#606060",
+            "texture": ""
+        },
+        "roca_derecha": {
+            "color": "#5A402D",
+            "texture": ""
+        }
+    },
+    "positions": {
+        "fondo_tunel": {
+            "x": 0,
+            "y": 52.70287285250969,
+            "z": -31.023612374363424
+        },
+        "viga_superior": {
+            "x": 0,
+            "y": 99.73160137760664,
+            "z": -8.92010996756786
+        },
+        "soporte_izquierdo": {
+            "x": -43.26643024308919,
+            "y": 48,
+            "z": -8.92010996756786
+        },
+        "soporte_derecho": {
+            "x": 43.26643024308919,
+            "y": 48,
+            "z": -8.92010996756786
+        },
+        "senal_peligro": {
+            "x": 47.02872852509694,
+            "y": 62.108618557529084,
+            "z": -4.217237115058165
+        },
+        "carro_cuerpo": {
+            "x": -75.2459656401551,
+            "y": 15.07989003243214,
+            "z": 33.405745705019385
+        },
+        "rueda_1_carro": {
+            "x": -89.35458419768419,
+            "y": 7.555293468416629,
+            "z": 38.108618557529084
+        },
+        "mineral_esparcido": {
+            "x": -56.43447423011633,
+            "y": 3.7929951864088736,
+            "z": 28.702872852509692
+        },
+        "pala_mango": {
+            "x": -112.86894846023266,
+            "y": 29.188508589961224,
+            "z": 42.81149141003878
+        },
+        "pala_cabeza": {
+            "x": -94.05745705019388,
+            "y": 10.377017179922447,
+            "z": 42.81149141003878
+        },
+        "pico_mango": {
+            "x": -141.0861855752908,
+            "y": 24.48563573745153,
+            "z": 38.108618557529084
+        },
+        "pico_cabeza": {
+            "x": -126.97756701776174,
+            "y": 15.07989003243214,
+            "z": 38.108618557529084
+        },
+        "roca_grande_izquierda": {
+            "x": -94.05745705019388,
+            "y": 10.377017179922447,
+            "z": 61.62298282007755
+        },
+        "roca_derecha": {
+            "x": 9.405745705019388,
+            "y": 3.7929951864088736,
+            "z": 61.62298282007755
+        }
+    },
+    "rotations": {
+        "fondo_tunel": {
+            "x": 0,
+            "y": 0,
+            "z": 0
+        },
+        "viga_superior": {
+            "x": 0,
+            "y": 0,
+            "z": 0
+        },
+        "soporte_izquierdo": {
+            "x": 0,
+            "y": 0,
+            "z": 5
+        },
+        "soporte_derecho": {
+            "x": 0,
+            "y": 0,
+            "z": -5
+        },
+        "senal_peligro": {
+            "x": 0,
+            "y": 0,
+            "z": -5
+        },
+        "carro_cuerpo": {
+            "x": 0,
+            "y": 0,
+            "z": 10
+        },
+        "rueda_1_carro": {
+            "x": 90,
+            "y": 0,
+            "z": 0
+        },
+        "mineral_esparcido": {
+            "x": 0,
+            "y": 0,
+            "z": 0
+        },
+        "pala_mango": {
+            "x": 0,
+            "y": 0,
+            "z": -70
+        },
+        "pala_cabeza": {
+            "x": 0,
+            "y": 0,
+            "z": -70
+        },
+        "pico_mango": {
+            "x": 0,
+            "y": 0,
+            "z": 45
+        },
+        "pico_cabeza": {
+            "x": 0,
+            "y": 0,
+            "z": 45
+        },
+        "roca_grande_izquierda": {
+            "x": 0,
+            "y": 0,
+            "z": 0
+        },
+        "roca_derecha": {
+            "x": 0,
+            "y": 0,
+            "z": 0
+        }
+    },
+    "parenting": {
+        "fondo_tunel": "SCENE",
+        "viga_superior": "SCENE",
+        "soporte_izquierdo": "SCENE",
+        "soporte_derecho": "SCENE",
+        "senal_peligro": "SCENE",
+        "carro_cuerpo": "SCENE",
+        "rueda_1_carro": "SCENE",
+        "mineral_esparcido": "SCENE",
+        "pala_mango": "SCENE",
+        "pala_cabeza": "SCENE",
+        "pico_mango": "SCENE",
+        "pico_cabeza": "SCENE",
+        "roca_grande_izquierda": "SCENE",
+        "roca_derecha": "SCENE"
+    }
+}

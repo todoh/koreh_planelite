@@ -1,0 +1,212 @@
+{
+    "geometries": {
+        "asiento": {
+            "shape": "box",
+            "geoParams": {
+                "width": 29.86666667807816,
+                "height": 2.8717948728921305,
+                "depth": 27.569230779764457
+            }
+        },
+        "pata_delantera_derecha": {
+            "shape": "box",
+            "geoParams": {
+                "width": 1.7230769237352785,
+                "height": 25.846153856029176,
+                "depth": 1.7230769237352785
+            }
+        },
+        "pata_delantera_izquierda": {
+            "shape": "box",
+            "geoParams": {
+                "width": 1.7230769237352785,
+                "height": 25.846153856029176,
+                "depth": 1.7230769237352785
+            }
+        },
+        "pata_trasera_derecha": {
+            "shape": "box",
+            "geoParams": {
+                "width": 1.7230769237352785,
+                "height": 54.56410258495048,
+                "depth": 1.7230769237352785
+            }
+        },
+        "pata_trasera_izquierda": {
+            "shape": "box",
+            "geoParams": {
+                "width": 1.7230769237352785,
+                "height": 54.56410258495048,
+                "depth": 1.7230769237352785
+            }
+        },
+        "travesano_superior_respaldo": {
+            "shape": "box",
+            "geoParams": {
+                "width": 31.01538462723501,
+                "height": 2.8717948728921305,
+                "depth": 1.7230769237352785
+            }
+        },
+        "liston_respaldo_central": {
+            "shape": "box",
+            "geoParams": {
+                "width": 1.1487179491568522,
+                "height": 25.846153856029176,
+                "depth": 1.1487179491568522
+            }
+        },
+        "liston_respaldo_izquierdo": {
+            "shape": "box",
+            "geoParams": {
+                "width": 1.1487179491568522,
+                "height": 25.846153856029176,
+                "depth": 1.1487179491568522
+            }
+        },
+        "liston_respaldo_derecho": {
+            "shape": "box",
+            "geoParams": {
+                "width": 1.1487179491568522,
+                "height": 25.846153856029176,
+                "depth": 1.1487179491568522
+            }
+        },
+        "travesano_inferior_frontal": {
+            "shape": "box",
+            "geoParams": {
+                "width": 27.569230779764457,
+                "height": 1.1487179491568522,
+                "depth": 1.1487179491568522
+            }
+        },
+        "travesano_lateral_izquierdo": {
+            "shape": "box",
+            "geoParams": {
+                "width": 1.1487179491568522,
+                "height": 1.1487179491568522,
+                "depth": 25.846153856029176
+            }
+        },
+        "travesano_lateral_derecho": {
+            "shape": "box",
+            "geoParams": {
+                "width": 1.1487179491568522,
+                "height": 1.1487179491568522,
+                "depth": 25.846153856029176
+            }
+        }
+    },
+    "materials": {
+        "asiento": {
+            "color": "#a0522d",
+            "texture": "MURO_MADERA.png"
+        },
+        "pata_delantera_derecha": {
+            "color": "#6e3511",
+            "texture": "MURO_MADERA.png"
+        },
+        "pata_delantera_izquierda": {
+            "color": "#6e3511",
+            "texture": "MURO_MADERA.png"
+        },
+        "pata_trasera_derecha": {
+            "color": "#6e3511",
+            "texture": "MURO_MADERA.png"
+        },
+        "pata_trasera_izquierda": {
+            "color": "#6e3511",
+            "texture": "MURO_MADERA.png"
+        },
+        "travesano_superior_respaldo": {
+            "color": "#a0522d",
+            "texture": "MURO_MADERA.png"
+        },
+        "liston_respaldo_central": {
+            "color": "#6E3511",
+            "texture": ""
+        },
+        "liston_respaldo_izquierdo": {
+            "color": "#6E3511",
+            "texture": ""
+        },
+        "liston_respaldo_derecho": {
+            "color": "#6E3511",
+            "texture": ""
+        },
+        "travesano_inferior_frontal": {
+            "color": "#6E3511",
+            "texture": ""
+        },
+        "travesano_lateral_izquierdo": {
+            "color": "#6E3511",
+            "texture": ""
+        },
+        "travesano_lateral_derecho": {
+            "color": "#6E3511",
+            "texture": ""
+        }
+    },
+    "positions": {
+        "asiento": {
+            "x": 0,
+            "y": 27.28205129247524,
+            "z": 0
+        },
+        "pata_delantera_derecha": {
+            "x": 14.071794877171442,
+            "y": 12.923076928014588,
+            "z": 12.923076928014588
+        },
+        "pata_delantera_izquierda": {
+            "x": -14.071794877171442,
+            "y": 12.923076928014588,
+            "z": 12.923076928014588
+        },
+        "pata_trasera_derecha": {
+            "x": 14.071794877171442,
+            "y": 27.28205129247524,
+            "z": -12.923076928014588
+        },
+        "pata_trasera_izquierda": {
+            "x": -14.071794877171442,
+            "y": 27.28205129247524,
+            "z": -12.923076928014588
+        },
+        "travesano_superior_respaldo": {
+            "x": 0,
+            "y": 54.56410258495048,
+            "z": -12.923076928014588
+        },
+        "liston_respaldo_central": {
+            "x": 0,
+            "y": 40.205128220489826,
+            "z": -12.923076928014588
+        },
+        "liston_respaldo_izquierdo": {
+            "x": -5.743589745784261,
+            "y": 40.205128220489826,
+            "z": -12.923076928014588
+        },
+        "liston_respaldo_derecho": {
+            "x": 5.743589745784261,
+            "y": 40.205128220489826,
+            "z": -12.923076928014588
+        },
+        "travesano_inferior_frontal": {
+            "x": 0,
+            "y": 5.743589745784261,
+            "z": 12.923076928014588
+        },
+        "travesano_lateral_izquierdo": {
+            "x": -14.071794877171442,
+            "y": 5.743589745784261,
+            "z": 0
+        },
+        "travesano_lateral_derecho": {
+            "x": 14.071794877171442,
+            "y": 5.743589745784261,
+            "z": 0
+        }
+    }
+}

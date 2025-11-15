@@ -1,0 +1,518 @@
+{
+    "geometries": {
+        "cuerpo_torso": {
+            "shape": "cylinder",
+            "geoParams": {
+                "radiusTop": 11.918534945995622,
+                "radiusBottom": 14.302241935194747,
+                "height": 38.13931182718599,
+                "radialSegments": 32
+            }
+        },
+        "cuello": {
+            "shape": "cylinder",
+            "geoParams": {
+                "radiusTop": 7.1511209675973735,
+                "radiusBottom": 9.534827956796498,
+                "height": 14.302241935194747,
+                "radialSegments": 16
+            }
+        },
+        "cabeza": {
+            "shape": "sphere",
+            "geoParams": {
+                "radius": 10.297614193340216,
+                "widthSegments": 16,
+                "heightSegments": 16
+            }
+        },
+        "hocico": {
+            "shape": "sphere",
+            "geoParams": {
+                "radius": 3.813931182718599
+            }
+        },
+        "pata_delantera_derecha": {
+            "shape": "cylinder",
+            "geoParams": {
+                "radiusTop": 1.9069655913592995,
+                "radiusBottom": 2.860448387038949,
+                "height": 42.90672580558424
+            }
+        },
+        "pata_delantera_izquierda": {
+            "shape": "cylinder",
+            "geoParams": {
+                "radiusTop": 1.9069655913592995,
+                "radiusBottom": 2.860448387038949,
+                "height": 42.90672580558424
+            }
+        },
+        "pata_trasera_derecha": {
+            "shape": "cylinder",
+            "geoParams": {
+                "radiusTop": 1.9069655913592995,
+                "radiusBottom": 2.860448387038949,
+                "height": 42.90672580558424
+            }
+        },
+        "pata_trasera_izquierda": {
+            "shape": "cylinder",
+            "geoParams": {
+                "radiusTop": 1.9069655913592995,
+                "radiusBottom": 2.860448387038949,
+                "height": 42.90672580558424
+            }
+        },
+        "hoof_fl": {
+            "shape": "box",
+            "geoParams": {
+                "width": 4.767413978398249,
+                "height": 2.3837069891991245,
+                "depth": 4.767413978398249
+            }
+        },
+        "hoof_fr": {
+            "shape": "box",
+            "geoParams": {
+                "width": 4.767413978398249,
+                "height": 2.3837069891991245,
+                "depth": 4.767413978398249
+            }
+        },
+        "hoof_rl": {
+            "shape": "box",
+            "geoParams": {
+                "width": 4.767413978398249,
+                "height": 2.3837069891991245,
+                "depth": 4.767413978398249
+            }
+        },
+        "hoof_rr": {
+            "shape": "box",
+            "geoParams": {
+                "width": 4.767413978398249,
+                "height": 2.3837069891991245,
+                "depth": 4.767413978398249
+            }
+        },
+        "oreja_derecha": {
+            "shape": "cone",
+            "geoParams": {
+                "radius": 4.767413978398249,
+                "height": 7.1511209675973735,
+                "radialSegments": 8
+            }
+        },
+        "oreja_izquierda": {
+            "shape": "cone",
+            "geoParams": {
+                "radius": 4.767413978398249,
+                "height": 7.1511209675973735,
+                "radialSegments": 8
+            }
+        },
+        "asta_base_derecha": {
+            "shape": "cylinder",
+            "geoParams": {
+                "radiusTop": 2.3837069891991245,
+                "radiusBottom": 3.3371897848787744,
+                "height": 4.767413978398249
+            }
+        },
+        "asta_principal_derecha": {
+            "shape": "cylinder",
+            "geoParams": {
+                "radiusTop": 1.4302241935194746,
+                "radiusBottom": 2.3837069891991245,
+                "height": 28.604483870389494
+            }
+        },
+        "asta_punta_derecha": {
+            "shape": "cone",
+            "geoParams": {
+                "radius": 1.9069655913592995,
+                "height": 9.534827956796498,
+                "radialSegments": 8
+            }
+        },
+        "asta_base_izquierda": {
+            "shape": "cylinder",
+            "geoParams": {
+                "radiusTop": 2.3837069891991245,
+                "radiusBottom": 3.3371897848787744,
+                "height": 4.767413978398249
+            }
+        },
+        "asta_principal_izquierda": {
+            "shape": "cylinder",
+            "geoParams": {
+                "radiusTop": 1.4302241935194746,
+                "radiusBottom": 2.3837069891991245,
+                "height": 28.604483870389494
+            }
+        },
+        "asta_punta_izquierda": {
+            "shape": "cone",
+            "geoParams": {
+                "radius": 1.9069655913592995,
+                "height": 9.534827956796498,
+                "radialSegments": 8
+            }
+        },
+        "ojo_izquierdo": {
+            "shape": "sphere",
+            "geoParams": {
+                "radius": 1.4302241935194746,
+                "widthSegments": 32,
+                "heightSegments": 16
+            }
+        },
+        "ojo_derecho": {
+            "shape": "sphere",
+            "geoParams": {
+                "radius": 1.4302241935194746,
+                "widthSegments": 32,
+                "heightSegments": 16
+            }
+        }
+    },
+    "materials": {
+        "cuerpo_torso": {
+            "color": "#a0522d",
+            "texture": ""
+        },
+        "cuello": {
+            "color": "#A0522D",
+            "texture": ""
+        },
+        "cabeza": {
+            "color": "#A0522D",
+            "texture": ""
+        },
+        "hocico": {
+            "color": "#FFF8E1",
+            "texture": ""
+        },
+        "pata_delantera_derecha": {
+            "color": "#8B4513",
+            "texture": ""
+        },
+        "pata_delantera_izquierda": {
+            "color": "#8B4513",
+            "texture": ""
+        },
+        "pata_trasera_derecha": {
+            "color": "#8B4513",
+            "texture": ""
+        },
+        "pata_trasera_izquierda": {
+            "color": "#8B4513",
+            "texture": ""
+        },
+        "hoof_fl": {
+            "color": "#333333",
+            "texture": ""
+        },
+        "hoof_fr": {
+            "color": "#333333",
+            "texture": ""
+        },
+        "hoof_rl": {
+            "color": "#333333",
+            "texture": ""
+        },
+        "hoof_rr": {
+            "color": "#333333",
+            "texture": ""
+        },
+        "oreja_derecha": {
+            "color": "#8B4513",
+            "texture": ""
+        },
+        "oreja_izquierda": {
+            "color": "#8B4513",
+            "texture": ""
+        },
+        "asta_base_derecha": {
+            "color": "#6E533A",
+            "texture": ""
+        },
+        "asta_principal_derecha": {
+            "color": "#6E533A",
+            "texture": ""
+        },
+        "asta_punta_derecha": {
+            "color": "#6E533A",
+            "texture": ""
+        },
+        "asta_base_izquierda": {
+            "color": "#5A4733",
+            "texture": ""
+        },
+        "asta_principal_izquierda": {
+            "color": "#5A4733",
+            "texture": ""
+        },
+        "asta_punta_izquierda": {
+            "color": "#5A4733",
+            "texture": ""
+        },
+        "ojo_izquierdo": {
+            "color": "#000000",
+            "texture": ""
+        },
+        "ojo_derecho": {
+            "color": "#000000",
+            "texture": ""
+        }
+    },
+    "positions": {
+        "cuerpo_torso": {
+            "x": 0,
+            "y": 33.13352714986783,
+            "z": 0
+        },
+        "cuello": {
+            "x": -21.45336290279212,
+            "y": 33.37189784878774,
+            "z": 0
+        },
+        "cabeza": {
+            "x": -32.41841505310809,
+            "y": 41.95324300990459,
+            "z": 0
+        },
+        "hocico": {
+            "x": -39.09279462286564,
+            "y": 38.13931182718599,
+            "z": 0
+        },
+        "pata_delantera_derecha": {
+            "x": 14.302241935194747,
+            "y": 21.45336290279212,
+            "z": -4.767413978398249
+        },
+        "pata_delantera_izquierda": {
+            "x": 14.302241935194747,
+            "y": 21.45336290279212,
+            "z": 4.767413978398249
+        },
+        "pata_trasera_derecha": {
+            "x": -14.302241935194747,
+            "y": 21.45336290279212,
+            "z": -4.767413978398249
+        },
+        "pata_trasera_izquierda": {
+            "x": -14.302241935194747,
+            "y": 21.45336290279212,
+            "z": 4.767413978398249
+        },
+        "hoof_fl": {
+            "x": 14.302241935194747,
+            "y": 1.1918534945995622,
+            "z": 4.767413978398249
+        },
+        "hoof_fr": {
+            "x": 14.302241935194747,
+            "y": 1.1918534945995622,
+            "z": -4.767413978398249
+        },
+        "hoof_rl": {
+            "x": -14.302241935194747,
+            "y": 1.1918534945995622,
+            "z": 4.767413978398249
+        },
+        "hoof_rr": {
+            "x": -14.302241935194747,
+            "y": 1.1918534945995622,
+            "z": -4.767413978398249
+        },
+        "oreja_derecha": {
+            "x": -28.604483870389494,
+            "y": 45.290432794783364,
+            "z": -3.813931182718599
+        },
+        "oreja_izquierda": {
+            "x": -28.604483870389494,
+            "y": 45.290432794783364,
+            "z": 3.813931182718599
+        },
+        "asta_base_derecha": {
+            "x": -28.604483870389494,
+            "y": 50.057846773181616,
+            "z": -2.3837069891991245
+        },
+        "asta_principal_derecha": {
+            "x": -16.68594892439387,
+            "y": 59.592674729978114,
+            "z": -3.813931182718599
+        },
+        "asta_punta_derecha": {
+            "x": -4.767413978398249,
+            "y": 66.74379569757548,
+            "z": -5.720896774077898
+        },
+        "asta_base_izquierda": {
+            "x": -28.604483870389494,
+            "y": 50.057846773181616,
+            "z": 2.3837069891991245
+        },
+        "asta_principal_izquierda": {
+            "x": -16.68594892439387,
+            "y": 59.592674729978114,
+            "z": 3.813931182718599
+        },
+        "asta_punta_izquierda": {
+            "x": -4.767413978398249,
+            "y": 66.74379569757548,
+            "z": 5.720896774077898
+        },
+        "ojo_izquierdo": {
+            "x": -40.52301881638512,
+            "y": 42.90672580558424,
+            "z": 4.767413978398249
+        },
+        "ojo_derecho": {
+            "x": -40.52301881638512,
+            "y": 42.90672580558424,
+            "z": -4.767413978398249
+        }
+    },
+    "rotations": {
+        "cuerpo_torso": {
+            "x": 0,
+            "y": 0,
+            "z": 90
+        },
+        "cuello": {
+            "x": 0,
+            "y": 0,
+            "z": -40
+        },
+        "cabeza": {
+            "x": 0,
+            "y": 0,
+            "z": 0
+        },
+        "hocico": {
+            "x": 0,
+            "y": 0,
+            "z": 0
+        },
+        "pata_delantera_derecha": {
+            "x": 0,
+            "y": 0,
+            "z": 0
+        },
+        "pata_delantera_izquierda": {
+            "x": 0,
+            "y": 0,
+            "z": 0
+        },
+        "pata_trasera_derecha": {
+            "x": 0,
+            "y": 0,
+            "z": 0
+        },
+        "pata_trasera_izquierda": {
+            "x": 0,
+            "y": 0,
+            "z": 0
+        },
+        "hoof_fl": {
+            "x": 0,
+            "y": 0,
+            "z": 0
+        },
+        "hoof_fr": {
+            "x": 0,
+            "y": 0,
+            "z": 0
+        },
+        "hoof_rl": {
+            "x": 0,
+            "y": 0,
+            "z": 0
+        },
+        "hoof_rr": {
+            "x": 0,
+            "y": 0,
+            "z": 0
+        },
+        "oreja_derecha": {
+            "x": 10,
+            "y": 0,
+            "z": 10
+        },
+        "oreja_izquierda": {
+            "x": 10,
+            "y": 0,
+            "z": -10
+        },
+        "asta_base_derecha": {
+            "x": 0,
+            "y": 0,
+            "z": -10
+        },
+        "asta_principal_derecha": {
+            "x": -10,
+            "y": 0,
+            "z": -60
+        },
+        "asta_punta_derecha": {
+            "x": -30,
+            "y": 0,
+            "z": -90
+        },
+        "asta_base_izquierda": {
+            "x": 0,
+            "y": 0,
+            "z": -10
+        },
+        "asta_principal_izquierda": {
+            "x": 10,
+            "y": 0,
+            "z": -60
+        },
+        "asta_punta_izquierda": {
+            "x": 30,
+            "y": 0,
+            "z": -90
+        },
+        "ojo_izquierdo": {
+            "x": 0,
+            "y": 0,
+            "z": 0
+        },
+        "ojo_derecho": {
+            "x": 0,
+            "y": 0,
+            "z": 0
+        }
+    },
+    "parenting": {
+        "cuerpo_torso": "SCENE",
+        "cuello": "SCENE",
+        "cabeza": "SCENE",
+        "hocico": "SCENE",
+        "pata_delantera_derecha": "SCENE",
+        "pata_delantera_izquierda": "SCENE",
+        "pata_trasera_derecha": "SCENE",
+        "pata_trasera_izquierda": "SCENE",
+        "hoof_fl": "SCENE",
+        "hoof_fr": "SCENE",
+        "hoof_rl": "SCENE",
+        "hoof_rr": "SCENE",
+        "oreja_derecha": "SCENE",
+        "oreja_izquierda": "SCENE",
+        "asta_base_derecha": "SCENE",
+        "asta_principal_derecha": "SCENE",
+        "asta_punta_derecha": "SCENE",
+        "asta_base_izquierda": "SCENE",
+        "asta_principal_izquierda": "SCENE",
+        "asta_punta_izquierda": "SCENE",
+        "ojo_izquierdo": "SCENE",
+        "ojo_derecho": "SCENE"
+    }
+}

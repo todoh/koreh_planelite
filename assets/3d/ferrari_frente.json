@@ -1,0 +1,459 @@
+{
+    "geometries": {
+        "chasis": {
+            "shape": "box",
+            "geoParams": {
+                "width": 89.18918803976435,
+                "height": 28.37837801265229,
+                "depth": 178.3783760795287
+            }
+        },
+        "cabina": {
+            "shape": "box",
+            "geoParams": {
+                "width": 64.86486402891953,
+                "height": 24.324324010844823,
+                "depth": 81.0810800361494
+            }
+        },
+        "aleron": {
+            "shape": "box",
+            "geoParams": {
+                "width": 89.18918803976435,
+                "height": 8.10810800361494,
+                "depth": 24.324324010844823
+            }
+        },
+        "rueda_di": {
+            "shape": "cylinder",
+            "geoParams": {
+                "radiusTop": 16.21621600722988,
+                "radiusBottom": 16.21621600722988,
+                "height": 16.21621600722988,
+                "radialSegments": 32
+            }
+        },
+        "rueda_dd": {
+            "shape": "cylinder",
+            "geoParams": {
+                "radiusTop": 16.21621600722988,
+                "radiusBottom": 16.21621600722988,
+                "height": 16.21621600722988,
+                "radialSegments": 32
+            }
+        },
+        "rueda_ti": {
+            "shape": "cylinder",
+            "geoParams": {
+                "radiusTop": 16.21621600722988,
+                "radiusBottom": 16.21621600722988,
+                "height": 16.21621600722988,
+                "radialSegments": 32
+            }
+        },
+        "rueda_td": {
+            "shape": "cylinder",
+            "geoParams": {
+                "radiusTop": 16.21621600722988,
+                "radiusBottom": 16.21621600722988,
+                "height": 16.21621600722988,
+                "radialSegments": 32
+            }
+        },
+        "techo": {
+            "shape": "box",
+            "geoParams": {
+                "width": 64.86486402891953,
+                "height": 4,
+                "depth": 81.0810800361494
+            }
+        },
+        "llanta_di": {
+            "shape": "cylinder",
+            "geoParams": {
+                "radiusTop": 11.351351205060917,
+                "radiusBottom": 11.351351205060917,
+                "height": 17.21621600722988,
+                "radialSegments": 16
+            }
+        },
+        "llanta_dd": {
+            "shape": "cylinder",
+            "geoParams": {
+                "radiusTop": 11.351351205060917,
+                "radiusBottom": 11.351351205060917,
+                "height": 17.21621600722988,
+                "radialSegments": 16
+            }
+        },
+        "llanta_ti": {
+            "shape": "cylinder",
+            "geoParams": {
+                "radiusTop": 11.351351205060917,
+                "radiusBottom": 11.351351205060917,
+                "height": 17.21621600722988,
+                "radialSegments": 16
+            }
+        },
+        "llanta_td": {
+            "shape": "cylinder",
+            "geoParams": {
+                "radiusTop": 11.351351205060917,
+                "radiusBottom": 11.351351205060917,
+                "height": 17.21621600722988,
+                "radialSegments": 16
+            }
+        },
+        "faro_izq": {
+            "shape": "cylinder",
+            "geoParams": {
+                "radiusTop": 6,
+                "radiusBottom": 5,
+                "height": 3,
+                "radialSegments": 16
+            }
+        },
+        "faro_der": {
+            "shape": "cylinder",
+            "geoParams": {
+                "radiusTop": 6,
+                "radiusBottom": 5,
+                "height": 3,
+                "radialSegments": 16
+            }
+        },
+        "parrilla": {
+            "shape": "box",
+            "geoParams": {
+                "width": 40,
+                "height": 10,
+                "depth": 2
+            }
+        },
+        "luz_freno_izq": {
+            "shape": "box",
+            "geoParams": {
+                "width": 15,
+                "height": 6,
+                "depth": 2
+            }
+        },
+        "luz_freno_der": {
+            "shape": "box",
+            "geoParams": {
+                "width": 15,
+                "height": 6,
+                "depth": 2
+            }
+        },
+        "espejo_izq": {
+            "shape": "box",
+            "geoParams": {
+                "width": 4,
+                "height": 6,
+                "depth": 10
+            }
+        },
+        "espejo_der": {
+            "shape": "box",
+            "geoParams": {
+                "width": 4,
+                "height": 6,
+                "depth": 10
+            }
+        }
+    },
+    "materials": {
+        "chasis": {
+            "color": "#D40000",
+            "texture": ""
+        },
+        "cabina": {
+            "color": "#220000",
+            "texture": ""
+        },
+        "aleron": {
+            "color": "#D40000",
+            "texture": ""
+        },
+        "rueda_di": {
+            "color": "#111111",
+            "texture": ""
+        },
+        "rueda_dd": {
+            "color": "#111111",
+            "texture": ""
+        },
+        "rueda_ti": {
+            "color": "#111111",
+            "texture": ""
+        },
+        "rueda_td": {
+            "color": "#111111",
+            "texture": ""
+        },
+        "techo": {
+            "color": "#D40000",
+            "texture": ""
+        },
+        "llanta_di": {
+            "color": "#cccccc",
+            "texture": ""
+        },
+        "llanta_dd": {
+            "color": "#cccccc",
+            "texture": ""
+        },
+        "llanta_ti": {
+            "color": "#cccccc",
+            "texture": ""
+        },
+        "llanta_td": {
+            "color": "#cccccc",
+            "texture": ""
+        },
+        "faro_izq": {
+            "color": "#ffffbb",
+            "texture": ""
+        },
+        "faro_der": {
+            "color": "#ffffbb",
+            "texture": ""
+        },
+        "parrilla": {
+            "color": "#222222",
+            "texture": ""
+        },
+        "luz_freno_izq": {
+            "color": "#ff0000",
+            "texture": ""
+        },
+        "luz_freno_der": {
+            "color": "#ff0000",
+            "texture": ""
+        },
+        "espejo_izq": {
+            "color": "#D40000",
+            "texture": ""
+        },
+        "espejo_der": {
+            "color": "#D40000",
+            "texture": ""
+        }
+    },
+    "positions": {
+        "chasis": {
+            "x": 0,
+            "y": 36.486486016267236,
+            "z": 0
+        },
+        "cabina": {
+            "x": 0,
+            "y": 62.83783702801579,
+            "z": -20.27027000903735
+        },
+        "aleron": {
+            "x": 0,
+            "y": 54.72972902440085,
+            "z": -77.02702603434193
+        },
+        "rueda_di": {
+            "x": -44.59459401988217,
+            "y": 16.21621600722988,
+            "z": 48.648648021689645
+        },
+        "rueda_dd": {
+            "x": 44.59459401988217,
+            "y": 16.21621600722988,
+            "z": 48.648648021689645
+        },
+        "rueda_ti": {
+            "x": -44.59459401988217,
+            "y": 16.21621600722988,
+            "z": -48.648648021689645
+        },
+        "rueda_td": {
+            "x": 44.59459401988217,
+            "y": 16.21621600722988,
+            "z": -48.648648021689645
+        },
+        "techo": {
+            "x": 0,
+            "y": 76.99799904426062,
+            "z": -20.27027000903735
+        },
+        "llanta_di": {
+            "x": -44.59459401988217,
+            "y": 16.21621600722988,
+            "z": 48.648648021689645
+        },
+        "llanta_dd": {
+            "x": 44.59459401988217,
+            "y": 16.21621600722988,
+            "z": 48.648648021689645
+        },
+        "llanta_ti": {
+            "x": -44.59459401988217,
+            "y": 16.21621600722988,
+            "z": -48.648648021689645
+        },
+        "llanta_td": {
+            "x": 44.59459401988217,
+            "y": 16.21621600722988,
+            "z": -48.648648021689645
+        },
+        "faro_izq": {
+            "x": -24.594594019882173,
+            "y": 36.486486016267236,
+            "z": 89.18918803976435
+        },
+        "faro_der": {
+            "x": 24.594594019882173,
+            "y": 36.486486016267236,
+            "z": 89.18918803976435
+        },
+        "parrilla": {
+            "x": 0,
+            "y": 30.29897200762923,
+            "z": 90.18918803976435
+        },
+        "luz_freno_izq": {
+            "x": -20,
+            "y": 36.486486016267236,
+            "z": -90.18918803976435
+        },
+        "luz_freno_der": {
+            "x": 20,
+            "y": 36.486486016267236,
+            "z": -90.18918803976435
+        },
+        "espejo_izq": {
+            "x": -34.43243201445976,
+            "y": 62.83783702801579,
+            "z": 10.27027000903735
+        },
+        "espejo_der": {
+            "x": 34.43243201445976,
+            "y": 62.83783702801579,
+            "z": 10.27027000903735
+        }
+    },
+    "rotations": {
+        "chasis": {
+            "x": 0,
+            "y": 0,
+            "z": 0
+        },
+        "cabina": {
+            "x": 0,
+            "y": 0,
+            "z": 0
+        },
+        "aleron": {
+            "x": 0,
+            "y": 0,
+            "z": 0
+        },
+        "rueda_di": {
+            "x": 1.5707963267948966,
+            "y": 0,
+            "z": 90
+        },
+        "rueda_dd": {
+            "x": 1.5707963267948966,
+            "y": 0,
+            "z": 90
+        },
+        "rueda_ti": {
+            "x": 1.5707963267948966,
+            "y": 0,
+            "z": 90
+        },
+        "rueda_td": {
+            "x": 1.5707963267948966,
+            "y": 0,
+            "z": 90
+        },
+        "techo": {
+            "x": 0,
+            "y": 0,
+            "z": 0
+        },
+        "llanta_di": {
+            "x": 1.5707963267948966,
+            "y": 0,
+            "z": 0
+        },
+        "llanta_dd": {
+            "x": 1.5707963267948966,
+            "y": 0,
+            "z": 0
+        },
+        "llanta_ti": {
+            "x": 1.5707963267948966,
+            "y": 0,
+            "z": 0
+        },
+        "llanta_td": {
+            "x": 1.5707963267948966,
+            "y": 0,
+            "z": 0
+        },
+        "faro_izq": {
+            "x": 1.5707963267948966,
+            "y": 0,
+            "z": 0
+        },
+        "faro_der": {
+            "x": 1.5707963267948966,
+            "y": 0,
+            "z": 0
+        },
+        "parrilla": {
+            "x": 0,
+            "y": 0,
+            "z": 0
+        },
+        "luz_freno_izq": {
+            "x": 0,
+            "y": 0,
+            "z": 0
+        },
+        "luz_freno_der": {
+            "x": 0,
+            "y": 0,
+            "z": 0
+        },
+        "espejo_izq": {
+            "x": 0,
+            "y": 0,
+            "z": 0
+        },
+        "espejo_der": {
+            "x": 0,
+            "y": 0,
+            "z": 0
+        }
+    },
+    "parenting": {
+        "chasis": "SCENE",
+        "cabina": "SCENE",
+        "aleron": "SCENE",
+        "rueda_di": "SCENE",
+        "rueda_dd": "SCENE",
+        "rueda_ti": "SCENE",
+        "rueda_td": "SCENE",
+        "techo": "SCENE",
+        "llanta_di": "SCENE",
+        "llanta_dd": "SCENE",
+        "llanta_ti": "SCENE",
+        "llanta_td": "SCENE",
+        "faro_izq": "SCENE",
+        "faro_der": "SCENE",
+        "parrilla": "SCENE",
+        "luz_freno_izq": "SCENE",
+        "luz_freno_der": "SCENE",
+        "espejo_izq": "SCENE",
+        "espejo_der": "SCENE"
+    }
+}

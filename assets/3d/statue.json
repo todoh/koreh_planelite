@@ -1,0 +1,340 @@
+{
+    "geometries": {
+        "pedestal_base_step": {
+            "shape": "box",
+            "geoParams": {
+                "width": 85.1575012480379,
+                "height": 6.19327281803912,
+                "depth": 85.1575012480379
+            }
+        },
+        "pedestal_top_block": {
+            "shape": "box",
+            "geoParams": {
+                "width": 73.54511471421455,
+                "height": 7.7415910225489,
+                "depth": 73.54511471421455
+            }
+        },
+        "statue_draped_body": {
+            "shape": "cylinder",
+            "geoParams": {
+                "radiusTop": 13.93486384058802,
+                "radiusBottom": 17.031500249607582,
+                "height": 100.64068329313571,
+                "radialSegments": 32
+            }
+        },
+        "drapery_fold_right": {
+            "shape": "box",
+            "geoParams": {
+                "width": 3.87079551127445,
+                "height": 69.6743192029401,
+                "depth": 19.35397755637225
+            }
+        },
+        "drapery_fold_left": {
+            "shape": "box",
+            "geoParams": {
+                "width": 6.19327281803912,
+                "height": 54.191137157842306,
+                "depth": 11.61238653382335
+            }
+        },
+        "statue_right_upper_arm": {
+            "shape": "cylinder",
+            "geoParams": {
+                "radiusTop": 4.6449546135293405,
+                "radiusBottom": 5.41911371578423,
+                "height": 23.2247730676467,
+                "radialSegments": 16
+            }
+        },
+        "statue_right_forearm": {
+            "shape": "cylinder",
+            "geoParams": {
+                "radiusTop": 3.09663640901956,
+                "radiusBottom": 4.6449546135293405,
+                "height": 27.095568578921153,
+                "radialSegments": 16
+            }
+        },
+        "statue_right_hand": {
+            "shape": "sphere",
+            "geoParams": {
+                "radius": 3.87079551127445,
+                "widthSegments": 10,
+                "heightSegments": 10
+            }
+        },
+        "statue_left_upper_arm": {
+            "shape": "cylinder",
+            "geoParams": {
+                "radiusTop": 4.6449546135293405,
+                "radiusBottom": 5.41911371578423,
+                "height": 23.2247730676467,
+                "radialSegments": 16
+            }
+        },
+        "statue_left_forearm": {
+            "shape": "cylinder",
+            "geoParams": {
+                "radiusTop": 3.09663640901956,
+                "radiusBottom": 4.6449546135293405,
+                "height": 23.2247730676467,
+                "radialSegments": 16
+            }
+        },
+        "statue_left_hand": {
+            "shape": "sphere",
+            "geoParams": {
+                "radius": 3.87079551127445,
+                "widthSegments": 10,
+                "heightSegments": 10
+            }
+        },
+        "neck": {
+            "shape": "cylinder",
+            "geoParams": {
+                "radiusTop": 3.09663640901956,
+                "radiusBottom": 4.6449546135293405,
+                "height": 9.289909227058681,
+                "radialSegments": 16
+            }
+        },
+        "head": {
+            "shape": "sphere",
+            "geoParams": {
+                "radius": 9.289909227058681,
+                "widthSegments": 16,
+                "heightSegments": 16
+            }
+        },
+        "hair_bun": {
+            "shape": "sphere",
+            "geoParams": {
+                "radius": 11.070475162244929,
+                "widthSegments": 12,
+                "heightSegments": 12
+            }
+        }
+    },
+    "materials": {
+        "pedestal_base_step": {
+            "color": "#60605B",
+            "texture": ""
+        },
+        "pedestal_top_block": {
+            "color": "#757570",
+            "texture": ""
+        },
+        "statue_draped_body": {
+            "color": "#EAE7D6",
+            "texture": ""
+        },
+        "drapery_fold_right": {
+            "color": "#DCDACC",
+            "texture": ""
+        },
+        "drapery_fold_left": {
+            "color": "#CFCFCC",
+            "texture": ""
+        },
+        "statue_right_upper_arm": {
+            "color": "#EAE7D6",
+            "texture": ""
+        },
+        "statue_right_forearm": {
+            "color": "#EAE7D6",
+            "texture": ""
+        },
+        "statue_right_hand": {
+            "color": "#EAE7D6",
+            "texture": ""
+        },
+        "statue_left_upper_arm": {
+            "color": "#EAE7D6",
+            "texture": ""
+        },
+        "statue_left_forearm": {
+            "color": "#EAE7D6",
+            "texture": ""
+        },
+        "statue_left_hand": {
+            "color": "#EAE7D6",
+            "texture": ""
+        },
+        "neck": {
+            "color": "#EAE7D6",
+            "texture": ""
+        },
+        "head": {
+            "color": "#EAE7D6",
+            "texture": ""
+        },
+        "hair_bun": {
+            "color": "#D4D1C0",
+            "texture": ""
+        }
+    },
+    "positions": {
+        "pedestal_base_step": {
+            "x": 0,
+            "y": 0.6954084782359402,
+            "z": 0
+        },
+        "pedestal_top_block": {
+            "x": 0,
+            "y": 9.98531770529462,
+            "z": 0
+        },
+        "statue_draped_body": {
+            "x": 0,
+            "y": 60.305659351862474,
+            "z": 0
+        },
+        "drapery_fold_right": {
+            "x": 11.61238653382335,
+            "y": 50.2415910225489,
+            "z": 3.87079551127445
+        },
+        "drapery_fold_left": {
+            "x": -13.93486384058802,
+            "y": 42.5,
+            "z": -2.3224773067646702
+        },
+        "statue_right_upper_arm": {
+            "x": 17.031500249607582,
+            "y": 96.6911371578423,
+            "z": 3.87079551127445
+        },
+        "statue_right_forearm": {
+            "x": 23.2247730676467,
+            "y": 75.01468229470538,
+            "z": 5.41911371578423
+        },
+        "statue_right_hand": {
+            "x": 24.77309127215648,
+            "y": 61.07981845411736,
+            "z": 6.19327281803912
+        },
+        "statue_left_upper_arm": {
+            "x": -17.031500249607582,
+            "y": 98.23945536235209,
+            "z": -1.54831820450978
+        },
+        "statue_left_forearm": {
+            "x": -27.095568578921153,
+            "y": 85.07875062401895,
+            "z": 0
+        },
+        "statue_left_hand": {
+            "x": -34.83715960147005,
+            "y": 85.07875062401895,
+            "z": 3.87079551127445
+        },
+        "neck": {
+            "x": 0,
+            "y": 112.1743192029401,
+            "z": 0
+        },
+        "head": {
+            "x": 0,
+            "y": 126.10918304352812,
+            "z": 0
+        },
+        "hair_bun": {
+            "x": 0,
+            "y": 131.52829675931235,
+            "z": 0
+        }
+    },
+    "rotations": {
+        "pedestal_base_step": {
+            "x": 0,
+            "y": 0,
+            "z": 0
+        },
+        "pedestal_top_block": {
+            "x": 0,
+            "y": 0,
+            "z": 0
+        },
+        "statue_draped_body": {
+            "x": 0,
+            "y": 0,
+            "z": 0
+        },
+        "drapery_fold_right": {
+            "x": 0,
+            "y": -15,
+            "z": 0
+        },
+        "drapery_fold_left": {
+            "x": 0,
+            "y": 10,
+            "z": 0
+        },
+        "statue_right_upper_arm": {
+            "x": -30,
+            "y": -10,
+            "z": 0
+        },
+        "statue_right_forearm": {
+            "x": -85,
+            "y": -10,
+            "z": 0
+        },
+        "statue_right_hand": {
+            "x": 0,
+            "y": 0,
+            "z": 0
+        },
+        "statue_left_upper_arm": {
+            "x": -10,
+            "y": 15,
+            "z": 5
+        },
+        "statue_left_forearm": {
+            "x": 0,
+            "y": 25,
+            "z": 10
+        },
+        "statue_left_hand": {
+            "x": 0,
+            "y": 0,
+            "z": 0
+        },
+        "neck": {
+            "x": 0,
+            "y": 0,
+            "z": 0
+        },
+        "head": {
+            "x": 0,
+            "y": -5,
+            "z": 0
+        },
+        "hair_bun": {
+            "x": 0,
+            "y": 0,
+            "z": 0
+        }
+    },
+    "parenting": {
+        "pedestal_base_step": "SCENE",
+        "pedestal_top_block": "SCENE",
+        "statue_draped_body": "SCENE",
+        "drapery_fold_right": "SCENE",
+        "drapery_fold_left": "SCENE",
+        "statue_right_upper_arm": "SCENE",
+        "statue_right_forearm": "SCENE",
+        "statue_right_hand": "SCENE",
+        "statue_left_upper_arm": "SCENE",
+        "statue_left_forearm": "SCENE",
+        "statue_left_hand": "SCENE",
+        "neck": "SCENE",
+        "head": "SCENE",
+        "hair_bun": "SCENE"
+    }
+}

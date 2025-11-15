@@ -1,0 +1,155 @@
+{
+    "geometries": {
+        "tronco_principal": {
+            "shape": "cylinder",
+            "geoParams": {
+                "radiusTop": 1.6129032320759047,
+                "radiusBottom": 3.2258064641518094,
+                "height": 24.19354848113857,
+                "radialSegments": 24
+            }
+        },
+        "nudo_cicatriz": {
+            "shape": "sphere",
+            "geoParams": {
+                "radius": 0.8064516160379523,
+                "widthSegments": 16,
+                "heightSegments": 16
+            }
+        },
+        "rama_1_superior": {
+            "shape": "cylinder",
+            "geoParams": {
+                "radiusTop": 0.3225806464151809,
+                "radiusBottom": 0.48387096962277143,
+                "height": 8.064516160379522,
+                "radialSegments": 12
+            }
+        },
+        "rama_2_media": {
+            "shape": "cylinder",
+            "geoParams": {
+                "radiusTop": 0.24193548481138571,
+                "radiusBottom": 0.4032258080189762,
+                "height": 6.451612928303619,
+                "radialSegments": 12
+            }
+        },
+        "rama_3_inferior": {
+            "shape": "cylinder",
+            "geoParams": {
+                "radiusTop": 0.4032258080189762,
+                "radiusBottom": 0.6451612928303618,
+                "height": 5.6451613122656665,
+                "radialSegments": 12
+            }
+        },
+        "rama_4_pequena": {
+            "shape": "cylinder",
+            "geoParams": {
+                "radiusTop": 0.16129032320759046,
+                "radiusBottom": 0.24193548481138571,
+                "height": 3.2258064641518094,
+                "radialSegments": 12
+            }
+        }
+    },
+    "materials": {
+        "tronco_principal": {
+            "color": "#8c6b4d",
+            "texture": ""
+        },
+        "nudo_cicatriz": {
+            "color": "#5c432a",
+            "texture": ""
+        },
+        "rama_1_superior": {
+            "color": "#7d6046",
+            "texture": ""
+        },
+        "rama_2_media": {
+            "color": "#7d6046",
+            "texture": ""
+        },
+        "rama_3_inferior": {
+            "color": "#7d6046",
+            "texture": ""
+        },
+        "rama_4_pequena": {
+            "color": "#7d6046",
+            "texture": ""
+        }
+    },
+    "positions": {
+        "tronco_principal": {
+            "x": 1.8750160062170524,
+            "y": 0.7445000111972091,
+            "z": 0.9848601243833632
+        },
+        "nudo_cicatriz": {
+            "x": 2.681467622255003,
+            "y": -4.9006613010684585,
+            "z": 2.9203440028744487
+        },
+        "rama_1_superior": {
+            "x": 7.358886995275127,
+            "y": 3.8090161521414267,
+            "z": 0.9848601243833632
+        },
+        "rama_2_media": {
+            "x": 6.391145056029585,
+            "y": -2.965177422577372,
+            "z": 1.7913117404213155
+        },
+        "rama_3_inferior": {
+            "x": 1.7137256830094607,
+            "y": -4.9006613010684585,
+            "z": 0.9848601243833632
+        },
+        "rama_4_pequena": {
+            "x": 4.778241823953681,
+            "y": 0.7445000111972091,
+            "z": 0.17840850834541164
+        }
+    },
+    "rotations": {
+        "tronco_principal": {
+            "x": 90,
+            "y": -360,
+            "z": -38
+        },
+        "nudo_cicatriz": {
+            "x": 90,
+            "y": -360,
+            "z": -43
+        },
+        "rama_1_superior": {
+            "x": 90,
+            "y": -360,
+            "z": -83
+        },
+        "rama_2_media": {
+            "x": 90,
+            "y": -360,
+            "z": -68
+        },
+        "rama_3_inferior": {
+            "x": 90,
+            "y": -360,
+            "z": -8
+        },
+        "rama_4_pequena": {
+            "x": 100,
+            "y": -360,
+            "z": -58
+        }
+    },
+    "parenting": {
+        "tronco_principal": "SCENE",
+        "nudo_cicatriz": "SCENE",
+        "rama_1_superior": "SCENE",
+        "rama_2_media": "SCENE",
+        "rama_3_inferior": "SCENE",
+        "rama_4_pequena": "SCENE"
+    }
+}

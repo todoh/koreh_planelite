@@ -1,0 +1,82 @@
+{
+    "geometries": {
+        "pedestal_base": {
+            "shape": "box",
+            "geoParams": {
+                "width": 83.22222222222224,
+                "height": 11.888888888888891,
+                "depth": 83.22222222222224
+            }
+        },
+        "fuste_principal": {
+            "shape": "cylinder",
+            "geoParams": {
+                "radiusTop": 14.26666666666667,
+                "radiusBottom": 23.777777777777782,
+                "height": 183.08888888888893,
+                "radialSegments": 32
+            }
+        },
+        "pyramidion_apex": {
+            "shape": "cone",
+            "geoParams": {
+                "radius": 15.45555555555556,
+                "height": 19.022222222222226,
+                "radialSegments": 4
+            }
+        }
+    },
+    "materials": {
+        "pedestal_base": {
+            "color": "#333333",
+            "texture": ""
+        },
+        "fuste_principal": {
+            "color": "#C87A78",
+            "texture": ""
+        },
+        "pyramidion_apex": {
+            "color": "#FFD700",
+            "texture": ""
+        }
+    },
+    "positions": {
+        "pedestal_base": {
+            "x": 0,
+            "y": 5.9444444444444455,
+            "z": 0
+        },
+        "fuste_principal": {
+            "x": 0,
+            "y": 103.43333333333335,
+            "z": 0
+        },
+        "pyramidion_apex": {
+            "x": 0,
+            "y": 204.48888888888894,
+            "z": 0
+        }
+    },
+    "rotations": {
+        "pedestal_base": {
+            "x": 0,
+            "y": 0,
+            "z": 0
+        },
+        "fuste_principal": {
+            "x": 0,
+            "y": 0,
+            "z": 0
+        },
+        "pyramidion_apex": {
+            "x": 0,
+            "y": 0,
+            "z": 0
+        }
+    },
+    "parenting": {
+        "pedestal_base": "SCENE",
+        "fuste_principal": "SCENE",
+        "pyramidion_apex": "SCENE"
+    }
+}

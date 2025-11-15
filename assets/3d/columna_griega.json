@@ -1,0 +1,95 @@
+{
+    "geometries": {
+        "base_plinth": {
+            "shape": "box",
+            "geoParams": {
+                "width": 50.01818132833668,
+                "height": 6.252272666042085,
+                "depth": 50.01818132833668
+            }
+        },
+        "base_stylobate": {
+            "shape": "box",
+            "geoParams": {
+                "width": 44.334297086480234,
+                "height": 3.751363599625251,
+                "depth": 44.334297086480234
+            }
+        },
+        "column_shaft": {
+            "shape": "cylinder",
+            "geoParams": {
+                "radiusTop": 15.801198192360904,
+                "radiusBottom": 17.847396519429225,
+                "height": 94.6935114693283,
+                "radialSegments": 32
+            }
+        },
+        "capital_echinus": {
+            "shape": "cylinder",
+            "geoParams": {
+                "radiusTop": 16.483264301383677,
+                "radiusBottom": 15.801198192360904,
+                "height": 1.93252064223119,
+                "radialSegments": 32
+            }
+        },
+        "capital_abacus": {
+            "shape": "box",
+            "geoParams": {
+                "width": 37.5136359962525,
+                "height": 6.934338775064857,
+                "depth": 37.5136359962525
+            }
+        }
+    },
+    "materials": {
+        "base_plinth": {
+            "color": "#776655",
+            "texture": "MARMOL_VETEADO"
+        },
+        "base_stylobate": {
+            "color": "#ffffff",
+            "texture": "MARMOL_VETEADO"
+        },
+        "column_shaft": {
+            "color": "#ffffff",
+            "texture": "MARMOL_VETEADO"
+        },
+        "capital_echinus": {
+            "color": "#F5F5F5",
+            "texture": ""
+        },
+        "capital_abacus": {
+            "color": "#ffffff",
+            "texture": "MARMOL_VETEADO"
+        }
+    },
+    "positions": {
+        "base_plinth": {
+            "x": 0,
+            "y": 3.1261363330210425,
+            "z": 0
+        },
+        "base_stylobate": {
+            "x": 0,
+            "y": 8.12795446585471,
+            "z": 0
+        },
+        "column_shaft": {
+            "x": 0,
+            "y": 57.35039200033148,
+            "z": 0
+        },
+        "capital_echinus": {
+            "x": 0,
+            "y": 105.60656921369265,
+            "z": 0
+        },
+        "capital_abacus": {
+            "x": 0,
+            "y": 110.09683776475926,
+            "z": 0
+        }
+    }
+}
