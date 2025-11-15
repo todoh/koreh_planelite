@@ -4,15 +4,9 @@
     "DESERT": 5,
     "SAVANNA": 5,
     "JUNGLE": 3,
-    "ROCKY": 4,
-    "TUNDRA": 2,
-    "VILLAGE": 3,
-    "EDO": 2,
-    "EGIPTO": 2,
-    "GOMINOLA": 2,
-    "GRECIA": 2,
-    "MAYA": 2,
-    "STEAMPUNK": 2
+    "ROCKY": 2,
+    "TUNDRA": 3,
+    "VILLAGE": 3
   },
   "BIOME_DEFINITIONS": {
     "OCEAN": {

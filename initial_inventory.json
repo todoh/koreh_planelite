@@ -4,7 +4,7 @@
     "quantity": 1
   },
   {
-    "itemId": "ITEM_WOOD_WALL",
+    "itemId": "COLUMNA_GRIEGA",
     "quantity": 99
   },
   {
@@ -12,8 +12,8 @@
     "quantity": 1
   },
   {
-    "itemId": "DAGA",
-    "quantity": 1
+    "itemId": "HUEVO_GALLINA",
+    "quantity": 99
   },
   {
     "itemId": "SEMILLAS_MARIHUANA",

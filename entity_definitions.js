@@ -1,152 +1,123 @@
 // --- entity_definitions.js ---
-// Define las "plantillas" (prefabs) para todas las entidades del juego.
-// Esto reemplaza la parte de entidades de 'sprites.json' y 'TILE_BEHAVIORS'.
+// ¡NUEVO ARCHIVO!
+// Carga y PROCESA las definiciones de entidades desde entity_definitions.json
 
-export const ENTITY_DEFINITIONS = {
-    // --- Entidades Recolectables (Interacción) ---
-    "TREE": {
-        name: "un árbol",
-        components: [
-            { type: 'Renderable', args: ['TREE'] },
-            { type: 'Collision', args: [true, { width: 40, height: 20, offsetY: 60 }] },
-            { type: 'InteractableResource', args: ['WOOD', 1, 2] } 
-        ]
-    },
-    "ROCK": {
-        name: "una roca",
-        components: [
-            { type: 'Renderable', args: ['ROCK'] },
-            { type: 'Collision', args: [true, { width: 60, height: 30, offsetY: 30 }] },
-            { type: 'InteractableResource', args: ['STONE', 1, 1] }
-        ]
-    },
-    "CACTUS": {
-        name: "un cactus",
-        components: [
-            { type: 'Renderable', args: ['CACTUS'] },
-            { type: 'Collision', args: [true, { width: 30, height: 20, offsetY: 50 }] },
-            { type: 'InteractableResource', args: ['CACTUS_FIBER', 1, 1] }
-        ]
-    },
-    "ACACIA_TREE": {
-        name: "una acacia",
-        components: [
-            { type: 'Renderable', args: ['ACACIA_TREE'] },
-            { type: 'Collision', args: [true, { width: 40, height: 20, offsetY: 60 }] },
-            { type: 'InteractableResource', args: ['WOOD', 1, 2] }
-        ]
-    },
-    "JUNGLE_TREE": {
-        name: "un árbol de jungla",
-        components: [
-            { type: 'Renderable', args: ['JUNGLE_TREE'] },
-            { type: 'Collision', args: [true, { width: 40, height: 20, offsetY: 60 }] },
-            { type: 'InteractableResource', args: ['WOOD', 1, 2] }
-        ]
-    },
-    "SNOW_TREE": {
-        name: "un árbol nevado",
-        components: [
-            { type: 'Renderable', args: ['SNOW_TREE'] },
-            { type: 'Collision', args: [true, { width: 40, height: 20, offsetY: 60 }] },
-            { type: 'InteractableResource', args: ['WOOD', 1, 2] }
-        ]
-    },
+// Esta variable se exporta, y se rellena después de cargar y procesar.
+export let ENTITY_DEFINITIONS = {};
 
-    // --- ¡NUEVO! Entidades de Subsuelo ---
-    "IRON_VEIN": {
-        name: "veta de mineral",
-        components: [
-            { type: 'Renderable', args: ['IRON_VEIN'] }, // Usa fallback 'ROCK'
-            { type: 'Collision', args: [true, { width: 60, height: 30, offsetY: 30 }] },
-            { type: 'InteractableResource', args: ['IRON_ORE', 1, 3] } // ¡Necesitarás 'IRON_ORE' en items.js!
-        ]
-    },
+/**
+ * Procesa las definiciones de entidades crudas (del JSON)
+ * para optimizar el acceso en tiempo de ejecución.
+ *
+ * 1. Convierte el array 'components' en un objeto (mapa) para acceso O(1).
+ * 2. Añade flags booleanos (ej: 'hasMovementAI', 'hasGrowth') para que
+ * el sistema de entidades (createEntity) sepa si debe añadir la
+ * entidad a listas de actualización optimizadas (ej: activeAiEntities).
+ *
+ * @param {object} rawData - El objeto JSON crudo cargado de entity_definitions.json
+ * @returns {object} Un nuevo objeto con las definiciones procesadas.
+ */
+export function processEntityDefinitions(rawData) {
+    const processedDefinitions = {};
 
+    // Iteramos sobre cada definición de entidad (ej: "TREE", "NPC", "ROCK")
+    for (const key in rawData) {
+        const rawDef = rawData[key];
+        
+        // Copiamos la definición base
+        const newDef = { 
+            ...rawDef,
+            key: key // Aseguramos que la key esté en la definición
+        };
 
-    // --- Entidades de Interacción (Diálogo, Menús) ---
-    "NPC": {
-        name: "una persona",
-        components: [
-            { type: 'Renderable', args: ['NPC'] },
-            { type: 'Collision', args: [true, { width: 40, height: 20, offsetY: 40 }] },
-            { type: 'InteractableDialogue', args: ["Bienvenidos a Planelite!!!"] },
-            { type: 'MovementAI', args: ['WANDER', 50] } 
-        ]
-    },
-    "STATUE": {
-        name: "una estatua enorme",
-        components: [
-            { type: 'Renderable', args: ['STATUE'] },
-            { type: 'Collision', args: [true, { width: 120, height: 40, offsetY: 160 }] },
-            { type: 'InteractableDialogue', args: ["Una estatua imponente. Marca el spawn (0,0,0)."] }
-        ]
-    },
-    "CRAFTING_TABLE": {
-        name: "Mesa de Trabajo",
-        components: [
-            { type: 'Renderable', args: ['MESATRABAJO'] }, 
-            { type: 'Collision', args: [true, { width: 70, height: 30, offsetY: 30 }] },
-            { type: 'InteractableMenu', args: ['CRAFTING'] }
-        ]
-    },
+        // 1. Inicializamos los flags de optimización
+        newDef.hasMovementAI = false;
+        newDef.hasGrowth = false;
+        newDef.isCollectible = false;
+        newDef.isVehicle = false;
+        newDef.isInteractable = false;
+        newDef.isSolid = false; // Por defecto no es sólido
 
-    // --- ¡NUEVO! Entidades de Escaleras ---
-    "STAIRS_DOWN": {
-        name: "escalera hacia abajo",
-        components: [
-            { type: 'Renderable', args: ['STAIRS_DOWN'] }, // Usa fallback 'COCHE'
-            { type: 'Collision', args: [false] }, // No sólido para poder caminar "encima"
-            { type: 'InteractableLevelChange', args: ['down'] }
-        ]
-    },
-    "STAIRS_UP": {
-        name: "escalera hacia arriba",
-        components: [
-            { type: 'Renderable', args: ['STAIRS_UP'] }, // Usa fallback 'MESATRABAJO'
-            { type: 'Collision', args: [false] },
-            { type: 'InteractableLevelChange', args: ['up'] }
-        ]
-    },
+        // 2. Convertimos el array de componentes en un mapa (objeto)
+        const componentsMap = {};
+        if (rawDef.components && Array.isArray(rawDef.components)) {
+            for (const comp of rawDef.components) {
+                // Guardamos los argumentos del componente usando su tipo como clave
+                componentsMap[comp.type] = comp.args;
 
+                // 3. Actualizamos los flags basados en los componentes encontrados
+                switch (comp.type) {
+                    case 'MovementAI':
+                        newDef.hasMovementAI = true;
+                        break;
+                    case 'Growth':
+                        newDef.hasGrowth = true;
+                        break;
+                    case 'Collectible':
+                        newDef.isCollectible = true;
+                        break;
+                    case 'Vehicle':
+                        newDef.isVehicle = true;
+                        break;
+                    case 'Collision':
+                        // Analizamos el primer argumento de colisión para 'isSolid'
+                        if (comp.args && comp.args.length > 0) {
+                            const firstArg = comp.args[0];
+                            if (typeof firstArg === 'boolean') {
+                                newDef.isSolid = firstArg;
+                            } else if (typeof firstArg === 'object' && firstArg.isSolid === true) {
+                                newDef.isSolid = true;
+                            }
+                        }
+                        break;
+                }
+                
+                // Cualquier componente que empiece con "Interactable" marca la entidad
+                if (comp.type.startsWith('Interactable')) {
+                    newDef.isInteractable = true;
+                }
+            }
+        }
 
-    // --- Vehículo ---
-    "COCHE": {
-        name: "un coche",
-        components: [
-            { type: 'Renderable', args: ['COCHE'] },
-            { type: 'Collision', args: [true, { width: 70, height: 35, offsetY: 35 }] },
-            { type: 'Vehicle', args: [400] }, 
-            { type: 'InteractableVehicle', args: [] }
-        ]
-    },
-
-    // --- Entidades Recolectables (OnEnter) ---
-    "ITEM_GOLD": {
-        name: "un objeto brillante",
-        components: [
-            { type: 'Renderable', args: ['ITEM'] },
-            { type: 'Collision', args: [false] }, 
-            { type: 'Collectible', args: ['GOLD_COIN', 10] } 
-        ]
-    },
-
-    // --- Entidades de Crecimiento ---
-    "SAPLING": {
-        name: "un brote",
-        components: [
-            { type: 'Renderable', args: ['ITEM'] }, 
-            { type: 'Collision', args: [false] },
-            { type: 'Growth', args: [10000, 'TREE'] } 
-        ]
-    },
-    
-    // --- Entidad Jugador (para colisiones) ---
-    "PLAYER": {
-        name: "jugador",
-        components: [
-            { type: 'Renderable', args: ['PLAYER'] },
-            { type: 'Collision', args: [true, { width: 40, height: 20, offsetY: 40 }] }
-        ]
+        // Reemplazamos el array 'components' por nuestro mapa optimizado
+        newDef.components = componentsMap;
+        
+        // Guardamos la definición procesada
+        processedDefinitions[key] = newDef;
     }
-};
+
+    console.log("Definiciones de entidades procesadas y optimizadas.");
+    return processedDefinitions;
+}
+
+
+/**
+ * Carga y PROCESA las definiciones de entidades (desde JSON).
+ * Esto debe llamarse una vez al inicio.
+ */
+export async function loadEntityDefinitions() {
+    try {
+        const response = await fetch('./entity_definitions.json');
+        if (!response.ok) {
+            throw new Error(`Error al cargar entity_definitions.json: ${response.statusText}`);
+        }
+        const rawData = await response.json();
+        
+        // ¡Aquí se llama a la nueva función!
+        ENTITY_DEFINITIONS = processEntityDefinitions(rawData);
+
+    } catch (e) {
+        console.error("No se pudieron cargar o procesar las definiciones de entidades:", e);
+        // Dejar ENTITY_DEFINITIONS como un objeto vacío para evitar crasheos
+        ENTITY_DEFINITIONS = {};
+    }
+}
+
+/**
+ * ¡NUEVA FUNCIÓN!
+ * Devuelve el mapa de definiciones de entidades ya procesadas.
+ * @returns {object} El objeto ENTITY_DEFINITIONS.
+ */
+export function getEntityDefinitions() {
+    return ENTITY_DEFINITIONS;
+}

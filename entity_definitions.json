@@ -1,7 +1,7 @@
 {
   "TREE": {
     "name": "un árbol",
-    "renderMode": "cross",
+    "renderMode": "3d",
     "components": [
       {
         "type": "Renderable",
@@ -32,25 +32,8 @@
   },
   "ROCK": {
     "name": "una roca",
-    "renderMode": "cross",
+    "renderMode": "3d",
     "components": [
-      {
-        "type": "Renderable",
-        "args": [
-          "ROCK"
-        ]
-      },
-      {
-        "type": "Collision",
-        "args": [
-          true,
-          {
-            "width": 60,
-            "height": 30,
-            "offsetY": 30
-          }
-        ]
-      },
       {
         "type": "InteractableResource",
         "args": [
@@ -58,19 +41,19 @@
           1,
           1
         ]
+      },
+      {
+        "type": "Renderable",
+        "args": [
+          "ROCK"
+        ]
       }
     ]
   },
   "CACTUS": {
     "name": "un cactus",
-    "renderMode": "cross",
+    "renderMode": "3d",
     "components": [
-      {
-        "type": "Renderable",
-        "args": [
-          "CACTUS"
-        ]
-      },
       {
         "type": "Collision",
         "args": [
@@ -88,6 +71,12 @@
           "CACTUS_FIBER",
           1,
           1
+        ]
+      },
+      {
+        "type": "Renderable",
+        "args": [
+          "CACTUS"
         ]
       }
     ]
@@ -114,18 +103,19 @@
         ]
       },
       {
-        "type": "InteractableResource",
+        "type": "InteractableFilteredResource",
         "args": [
           "TRONCO_MADERA",
           1,
-          2
+          2,
+          "TAJO"
         ]
       }
     ]
   },
   "JUNGLE_TREE": {
     "name": "un árbol de jungla",
-    "renderMode": "cross",
+    "renderMode": "3d",
     "components": [
       {
         "type": "Renderable",
@@ -156,7 +146,7 @@
   },
   "SNOW_TREE": {
     "name": "un árbol nevado",
-    "renderMode": "cross",
+    "renderMode": "3d",
     "components": [
       {
         "type": "Renderable",
@@ -254,7 +244,7 @@
   },
   "STATUE": {
     "name": "una estatua enorme",
-    "renderMode": "billboard",
+    "renderMode": "3d",
     "components": [
       {
         "type": "Renderable",
@@ -267,9 +257,9 @@
         "args": [
           true,
           {
-            "width": 40,
-            "height": 20,
-            "offsetY": 60
+            "width": 76,
+            "height": 82,
+            "offsetY": 76
           }
         ]
       },
@@ -370,7 +360,7 @@
   },
   "STAIRS_DOWN": {
     "name": "escalera hacia abajo",
-    "renderMode": "billboard",
+    "renderMode": "3d",
     "components": [
       {
         "type": "Renderable",
@@ -383,9 +373,9 @@
         "args": [
           true,
           {
-            "width": 40,
-            "height": 40,
-            "offsetY": 20
+            "width": 70,
+            "height": 45,
+            "offsetY": 70
           }
         ]
       },
@@ -707,7 +697,6 @@
     ]
   },
   "MURO_MADERA": {
-    "key": "MURO_MADERA",
     "name": "Muro de Madera",
     "renderMode": "cube",
     "components": [
@@ -721,12 +710,11 @@
         "type": "Collision",
         "args": [
           true,
-          [
-            0,
-            0,
-            1,
-            1
-          ]
+          {
+            "width": 0,
+            "height": 0,
+            "offsetY": 0
+          }
         ]
       }
     ]
@@ -872,9 +860,8 @@
     ]
   },
   "ESTATUA_GRIEGA": {
-    "key": "ESTATUA_GRIEGA",
     "name": "Estatua Griega",
-    "renderMode": "billboard",
+    "renderMode": "3d",
     "components": [
       {
         "type": "Renderable",
@@ -885,11 +872,11 @@
       {
         "type": "Collision",
         "args": [
+          true,
           {
-            "isSolid": true
-          },
-          {
-            "collisionBox": "{\"x\":0,\"y\":0,\"width\":1,\"height\":1}"
+            "width": 0,
+            "height": 0,
+            "offsetY": 0
           }
         ]
       }
@@ -1095,7 +1082,7 @@
   },
   "ENTRADA_MINA_NATURAL": {
     "name": "Entrada de Mina Natural",
-    "renderMode": "billboard",
+    "renderMode": "3d",
     "components": [
       {
         "type": "Renderable",
@@ -1113,7 +1100,7 @@
   },
   "RAMA_SECA_SUELO": {
     "name": "Rama Seca en el Suelo",
-    "renderMode": "flat",
+    "renderMode": "3d",
     "components": [
       {
         "type": "Renderable",
@@ -1311,7 +1298,7 @@
   },
   "FERRARI_FRENTE": {
     "name": "Ferrari de Frente",
-    "renderMode": "billboard",
+    "renderMode": "3d",
     "components": [
       {
         "type": "Renderable",
@@ -1544,7 +1531,7 @@
   },
   "CIERVO": {
     "name": "Ciervo",
-    "renderMode": "billboard",
+    "renderMode": "3d",
     "components": [
       {
         "type": "Renderable",
@@ -1627,7 +1614,7 @@
   },
   "COLUMNA_GRIEGA": {
     "name": "Columna Griega",
-    "renderMode": "cross",
+    "renderMode": "3d",
     "components": [
       {
         "type": "Renderable",
@@ -2159,6 +2146,107 @@
         "type": "Renderable",
         "args": [
           "HACHA_VERTICAL"
+        ]
+      }
+    ]
+  },
+  "AMAPOLA": {
+    "key": "AMAPOLA",
+    "name": "Amapola",
+    "renderMode": "billboard",
+    "components": [
+      {
+        "type": "Renderable",
+        "args": [
+          "AMAPOLA"
+        ]
+      },
+      {
+        "type": "Collectible",
+        "args": [
+          {
+            "itemId": "FLOR_AMAPOLA",
+            "quantity": 1
+          }
+        ]
+      }
+    ]
+  },
+  "SILLA_MADERA_SENCILLA": {
+    "name": "Silla de Madera Sencilla",
+    "renderMode": "3d",
+    "components": [
+      {
+        "type": "Renderable",
+        "args": [
+          "SILLA"
+        ]
+      },
+      {
+        "type": "Collision",
+        "args": [
+          true,
+          {
+            "width": 0,
+            "height": 0,
+            "offsetY": 0
+          }
+        ]
+      }
+    ]
+  },
+  "PAVO_REAL_FRENTE": {
+    "name": "Pavo Real de Frente",
+    "renderMode": "billboard",
+    "components": [
+      {
+        "type": "Renderable",
+        "args": [
+          "PAVO_REAL_FRENTE"
+        ]
+      }
+    ]
+  },
+  "PAVOREAL": {
+    "name": "Pavo Real",
+    "renderMode": "3d",
+    "components": [
+      {
+        "type": "Renderable",
+        "args": [
+          "PAVO_REAL_FRENTE"
+        ]
+      }
+    ]
+  },
+  "VACA": {
+    "name": "Vaca",
+    "renderMode": "3d",
+    "components": [
+      {
+        "type": "Collision",
+        "args": [
+          true,
+          {
+            "width": 40,
+            "height": 40,
+            "offsetY": 35
+          }
+        ]
+      },
+      {
+        "type": "Vitals",
+        "args": [
+          0,
+          0,
+          0,
+          0
+        ]
+      },
+      {
+        "type": "Tag",
+        "args": [
+          "ANIMAL"
         ]
       }
     ]

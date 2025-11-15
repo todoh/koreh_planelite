@@ -1,279 +1,165 @@
 // --- engine_3d.js ---
-// ¡MODIFICADO!
-// - Implementa THREE.InstancedMesh para entidades dinámicas (Optimización #1).
-// - Cambia entidades a MeshBasicMaterial (Optimización #3).
-// - El "pool" antiguo (activeEntities) ha sido eliminado.
-// - updateLighting ahora tiñe los materiales de las entidades.
-// --- ¡FIX v4! Reescribe el bucle de render para resetear InstancedMeshes,
-// --- eliminando el "Bucle C" y previniendo el "stuck count" bug.
-// --- ¡MODIFICADO (Plan de Construcción)! ---
-// - Añadida importación de ENTITY_DATA
-// - Modificado getOrCreateInstancedMesh para crear BoxGeometry
-// - Modificado render3DFrame para posicionar BoxGeometry
-// --- ¡MODIFICADO (Modos de Render)! ---
-// - Eliminado 'PlaceableComponent'
-// - Añadido 'renderMode' ("billboard", "cross", "cube", "flat")
-// - 'getOrCreateInstancedMesh' ahora crea 4 tipos de geometría
-// - 'render3DFrame' ahora escala/posiciona 4 tipos de geometría
-// --- ¡FIX v5! ---
-// - 'getOrCreateInstancedMesh' ahora crea un material OPACO para 'cube'
-// --- ¡FIX v6! ---
-// - 'render3DFrame' ahora agrupa por 'entityKey' (¡el bug real!)
-// --- ¡FIX v7! (Tu corrección) ---
-// - 'getOrCreateInstancedMesh' para 'cube' usa 'box_1x1'
-// - 'render3DFrame' para 'cube' escala usando 'img.naturalHeight'
-// --- ¡MODIFICADO (Iluminación del Jugador)! ---
-// - Se eliminó el tinte manual del jugador en render3DFrame.
+// ¡MODIFICADO! Integración de renderizado de modelos 3D desde JSON.
+// ¡OPTIMIZADO! Añadido Frustum Culling para instancias.
 
 import * as THREE from 'three';
 import { TILE_PX_WIDTH, TILE_PX_HEIGHT, IMAGES, CHUNK_GRID_WIDTH, CHUNK_GRID_HEIGHT, ENTITY_DATA } from './logic.js';
-// (BufferGeometryUtils no se usará, la fusión manual ya está implementada)
 import { createPlayerMesh } from './player_model.js';
 import { updatePlayerAnimation } from './player_animation.js';
+import { getModelDefinition } from './models/model_loader.js'; // <-- ¡NUEVA IMPORTACIÓN!
+
 const raycaster = new THREE.Raycaster();
 const mouse = new THREE.Vector2();
 let $canvas;
 let renderer, scene, camera, ambientLight, directionalLight;
 let raycastPlane; 
 let selectorMesh;
+
 // --- OBJETOS 3D ---
 const textureCache = new Map();
 const materialCache = new Map();
 const geometryCache = new Map();
 
-// --- ¡OPTIMIZACIÓN! ---
-// Almacén para los Meshes Instanciados (key -> InstancedMesh)
+// Pool para sprites simples (billboard, cube, etc.)
 const instancedMeshPool = new Map();
-// Helpers para reutilizar en el bucle de renderizado
+
+// ¡NUEVO! Pool para modelos compuestos 3D (Key -> Array de InstancedMeshes)
+const instancedModelGroups = new Map(); 
+
+// Helpers
 const tempMatrix = new THREE.Matrix4();
 const tempColor = new THREE.Color();
-
 const tempPosition = new THREE.Vector3();
 const tempRotation = new THREE.Euler();
 const tempQuaternion = new THREE.Quaternion();
 const tempScale = new THREE.Vector3();
-// ¡NUEVO! Almacén para los meshes estáticos del terreno (chunkKey -> THREE.Group)
+const entityMatrix = new THREE.Matrix4(); // Para calcular la matriz base de la entidad
+
+// --- ¡NUEVO! Helpers para Culling ---
+// El Frustum es el "cono de visión" de la cámara.
+const frustum = new THREE.Frustum();
+// Matriz para calcular el frustum
+const projScreenMatrix = new THREE.Matrix4();
+// --- FIN DE NUEVO ---
+
+// Map de terrenos
 const chunkTerrainMeshes = new Map();
 export let playerMesh = null;
 
 // --- ESTADO DE CÁMARA ---
-const CAMERA_ANGLE_X = -Math.PI / 4; // -45 grados de inclinación
-const BASE_CAMERA_DISTANCE = 1000; // Distancia base
+const CAMERA_ANGLE_X = -Math.PI / 4; 
+const BASE_CAMERA_DISTANCE = 1000; 
 let currentCameraDistance = BASE_CAMERA_DISTANCE;
-let currentCameraRotationY = 0; // Ángulo de órbita (AHORA SERÁ EL VALOR SUAVE)
-let targetCameraRotationY = 0;  // <-- ¡NUEVA LÍNEA! (El objetivo al que rotamos)
-const CAMERA_ROTATION_SPEED = 5.0; // <-- ¡NUEVA LÍNEA! (Ajusta esto para más/menos velocidad)
+let currentCameraRotationY = 0; 
+let targetCameraRotationY = 0;  
+const CAMERA_ROTATION_SPEED = 5.0; 
 
-// Constantes de Zoom
 const ZOOM_STEP = 150;
 const MIN_ZOOM_DISTANCE = 210;
 const MAX_ZOOM_DISTANCE = 1500;
 
-
-/**
- * Inicializa el renderer 3D de Three.js
- */
 export function initialize3DEngine($canvasElement) {
     $canvas = $canvasElement;
-
-    // 1. Renderizador
-    renderer = new THREE.WebGLRenderer({
-        canvas: $canvas,
-        antialias: true
-    });
+    renderer = new THREE.WebGLRenderer({ canvas: $canvas, antialias: true });
     renderer.setPixelRatio(window.devicePixelRatio);
     renderer.setSize($canvas.clientWidth, $canvas.clientHeight);
     renderer.outputColorSpace = THREE.SRGBColorSpace;
-renderer.clear(true, true, true); // <--- CAMBIA ESTA LÍNEA    // 2. Escena
+    renderer.clear(true, true, true); 
     scene = new THREE.Scene();
     scene.background = new THREE.Color(0x1a1a1a);
 
-    // 3. Cámara (Perspectiva)
     const fov = 50;
     const aspect = $canvas.clientWidth / $canvas.clientHeight;
-    const near = 1;
-    const far = BASE_CAMERA_DISTANCE * 4; // Rango de visión más grande
-    camera = new THREE.PerspectiveCamera(fov, aspect, near, far);
+    camera = new THREE.PerspectiveCamera(fov, aspect, 1, BASE_CAMERA_DISTANCE * 4);
 
-    // 4. Luces (SOLO PARA EL TERRENO)
     ambientLight = new THREE.AmbientLight(0xffffff, 0.7); 
     scene.add(ambientLight);
     directionalLight = new THREE.DirectionalLight(0xfff8e1, 0.5); 
-    directionalLight.position.set(0, 10, 5); //
+    directionalLight.position.set(0, 10, 5); 
     scene.add(directionalLight);
-playerMesh = createPlayerMesh();    scene.add(playerMesh);
-    // 5. Crear el Suelo (Plano de Raycasting)
-    const raycastGeometry = new THREE.PlaneGeometry(100000, 100000); // Gigante
-    const raycastMaterial = new THREE.MeshBasicMaterial({ 
-        visible: false, 
-        side: THREE.DoubleSide 
-    });
+
+    playerMesh = createPlayerMesh();    
+    scene.add(playerMesh);
+
+    const raycastGeometry = new THREE.PlaneGeometry(100000, 100000); 
+    const raycastMaterial = new THREE.MeshBasicMaterial({ visible: false, side: THREE.DoubleSide });
     raycastPlane = new THREE.Mesh(raycastGeometry, raycastMaterial);
     raycastPlane.rotation.x = -Math.PI / 2;
-    raycastPlane.position.y = 0; // Se moverá en render3DFrame
     scene.add(raycastPlane);
-const selectorGeo = new THREE.RingGeometry(
-        TILE_PX_WIDTH * 0.45, // Radio interior
-        TILE_PX_WIDTH * 0.55, // Radio exterior
-        24 // Segmentos
-    );
-    const selectorMat = new THREE.MeshBasicMaterial({ 
-        color: 0x00FFFF, // Color Cian
-        transparent: true, 
-        opacity: 0.8,
-        side: THREE.DoubleSide 
-    });
+
+    const selectorGeo = new THREE.RingGeometry(TILE_PX_WIDTH * 0.45, TILE_PX_WIDTH * 0.55, 24);
+    const selectorMat = new THREE.MeshBasicMaterial({ color: 0x00FFFF, transparent: true, opacity: 0.8, side: THREE.DoubleSide });
     selectorMesh = new THREE.Mesh(selectorGeo, selectorMat);
-    selectorMesh.rotation.x = -Math.PI / 2; // Tumbarlo
-    selectorMesh.visible = false; // Oculto por defecto
+    selectorMesh.rotation.x = -Math.PI / 2; 
+    selectorMesh.visible = false; 
     scene.add(selectorMesh);
-    // 6. Listener de redimensionado
+
     window.addEventListener('resize', resize3DEngine);
     resize3DEngine();
 }
 
-/**
- * Controla el zoom 3D
- */
 export function handle3DZoom(zoomIn) {
-    if (zoomIn) {
-        currentCameraDistance = Math.max(MIN_ZOOM_DISTANCE, currentCameraDistance - ZOOM_STEP);
-    } else {
-        currentCameraDistance = Math.min(MAX_ZOOM_DISTANCE, currentCameraDistance + ZOOM_STEP);
-    }
+    if (zoomIn) currentCameraDistance = Math.max(MIN_ZOOM_DISTANCE, currentCameraDistance - ZOOM_STEP);
+    else currentCameraDistance = Math.min(MAX_ZOOM_DISTANCE, currentCameraDistance + ZOOM_STEP);
 }
-/**
- * Traduce coordenadas de pantalla a coordenadas del mundo 3D (en el suelo).
- */
+
 export function getWorldCoordsFromScreen(screenX, screenY) {
     if (!$canvas || !camera || !raycastPlane) return null;
-
     mouse.x = (screenX / $canvas.clientWidth) * 2 - 1;
     mouse.y = -(screenY / $canvas.clientHeight) * 2 + 1;
-
     raycaster.setFromCamera(mouse, camera);
-
     const intersects = raycaster.intersectObject(raycastPlane); 
-
     if (intersects.length > 0) {
         const point = intersects[0].point;
         return { x: point.x, y: point.z };
     }
-
     return null;
 }
 
-/**
- * Controla la rotación 3D (8 direcciones)
- */
 export function handle3DCameraRotate(rotateRight) {
-    const rotationStep = Math.PI / 4; // 45 grados
-    if (rotateRight) {
-        // --- LÍNEA MODIFICADA ---
-        targetCameraRotationY += rotationStep;
-    } else {
-        // --- LÍNEA MODIFICADA ---
-        targetCameraRotationY -= rotationStep;
-    }
+    const rotationStep = Math.PI / 4;
+    if (rotateRight) targetCameraRotationY += rotationStep;
+    else targetCameraRotationY -= rotationStep;
 }
 
-
-/**
- * Redimensiona el canvas 3D y la cámara
- */
 function resize3DEngine() {
     const width = $canvas.clientWidth;
     const height = $canvas.clientHeight;
     if (!width || !height) return;
     renderer.setSize(width, height);
-    const aspect = width / height;
-    camera.aspect = aspect;
+    camera.aspect = width / height;
     camera.updateProjectionMatrix();
 }
 
-/**
- * Actualiza la intensidad de las luces 3D (terreno) y calcula el tinte (entidades).
- * @returns {THREE.Color} El color de tinte para las entidades.
- */
 function updateLighting(timeOfDay) {
     if (!ambientLight || !directionalLight) return tempColor.setRGB(1, 1, 1);
-
     const brightness = (Math.cos((timeOfDay - 0.5) * 2 * Math.PI) + 1) / 2;
-
-    // 1. Actualizar luces del TERRENO (y ahora también del JUGADOR)
-    const minAmbient = 0.3;
-    const maxAmbient = 1.0; 
-    ambientLight.intensity = minAmbient + (maxAmbient - minAmbient) * brightness;
-
-    const minDirectional = 0.1;
-    const maxDirectional = 1.5; 
-    directionalLight.intensity = minDirectional + (maxDirectional - minDirectional) * brightness;
-
+    ambientLight.intensity = 0.3 + (0.7) * brightness;
+    directionalLight.intensity = 0.1 + (1.4) * brightness;
     directionalLight.position.x = Math.cos((timeOfDay - 0.5) * Math.PI) * 10; 
     directionalLight.position.y = brightness * 10 + 2; 
-    
-    // 2. Calcular tinte para ENTIDADES (MeshBasicMaterial)
-    // Mapeamos el brillo [0, 1] a un tinte [0.4, 1.0] para que la noche no sea negra pura
     const tintValue = 0.4 + brightness * 0.6;
     tempColor.setRGB(tintValue, tintValue, tintValue);
-    
     return tempColor;
 }
 
-// --- ¡NUEVAS FUNCIONES DE GESTIÓN DE TERRENO ESTÁTICO! ---
-
-/**
- * ¡FUNCIÓN CRÍTICA REESCRITA!
- * Crea y añade el mesh estático para un chunk completo usando Fusión de Geometría.
- * Se llama desde world.js cuando un chunk se carga.
- */
 export function addChunkTerrain(chunkKey, chunkData) {
-    if (chunkTerrainMeshes.has(chunkKey)) return; // Ya existe
-
+    if (chunkTerrainMeshes.has(chunkKey)) return;
     const [chunkX, chunkY, chunkZ] = chunkKey.split(',').map(Number);
     const worldYLevel = chunkZ * TILE_PX_HEIGHT;
-
-    // 1. Contenedores para geometrías por material
     const geometriesData = new Map();
     
-    // 2. Geometría base del plano (¡reescrita para fusión manual!)
-    const basePositions = [
-        -0.5, -0.5, 0.0,  // v0
-         0.5, -0.5, 0.0,  // v1
-         0.5,  0.5, 0.0,  // v2
-        -0.5,  0.5, 0.0   // v3
-    ];
-    const baseUvs = [
-        0.0, 0.0,  // uv0
-        1.0, 0.0,  // uv1
-        1.0, 1.0,  // uv2
-        0.0, 1.0   // uv3
-    ];
-    const baseNormals = [
-        0.0, 0.0, 1.0,
-        0.0, 0.0, 1.0,
-        0.0, 0.0, 1.0,
-        0.0, 0.0, 1.0
-    ];
-    const baseIndices = [
-        0, 1, 2,  // Triángulo 1
-        0, 2, 3   // Triángulo 2
-    ];
-    
+    const basePositions = [-0.5, -0.5, 0.0, 0.5, -0.5, 0.0, 0.5, 0.5, 0.0, -0.5, 0.5, 0.0];
+    const baseUvs = [0.0, 0.0, 1.0, 0.0, 1.0, 1.0, 0.0, 1.0];
+    const baseNormals = [0, 0, 1, 0, 0, 1, 0, 0, 1, 0, 0, 1];
+    const baseIndices = [0, 1, 2, 0, 2, 3];
     const tileWidth = TILE_PX_WIDTH;
     const tileHeight = TILE_PX_HEIGHT;
 
-    // 3. Iterar todos los tiles y agrupar sus datos de geometría
     for (let y = 0; y < CHUNK_GRID_HEIGHT; y++) {
         for (let x = 0; x < CHUNK_GRID_WIDTH; x++) {
-            
             const tileKey = (chunkData.terrain[y] && chunkData.terrain[y][x]) ? chunkData.terrain[y][x] : "DIRT";
-            
-            if (!geometriesData.has(tileKey)) {
-                geometriesData.set(tileKey, {
-                    positions: [], uvs: [], normals: [], indices: [], vertexCount: 0
-                });
-            }
+            if (!geometriesData.has(tileKey)) geometriesData.set(tileKey, { positions: [], uvs: [], normals: [], indices: [], vertexCount: 0 });
             const data = geometriesData.get(tileKey);
 
             const globalTileX = (chunkX * CHUNK_GRID_WIDTH) + x;
@@ -282,30 +168,18 @@ export function addChunkTerrain(chunkKey, chunkData) {
             const worldZ_3D = (globalTileY * TILE_PX_HEIGHT) + (TILE_PX_HEIGHT / 2);
 
             const indexOffset = data.vertexCount;
-            for (const index of baseIndices) {
-                data.indices.push(index + indexOffset);
-            }
+            for (const index of baseIndices) data.indices.push(index + indexOffset);
             data.vertexCount += 4; 
 
             for (let i = 0; i < 4; i++) {
-                data.positions.push(
-                    (basePositions[i*3 + 0] * tileWidth) + worldX_3D,  // X
-                    (basePositions[i*3 + 2] * 1.0) + worldYLevel,       // Y (era Z)
-                    (basePositions[i*3 + 1] * tileHeight) + worldZ_3D  // Z (era Y)
-                );
-                data.normals.push(
-                    baseNormals[i*3 + 0], // 0.0
-                    baseNormals[i*3 + 2], // 1.0
-                    baseNormals[i*3 + 1]  // 0.0
-                );
-                data.uvs.push(baseUvs[i*2 + 0], baseUvs[i*2 + 1]);
+                data.positions.push((basePositions[i*3]*tileWidth)+worldX_3D, (basePositions[i*3+2]*1.0)+worldYLevel, (basePositions[i*3+1]*tileHeight)+worldZ_3D);
+                data.normals.push(baseNormals[i*3], baseNormals[i*3+2], baseNormals[i*3+1]);
+                data.uvs.push(baseUvs[i*2], baseUvs[i*2+1]);
             }
         }
     }
 
-    // 4. Crear las mallas fusionadas (una por material)
-    const chunkGroup = new THREE.Group(); // Usamos un grupo para almacenar las mallas
-    
+    const chunkGroup = new THREE.Group(); 
     for (const [tileKey, data] of geometriesData.entries()) {
         let material = materialCache.get(tileKey);
         if (!material) {
@@ -318,89 +192,46 @@ export function addChunkTerrain(chunkKey, chunkData) {
                     texture.needsUpdate = true;
                     textureCache.set(tileKey, texture);
                 }
-                // ¡EL TERRENO SIGUE USANDO MeshLambertMaterial!
-                material = new THREE.MeshLambertMaterial({
-                    map: texture,
-                    transparent: false,
-                    side: THREE.DoubleSide // Arreglo para texturas negras
-                });
+                material = new THREE.MeshLambertMaterial({ map: texture, transparent: false, side: THREE.DoubleSide });
                 materialCache.set(tileKey, material);
-            } else {
-                continue; 
-            }
+            } else continue; 
         }
-
         const geometry = new THREE.BufferGeometry();
         geometry.setAttribute('position', new THREE.Float32BufferAttribute(data.positions, 3));
         geometry.setAttribute('normal', new THREE.Float32BufferAttribute(data.normals, 3));
         geometry.setAttribute('uv', new THREE.Float32BufferAttribute(data.uvs, 2));
         geometry.setIndex(data.indices);
-        
-        const mesh = new THREE.Mesh(geometry, material);
-        chunkGroup.add(mesh);
+        chunkGroup.add(new THREE.Mesh(geometry, material));
     }
-
-    // 5. Añadir el grupo completo a la escena y al map
     scene.add(chunkGroup);
     chunkTerrainMeshes.set(chunkKey, chunkGroup);
 }
 
-/**
- * ¡FUNCIÓN CRÍTICA REESCRITA!
- * Elimina el mesh estático de un chunk y LIBERA LA MEMORIA.
- * Se llama desde world.js cuando un chunk se descarga.
- */
 export function removeChunkTerrain(chunkKey) {
     const chunkGroup = chunkTerrainMeshes.get(chunkKey);
     if (chunkGroup) {
         scene.remove(chunkGroup);
-        chunkGroup.children.forEach(mesh => {
-            if (mesh.geometry) {
-                mesh.geometry.dispose();
-            }
-        });
+        chunkGroup.children.forEach(mesh => { if (mesh.geometry) mesh.geometry.dispose(); });
         chunkTerrainMeshes.delete(chunkKey);
     }
 }
 
-/**
- * ¡MODIFICADO! Obtiene o crea un InstancedMesh.
- * Ahora crea BoxGeometry, PlaneGeometry, o una Geometría en Cruz
- * basado en 'renderMode' de la definición de la entidad.
- */
 function getOrCreateInstancedMesh(key, img) {
-    
     const template = ENTITY_DATA[key];
-    // --- ¡NUEVO! Leer renderMode ---
     const renderMode = template?.renderMode || 'billboard';
-    
-    // La clave de caché debe ser única para geometría/material
     const cacheKey = `${renderMode}_${key}`;
     let geometryKey;
 
-    // Determinar la clave de geometría
     switch(renderMode) {
-        case 'cube':
-            geometryKey = 'box_1x1'; // Geometría base de cubo (1x1x1)
-            break;
-        case 'cross':
-            geometryKey = 'cross_1x1'; // Geometría base en cruz (1x1x1)
-            break;
-        // --- AÑADIDO ---
+        case 'cube': geometryKey = 'box_1x1'; break;
+        case 'cross': geometryKey = 'cross_1x1'; break;
         case 'flat':
-        // --- FIN AÑADIDO ---
         case 'billboard':
-        default:
-            geometryKey = 'plane_1x1'; // Geometría base de plano (1x1)
-            break;
+        default: geometryKey = 'plane_1x1'; break;
     }
 
+    if (instancedMeshPool.has(cacheKey)) return instancedMeshPool.get(cacheKey);
 
-    if (instancedMeshPool.has(cacheKey)) {
-        return instancedMeshPool.get(cacheKey);
-    }
-
-    // 1. Textura (Cacheada)
     let texture = textureCache.get(key);
     if (!texture) {
         texture = new THREE.Texture(img);
@@ -409,220 +240,248 @@ function getOrCreateInstancedMesh(key, img) {
         textureCache.set(key, texture);
     }
     
-    // 2. Geometría (¡MODIFICADA!)
     let geometry = geometryCache.get(geometryKey);
     if (!geometry) {
-        // --- MODIFICADO ---
-        // La switch ahora usa geometryKey para agrupar 'flat' y 'billboard'
         switch (geometryKey) {
-            case 'box_1x1':
-                geometry = new THREE.BoxGeometry(1, 1, 1);
-                break;
-            
-            case 'cross_1x1':
-                // ¡NUEVA Lógica de Cruz!
-                const positions = [
-                    -0.5, -0.5, 0.0,  // plano 1 (frontal)
-                     0.5, -0.5, 0.0,
-                     0.5,  0.5, 0.0,
-                    -0.5,  0.5, 0.0,
-                     
-                     0.0, -0.5, -0.5, // plano 2 (lateral)
-                     0.0, -0.5,  0.5,
-                     0.0,  0.5,  0.5,
-                     0.0,  0.5, -0.5,
-                ];
-                const uvs = [
-                    0.0, 0.0,  // plano 1
-                    1.0, 0.0,
-                    1.0, 1.0,
-                    0.0, 1.0,
-                    
-                    0.0, 0.0,  // plano 2
-                    1.0, 0.0,
-                    1.0, 1.0,
-                    0.0, 1.0,
-                ];
-                const indices = [
-                    0, 1, 2,  0, 2, 3, // cara 1
-                    4, 5, 6,  4, 6, 7  // cara 2
-                ];
-                
+            case 'box_1x1': geometry = new THREE.BoxGeometry(1, 1, 1); break;
+            case 'cross_1x1': 
+                const positions = [-0.5, -0.5, 0.0, 0.5, -0.5, 0.0, 0.5, 0.5, 0.0, -0.5, 0.5, 0.0, 0.0, -0.5, -0.5, 0.0, -0.5, 0.5, 0.0, 0.5, 0.5, 0.0, 0.5, -0.5];
+                const uvs = [0,0, 1,0, 1,1, 0,1, 0,0, 1,0, 1,1, 0,1];
+                const indices = [0,1,2, 0,2,3, 4,5,6, 4,6,7];
                 geometry = new THREE.BufferGeometry();
                 geometry.setAttribute('position', new THREE.Float32BufferAttribute(positions, 3));
                 geometry.setAttribute('uv', new THREE.Float32BufferAttribute(uvs, 2));
                 geometry.setIndex(indices);
-                geometry.computeVertexNormals(); // Necesario
+                geometry.computeVertexNormals();
                 break;
-
-            case 'plane_1x1': // Usado por 'billboard' y 'flat'
-            default:
-                geometry = new THREE.PlaneGeometry(1, 1);
-                break;
+            case 'plane_1x1': default: geometry = new THREE.PlaneGeometry(1, 1); break;
         }
-        // --- FIN MODIFICADO ---
         geometryCache.set(geometryKey, geometry);
     }
     
-    // 3. Material (Cacheado)
-    let material = materialCache.get(cacheKey); // Usar cacheKey
+    let material = materialCache.get(cacheKey); 
     if (!material) {
-        
-        if (renderMode === 'cube') {
-            material = new THREE.MeshBasicMaterial({
-                map: texture,
-                transparent: false
-            });
-        } else {
-            // Material para Sprites (billboard, cross, flat)
-            material = new THREE.MeshBasicMaterial({
-                map: texture,
-                transparent: true,
-                alphaTest: 0.1,
-                side: THREE.DoubleSide // Esencial para 'cross', 'billboard' y 'flat'
-            });
-        }
-        
+        if (renderMode === 'cube') material = new THREE.MeshBasicMaterial({ map: texture, transparent: false });
+        else material = new THREE.MeshBasicMaterial({ map: texture, transparent: true, alphaTest: 0.1, side: THREE.DoubleSide });
         materialCache.set(cacheKey, material);
     }
 
-    // 4. Crear InstancedMesh
-    const MAX_INSTANCES_PER_TYPE = 33000;
-    const instancedMesh = new THREE.InstancedMesh(geometry, material, MAX_INSTANCES_PER_TYPE);
+    const instancedMesh = new THREE.InstancedMesh(geometry, material, 33000);
     instancedMesh.count = 0;
+    // ¡MODIFICADO! Dejamos frustumCulled en false para el *objeto* InstancedMesh,
+    // pero haremos culling manual de las *instancias*.
     instancedMesh.frustumCulled = false;
     scene.add(instancedMesh);
-    instancedMeshPool.set(cacheKey, instancedMesh); // Usar cacheKey
-    
-    console.log(`InstancedMesh creado para: ${key} (Modo: ${renderMode})`);
+    instancedMeshPool.set(cacheKey, instancedMesh); 
     return instancedMesh;
 }
 
-
-/**
- * Dibuja el frame 3D.
- * ¡MODIFICADO! Para posicionar y escalar los 4 modos de render.
- */
-export function render3DFrame(playerX, playerY, playerZ, objectsToRender, timeOfDay, deltaTime) { // <-- ¡deltaTime AÑADIDO!
-    if (!renderer) return; 
-renderer.clear(true, true, true); // <--- CAMBIA ESTA LÍNEA    // --- Actualizar plano de raycasting ---
-    const worldYLevel = playerZ * TILE_PX_HEIGHT;
-    if (raycastPlane) {
-        raycastPlane.position.y = worldYLevel;
+// --- ¡NUEVO! Helper para crear el grupo de meshes para un modelo 3D cargado ---
+function getOrCreateInstancedModelGroup(key, modelDef) {
+    if (instancedModelGroups.has(key)) {
+        return instancedModelGroups.get(key);
     }
-const hoveredObject = objectsToRender.find(obj => obj.isHovered);
 
+    const groupMeshes = [];
+    const MAX_INSTANCES = 10000; // Límite razonable
+
+    // Crear un InstancedMesh por cada parte del modelo
+    for (const part of modelDef) {
+        const instancedMesh = new THREE.InstancedMesh(part.geometry, part.material, MAX_INSTANCES);
+        instancedMesh.count = 0;
+        instancedMesh.frustumCulled = false; // Optimización: culling manual de instancias
+        scene.add(instancedMesh);
+        groupMeshes.push(instancedMesh);
+    }
+
+    instancedModelGroups.set(key, groupMeshes);
+    console.log(`Grupo 3D instanciado creado para: ${key} (${groupMeshes.length} partes)`);
+    return groupMeshes;
+}
+
+export function render3DFrame(playerX, playerY, playerZ, objectsToRender, timeOfDay, deltaTime) {
+    if (!renderer) return; 
+    renderer.clear(true, true, true); 
+    
+    const worldYLevel = playerZ * TILE_PX_HEIGHT;
+    if (raycastPlane) raycastPlane.position.y = worldYLevel;
+
+    const hoveredObject = objectsToRender.find(obj => obj.isHovered);
     if (hoveredObject) {
-        selectorMesh.position.set(
-            hoveredObject.x,
-            worldYLevel + 1,    // Altura (justo sobre el suelo)
-            hoveredObject.y     // Coordenada Z (usamos 'y' 2D)
-        );
+        selectorMesh.position.set(hoveredObject.x, worldYLevel + 1, hoveredObject.y);
         selectorMesh.visible = true;
     } else {
-        selectorMesh.visible = false; // Ocultar si no hay nada
-    }
-    // --- ¡NUEVO! 1. Interpolar Rotación de Cámara ---
-    const rotationDifference = targetCameraRotationY - currentCameraRotationY;
-    
-    if (Math.abs(rotationDifference) > 0.0001) { 
-         currentCameraRotationY += rotationDifference * CAMERA_ROTATION_SPEED * deltaTime;
-    } else {
-         currentCameraRotationY = targetCameraRotationY; 
+        selectorMesh.visible = false; 
     }
 
-    // --- 1. Mover la Cámara --- (Ahora es paso 2)
+    const rotationDifference = targetCameraRotationY - currentCameraRotationY;
+    if (Math.abs(rotationDifference) > 0.0001) currentCameraRotationY += rotationDifference * CAMERA_ROTATION_SPEED * deltaTime;
+    else currentCameraRotationY = targetCameraRotationY; 
+
     const playerWorldZ_3D = playerY;
     const target = new THREE.Vector3(playerX, worldYLevel, playerWorldZ_3D);
-
     const horizontalOffset = currentCameraDistance * Math.cos(CAMERA_ANGLE_X);
     const verticalOffset = currentCameraDistance * Math.sin(-CAMERA_ANGLE_X);
-
-    const camX = target.x + (horizontalOffset * Math.sin(currentCameraRotationY));
-    const camZ = target.z + (horizontalOffset * Math.cos(currentCameraRotationY));
-    const camY = target.y + verticalOffset;
-
-    camera.position.set(camX, camY, camZ);
+    camera.position.set(target.x + (horizontalOffset * Math.sin(currentCameraRotationY)), target.y + verticalOffset, target.z + (horizontalOffset * Math.cos(currentCameraRotationY)));
     camera.lookAt(target);
-// --- 3. Actualizar Luces y Tinte ---
+
+   camera.updateMatrixWorld(); // Asegura que las matrices de la cámara estén actualizadas
+
+    // --- ¡MODIFICACIÓN! ---
+    // 1. Clonamos la matriz de proyección de la cámara
+    const wideProjectionMatrix = camera.projectionMatrix.clone();
+
+    // 2. Definimos qué tan grande queremos el buffer.
+    // Un valor < 1.0 "agranda" la vista (más buffer).
+    // Un valor > 1.0 la "encoge" (menos buffer).
+    // 0.9 = ~10% de buffer adicional
+    const CULLING_BUFFER_SCALE = 0.7; 
+    
+    // 3. Escalamos los ejes X e Y de la matriz de proyección
+    // Esto efectivamente "ensancha" el campo de visión (FOV) solo para el cálculo del frustum.
+    wideProjectionMatrix.elements[0] *= CULLING_BUFFER_SCALE; // Escala eje X
+    wideProjectionMatrix.elements[5] *= CULLING_BUFFER_SCALE; // Escala eje Y
+
+    // 4. Calculamos la matriz final usando nuestra proyección "ancha"
+    projScreenMatrix.multiplyMatrices(wideProjectionMatrix, camera.matrixWorldInverse);
+    
+    // 5. Creamos el frustum a partir de la matriz ancha
+    frustum.setFromProjectionMatrix(projScreenMatrix);
+    // --- FIN DE MODIFICACIÓN ---
+
     const entityTint = updateLighting(timeOfDay); 
 
-    // --- 4. Reseteo de InstancedMesh ---
-    for (const mesh of instancedMeshPool.values()) {
-        mesh.count = 0;
+    // --- RESETEO DE TODOS LOS MESHES ---
+    for (const mesh of instancedMeshPool.values()) mesh.count = 0;
+    
+    // ¡NUEVO! Resetear meshes de modelos 3D
+    for (const group of instancedModelGroups.values()) {
+        for (const mesh of group) mesh.count = 0;
     }
 
-    // --- 5. ¡LÓGICA DE RENDER MODIFICADA! ---
-    
-    // --- 5a. Encontrar al jugador y a las "otras" entidades ---
     const playerObject = objectsToRender.find(obj => obj.uid === 'PLAYER');
-    // Filtramos al jugador Y a los otros jugadores (que también usan 'PLAYER' key)
     const otherObjects = objectsToRender.filter(obj => obj.entityKey !== 'PLAYER');
 
-    // --- 5b. Actualizar el playerMesh (Nuestro jugador) ---
-if (playerObject && playerMesh) {        // 1. Actualizar Posición y Rotación
+    if (playerObject && playerMesh) {        
         playerMesh.position.x = playerObject.x;
-        playerMesh.position.z = playerObject.y; // Y 2D es Z 3D
-        playerMesh.rotation.y = playerObject.rotationY; // Sincronizar rotación
-        
-        // 2. Actualizar Animación (Altura Y y Rebote)
-        // (playerObject tiene x, y, z, vx, vy, rotationY)
-updatePlayerAnimation(playerMesh, playerObject, deltaTime);        
-        
-        // 3. Aplicar tinte de luz
-        // --- ¡BLOQUE ELIMINADO! ---
-        // El playerMesh ahora usa MeshLambertMaterial y es iluminado
-        // automáticamente por las luces de la escena (ambient y directional).
-        /*
-        playerMesh.traverse((child) => {
-            if (child.isMesh && child.material.userData && child.material.userData.baseColor) {
-                child.material.color.copy(child.material.userData.baseColor).multiply(entityTint);
-            }
-        });
-        */
+        playerMesh.position.z = playerObject.y; 
+        playerMesh.rotation.y = playerObject.rotationY; 
+        updatePlayerAnimation(playerMesh, playerObject, deltaTime);        
     }
 
-    // --- 5c. Agrupar OTRAS entidades (NPCs, árboles, rocas, otros jugadores) ---
     const dynamicObjectsByKey = new Map();
     for (const obj of otherObjects) {
         if (!obj.entityKey) continue; 
-        if (!dynamicObjectsByKey.has(obj.entityKey)) {
-            dynamicObjectsByKey.set(obj.entityKey, []); 
-        }
+        if (!dynamicObjectsByKey.has(obj.entityKey)) dynamicObjectsByKey.set(obj.entityKey, []); 
         dynamicObjectsByKey.get(obj.entityKey).push(obj); 
     }
 
-    // --- 5d. Actualizar las matrices de cada InstancedMesh (sin cambios) ---
+    // --- BUCLE DE RENDERIZADO ---
     for (const [key, objects] of dynamicObjectsByKey.entries()) {
         
+        const template = ENTITY_DATA[key]; 
+        const renderMode = template?.renderMode || 'billboard';
+
+        // --- MODO 3D PERSONALIZADO ---
+        if (renderMode === '3d') {
+            const modelDef = getModelDefinition(key); // Busca assets/3d/key.json
+            
+            if (modelDef && modelDef.length > 0) {
+                // Si el modelo está cargado, renderizar sus partes
+                const groupMeshes = getOrCreateInstancedModelGroup(key, modelDef);
+                
+                // Calcular matrices para las instancias
+                let instanceCount = 0; // ¡Contador de instancias VISIBLES!
+                
+                for (const obj of objects) {
+                    
+                    // 1. Calcular Posición (necesaria para el culling)
+                    tempPosition.set(obj.x, worldYLevel, obj.y); // Y es 0 base + worldLevel
+
+                    // --- ¡OPTIMIZACIÓN #1: FRUSTUM CULLING! ---
+                    // Comprobamos si el punto central del objeto está en la vista
+                    if (!frustum.containsPoint(tempPosition)) {
+                        continue; // ¡Saltar este objeto, no es visible!
+                    }
+                    // --- FIN DE LA OPTIMIZACIÓN ---
+
+                    if (instanceCount >= 10000) break; // Límite del grupo
+                    
+                    // 2. Calcular Matriz de la Entidad (Mundo)
+                    // Posición (ya calculada arriba)
+                    
+                    // Rotación (Solo Y por ahora)
+                    const rotationY = obj.rotationY || 0; 
+                    tempRotation.set(0, rotationY, 0, 'YXZ');
+                    tempQuaternion.setFromEuler(tempRotation);
+                    
+                    // Escala (1 por defecto)
+                    tempScale.set(1, 1, 1);
+                    
+                    entityMatrix.compose(tempPosition, tempQuaternion, tempScale);
+                    
+                    // 3. Asignar matrices a cada parte
+                   for (let i = 0; i < groupMeshes.length; i++) {
+                        const partDef = modelDef[i];
+                        const mesh = groupMeshes[i];
+                        
+                        // Matriz Final = MatrizEntidad * MatrizLocalParte
+                        tempMatrix.multiplyMatrices(entityMatrix, partDef.localMatrix);
+                        
+                        mesh.setMatrixAt(instanceCount, tempMatrix); // Usar instanceCount
+
+                        // ¡Confirmado que esto está comentado! Es bueno para el rendimiento.
+                        // mesh.material.color.set(entityTint); 
+                   }
+                    
+                    instanceCount++; // Incrementar solo si es visible
+                }
+                
+                // Actualizar todos los meshes del grupo
+                for (const mesh of groupMeshes) {
+                    mesh.count = instanceCount;
+                    mesh.instanceMatrix.needsUpdate = true;
+                }
+                continue; // ¡Saltar lógica estándar!
+            } 
+            
+            if (modelDef === null) {
+                continue;
+            }
+        }
+
+        // --- MODOS ESTÁNDAR (Sprite/Cubo) ---
         const img = IMAGES[objects[0].imageKey]; 
         if (!img || !img.naturalWidth) continue; 
 
         const instancedMesh = getOrCreateInstancedMesh(key, img);
         instancedMesh.material.color.set(entityTint);
         instancedMesh.visible = true;
+        
+        // --- ¡BUCLE MODIFICADO CON CULLING! ---
+        let visibleInstanceCount = 0; // <-- ¡NUEVO CONTADOR!
+        const maxInstances = Math.min(objects.length, 33000); // Límite de capacidad del mesh
 
-        const template = ENTITY_DATA[key]; 
-        const renderMode = template?.renderMode || 'billboard';
-
-        let instanceIndex = 0;
-        for (instanceIndex = 0; instanceIndex < objects.length; instanceIndex++) {
-            if (instanceIndex >= instancedMesh.instanceCount) break; 
-            const obj = objects[instanceIndex];
-
+        for (let i = 0; i < maxInstances; i++) {
+            const obj = objects[i];
+            
+            // --- ¡OPTIMIZACIÓN #1: FRUSTUM CULLING! ---
             const worldX_3D = obj.x;
             const worldZ_3D = obj.y;
+            // Usamos la posición base (en el suelo) para el culling. Es lo suficientemente preciso.
+            tempPosition.set(worldX_3D, worldYLevel, worldZ_3D); 
+            if (!frustum.containsPoint(tempPosition)) {
+                continue; // ¡Saltar este objeto, no es visible!
+            }
+            // --- FIN DE LA OPTIMIZACIÓN ---
             
-            // ... (El switch(renderMode) para 'cube', 'cross', 'flat', 'billboard' no cambia) ...
+            // Si es visible, calculamos la matriz completa
             switch (renderMode) {
-                
                 case 'cube':
                     const collisionComp = template?.components.find(c => c.type === 'Collision');
                     const boxWidth = collisionComp?.args[1]?.width || TILE_PX_WIDTH;
                     const boxHeight = img.naturalHeight; 
-                    
                     const worldY_3D_Entity = (boxHeight / 2) + worldYLevel; 
-                    
                     tempMatrix.makeScale(boxWidth, boxHeight, boxWidth); 
                     tempMatrix.setPosition(worldX_3D, worldY_3D_Entity, worldZ_3D);
                     break;
@@ -635,7 +494,8 @@ updatePlayerAnimation(playerMesh, playerObject, deltaTime);
                 
                 case 'flat':
                     const worldY_3D_Flat = worldYLevel + 1;
-                    tempPosition.set(worldX_3D, worldY_3D_Flat, worldZ_3D);
+                    // tempPosition ya tiene (worldX_3D, worldYLevel, worldZ_3D)
+                    tempPosition.setY(worldY_3D_Flat); // Ajustamos Y
                     tempRotation.set(-Math.PI / 2, 0, 0, 'YXZ');
                     tempQuaternion.setFromEuler(tempRotation);
                     tempScale.set(img.naturalWidth, img.naturalHeight, 1);
@@ -643,33 +503,27 @@ updatePlayerAnimation(playerMesh, playerObject, deltaTime);
                     break;
 
                 case 'billboard':
+                case '3d': // Fallback si el modelo 3d no ha cargado aún
                 default:
                     const isDynamic = template?.components.some(c => c.type === 'MovementAI') || key === 'PLAYER';
                     const worldY_3D_Plane = (img.naturalHeight / 2) + worldYLevel; 
-                    tempPosition.set(worldX_3D, worldY_3D_Plane, worldZ_3D);
-
-                    let yRotation = 0;
-                    if (isDynamic) {
-                        yRotation = obj.rotationY || 0;
-                    } else {
-                        yRotation = currentCameraRotationY;
-                    }
+                    // tempPosition ya tiene (worldX_3D, worldYLevel, worldZ_3D)
+                    tempPosition.setY(worldY_3D_Plane); // Ajustamos Y
+                    let yRotation = (isDynamic) ? (obj.rotationY || 0) : currentCameraRotationY;
                     tempRotation.set(0, yRotation, 0, 'YXZ'); 
                     tempQuaternion.setFromEuler(tempRotation);
-
-                    let scaleX_Plane = img.naturalWidth;
-                    tempScale.set(scaleX_Plane, img.naturalHeight, 1);
+                    tempScale.set(img.naturalWidth, img.naturalHeight, 1);
                     tempMatrix.compose(tempPosition, tempQuaternion, tempScale);
                     break;
             }
             
-            instancedMesh.setMatrixAt(instanceIndex, tempMatrix);
+            instancedMesh.setMatrixAt(visibleInstanceCount, tempMatrix); // <-- Usar el nuevo contador
+            visibleInstanceCount++; // <-- Incrementar solo si es visible
         }
         
-        instancedMesh.count = instanceIndex;
+        instancedMesh.count = visibleInstanceCount; // <-- Asignar el contador correcto
         instancedMesh.instanceMatrix.needsUpdate = true;
     }
-
-    // --- 7. Renderizar la Escena ---
+    
     renderer.render(scene, camera); 
 }

@@ -88,5 +88,55 @@
     "key": "TIERRA_VERDOSA",
     "name": "Tierra Verdosa",
     "solid": false
+  },
+  "MADERA_TRONCO_ARBOL": {
+    "key": "MADERA_TRONCO_ARBOL",
+    "name": "Textura de Madera de Tronco de Árbol",
+    "solid": true
+  },
+  "HOJAS_NEVADAS_ARBOL": {
+    "key": "HOJAS_NEVADAS_ARBOL",
+    "name": "Hojas Nevadas de Árbol",
+    "solid": false
+  },
+  "MARMOL_VETEADO": {
+    "key": "MARMOL_VETEADO",
+    "name": "Mármol Veteado",
+    "solid": false
+  },
+  "MARMOL": {
+    "key": "MARMOL",
+    "name": "Mármol Pulido",
+    "solid": false
+  },
+  "COLUMNA_GRIEGA": {
+    "key": "COLUMNA_GRIEGA",
+    "name": "Columna Griega",
+    "solid": true
+  },
+  "PLUMAS_GRISES": {
+    "key": "PLUMAS_GRISES",
+    "name": "Plumas Grises",
+    "solid": false
+  },
+  "PLUMAS_AZULES": {
+    "key": "PLUMAS_AZULES",
+    "name": "Plumas Azules",
+    "solid": false
+  },
+  "PLUMAS_VERDES": {
+    "key": "PLUMAS_VERDES",
+    "name": "Plumas Verdes",
+    "solid": false
+  },
+  "TEXTURA_VACA": {
+    "key": "TEXTURA_VACA",
+    "name": "Textura de Vaca",
+    "solid": false
+  },
+  "PIEL_VACA": {
+    "key": "PIEL_VACA",
+    "name": "Piel de Vaca",
+    "solid": false
   }
 }

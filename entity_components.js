@@ -122,6 +122,73 @@ export class HealthComponent {
         this.currentHealth = maxHealth;
     }
 }
+// --- NUEVOS COMPONENTES AÑADIDOS ---
+
+/**
+ * Componente para añadir etiquetas (tags) a una entidad.
+ * @param {string} tagsString - Un string de etiquetas separadas por comas (ej: "MONSTRUO, VOLADOR").
+ */
+export class TagComponent {
+    constructor(tagsString) {
+        // Guardamos las etiquetas como un array, limpiando espacios
+        this.tags = (tagsString || "").split(',')
+                      .map(tag => tag.trim())
+                      .filter(tag => tag.length > 0);
+    }
+}
+
+/**
+ * Componente para atributos con valor numérico (ej. FUERZA: 10).
+ * @param {string} attributesJson - Un string JSON de un array. 
+ * Ej: '[{"id":"FUERZA", "value":10}, {"id":"AGILIDAD", "value":5}]'
+ */
+export class AttributeComponent {
+    constructor(attributesJson) {
+        try {
+            // Guardamos los atributos como un array de objetos
+            this.attributes = JSON.parse(attributesJson || '[]');
+            if (!Array.isArray(this.attributes)) {
+                this.attributes = [];
+            }
+        } catch (e) {
+            console.warn("Error al parsear JSON de AttributeComponent:", e);
+            this.attributes = [];
+        }
+    }
+}
+
+/**
+ * Componente para constantes vitales (Vida, Energía, etc.)
+ * Inspirado en StatsVitales de COMPLEMENTOS.TXT.
+ * @param {number} vidaActual 
+ * @param {number} vidaMaxima 
+ * @param {number} energiaActual 
+ * @param {number} energiaMaxima 
+ */
+export class VitalsComponent {
+    constructor(vidaActual, vidaMaxima, energiaActual, energiaMaxima) {
+        // Asignamos valores o usamos 100 por defecto
+        this.vidaActual = vidaActual !== undefined ? vidaActual : 100;
+        this.vidaMaxima = vidaMaxima !== undefined ? vidaMaxima : 100;
+        this.energiaActual = energiaActual !== undefined ? energiaActual : 100;
+        this.energiaMaxima = energiaMaxima !== undefined ? energiaMaxima : 100;
+    }
+}
+
+/**
+ * ¡NUEVO!
+ * Componente para recursos que requieren un Tag de item específico.
+ */
+export class InteractableFilteredResourceComponent {
+    constructor(itemId, quantity, energyCost = 1, requiredTag) {
+        this.itemId = itemId;       // Item que suelta
+        this.quantity = quantity;   // Cuánto suelta
+        this.energyCost = energyCost; // Coste de energía
+        this.requiredTag = requiredTag; // Etiqueta requerida (ej: "TAJO")
+    }
+}
+
+
 
 /**
  * ¡ELIMINADO! El componente 'PlaceableComponent' ya no es necesario.

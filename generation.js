@@ -405,80 +405,78 @@ function getBiome(globalX, globalY, globalZ) {
 function _applySpawnPlazaOverrides(terrain, entities) {
     const plazaCenterX = 30;
     const plazaCenterY = 30;
-    const plazaRadius = 4;
-    
+    const plazaRadius = 8;
+    // Usamos el radio al cuadrado para comparaciones de distancia más rápidas
+    const plazaRadiusSq = plazaRadius * plazaRadius;
+
+    // 1. Filtrar entidades basado en la nueva área CIRCULAR
     const filteredEntities = entities.filter(entity => {
         const eGridX = Math.floor(entity.x / TILE_PX_WIDTH);
         const eGridY = Math.floor(entity.y / TILE_PX_HEIGHT);
-        const eInPlaza = Math.abs(eGridX - plazaCenterX) <= plazaRadius &&
-                         Math.abs(eGridY - plazaCenterY) <= plazaRadius;
-        return !eInPlaza;
+        
+        const dx = eGridX - plazaCenterX;
+        const dy = eGridY - plazaCenterY;
+        
+        // Comprobación circular: (dx^2 + dy^2 <= r^2)
+        const eInPlaza = (dx * dx + dy * dy) <= plazaRadiusSq;
+        
+        return !eInPlaza; // Mantiene solo las entidades FUERA de la plaza
     });
 
+    // 2. Establecer el terreno circular
     for (let y = 0; y < CHUNK_GRID_HEIGHT; y++) {
         for (let x = 0; x < CHUNK_GRID_WIDTH; x++) {
             
             const globalTileX = x;
             const globalTileY = y;
 
-            const inPlaza = Math.abs(globalTileX - plazaCenterX) <= plazaRadius &&
-                            Math.abs(globalTileY - plazaCenterY) <= plazaRadius;
+            const dx = globalTileX - plazaCenterX;
+            const dy = globalTileY - plazaCenterY;
+            
+            // Comprobación circular
+            const inPlaza = (dx * dx + dy * dy) <= plazaRadiusSq;
             
             if (inPlaza) {
                 terrain[y][x] = 'STONE_GROUND';
             }
-            
-            const entityX = (globalTileX * TILE_PX_WIDTH) + TILE_PX_WIDTH / 2;
-            const entityY = (globalTileY * TILE_PX_HEIGHT) + TILE_PX_HEIGHT / 2;
-            const z = 0; 
-
-            if (globalTileX === 30 && globalTileY === 28) {
-                 filteredEntities.push(
-                    createEntity('STATUE', entityX, entityY, z, `uid_0_0_0_30_28_STATUE`) 
-                 );
-                terrain[y][x] = 'STONE_GROUND';
-            }
-            
-             if (globalTileX === 31 && globalTileY === 30) {
-                 filteredEntities.push(
-                    createEntity('NPC', entityX, entityY, z, `uid_0_0_0_31_30_NPC`) 
-                 );
-                terrain[y][x] = 'STONE_GROUND';
-            }
-            
-             if (globalTileX === 29 && globalTileY === 30) {
-                 filteredEntities.push(
-                    createEntity('CRAFTING_TABLE', entityX, entityY, z, `uid_0_0_0_29_30_CRAFTING`) 
-                 );
-                terrain[y][x] = 'STONE_GROUND';
-            }
-            
-             if (globalTileX === 30 && globalTileY === 32) {
-                 filteredEntities.push(
-                    createEntity('SAPLING', entityX, entityY, z, `uid_0_0_0_30_32_SAPLING`) 
-                 );
-                terrain[y][x] = 'STONE_GROUND';
-            }
-
-             if (globalTileX === 32 && globalTileY === 32) {
-                 filteredEntities.push(
-                    createEntity('COCHE', entityX, entityY, z, `uid_0_0_0_32_32_COCHE`) 
-                 );
-                terrain[y][x] = 'STONE_GROUND';
-            }
-
-             if (globalTileX === 28 && globalTileY === 32) {
-                 filteredEntities.push(
-                    createEntity('STAIRS_DOWN', entityX, entityY, z, `uid_0_0_0_28_32_STAIRS_DOWN`)
-                 );
-                terrain[y][x] = 'STONE_GROUND';
-            }
         }
     }
+
+    // 3. Añadir las nuevas entidades específicas de la plaza
+    
+    // Función auxiliar para crear las entidades y asegurar el suelo debajo
+    const createPlazaEntity = (type, gridX, gridY) => {
+        const entityX = (gridX * TILE_PX_WIDTH) + TILE_PX_WIDTH / 2;
+        const entityY = (gridY * TILE_PX_HEIGHT) + TILE_PX_HEIGHT / 2;
+        const z = 0;
+        
+        // Aseguramos el suelo, aunque el bucle anterior ya debería haberlo hecho
+        terrain[gridY][gridX] = 'STONE_GROUND'; 
+        
+        return createEntity(type, entityX, entityY, z, `uid_0_0_0_${gridX}_${gridY}_${type}`);
+    };
+
+    // --- Colocación según tus requisitos ---
+
+    // Centro (30, 30): Estatua
+    filteredEntities.push(createPlazaEntity('STATUE', 28, 28));
+
+    // Arriba (30, 28): Escaleras Abajo
+    filteredEntities.push(createPlazaEntity('STAIRS_DOWN', 30, 23));
+
+    // Abajo (30, 32): Coche
+    filteredEntities.push(createPlazaEntity('CRAFTING_TABLE', 30, 32));
+
+    // Izquierda (28, 30): Cofre (Asumiendo que 'CHEST' es un tipo de entidad válido)
+    // Nota: Si 'CHEST' no existe, cámbialo por 'CRAFTING_TABLE' o el nombre correcto.
+    filteredEntities.push(createPlazaEntity('TREE', 24, 30));
+
+    // Derecha (32, 30): NPC
+    filteredEntities.push(createPlazaEntity('NPC', 32, 30));
+
     
     return { terrain, entities: filteredEntities };
 }
-
 function generateUndergroundChunk(chunkX, chunkY, chunkZ) {
     let terrain = [];
     let entities = [];

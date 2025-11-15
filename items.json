@@ -177,7 +177,15 @@
     "description": "Un hacha rudimentaria hecha con sílex, palo y cuerda. Útil para talar.",
     "imageKey": "HACHA_VERTICAL",
     "stackable": false,
-    "maxStack": 1
+    "maxStack": 1,
+    "components": [
+      {
+        "type": "Tag",
+        "args": [
+          "TAJO"
+        ]
+      }
+    ]
   },
   "POCION_FOTORREALISTA": {
     "key": "POCION_FOTORREALISTA",
@@ -266,5 +274,49 @@
     "imageKey": "KAI_KATANA",
     "maxStack": 1,
     "stackable": false
+  },
+  "SEMILLAACACIA": {
+    "name": "Semilla Acacia",
+    "description": "",
+    "imageKey": "SEMILLAS_MARIHUANA",
+    "stackable": true,
+    "maxStack": 99,
+    "buildable_entity": "ACACIA_TREE",
+    "components": []
+  },
+  "SILLA": {
+    "name": "Silla de Madera",
+    "description": "",
+    "imageKey": "SILLA_MADERA_SENCILLA",
+    "stackable": true,
+    "maxStack": 99,
+    "buildable_entity": "SILLA_MADERA_SENCILLA",
+    "components": []
+  },
+  "COLUMNA_GRIEGA": {
+    "name": "Columna Griega",
+    "description": "",
+    "imageKey": "COLUMNA_GRIEGA",
+    "stackable": true,
+    "maxStack": 99,
+    "buildable_entity": "COLUMNA_GRIEGA",
+    "components": []
+  },
+  "HUEVO_GALLINA": {
+    "name": "Huevo de gallina",
+    "description": "Un huevo fresco de gallina.",
+    "imageKey": "HUEVO_GALLINA",
+    "stackable": true,
+    "maxStack": 99,
+    "buildable_entity": "PAVOREAL",
+    "components": []
+  },
+  "PAVO_REAL_DE_FRENTE": {
+    "key": "PAVO_REAL_DE_FRENTE",
+    "name": "Pavo real de frente",
+    "description": "Un majestuoso pavo real mirando de frente.",
+    "imageKey": "PAVO_REAL_DE_FRENTE",
+    "maxStack": 99,
+    "stackable": true
   }
 }

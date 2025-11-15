@@ -35,7 +35,7 @@ import { createEntity } from './entity.js';
 import { renderHotbar } from './ui.js';
 // --- ¡NUEVO! Importar duraciones de animación ---
 import { CHOP_DURATION, PICKUP_DURATION } from './player_animation.js';
-
+import { TagComponent } from './entity_components.js';
 
 // --- ¡NUEVA IMPORTACIÓN! ---
 // import { findPath } from './pathfinder.js'; // <-- Comentado
@@ -90,25 +90,35 @@ export function updatePlayer(deltaTime, input) {
             // ¡Animación terminada! Completar la acción.
             const targetEntity = findEntityByUid(player.actionTarget);
             
-            if (targetEntity && targetEntity.components.InteractableResource) {
-                const comp = targetEntity.components.InteractableResource;
+            // --- ¡INICIO DE LA MODIFICACIÓN! ---
+            if (targetEntity) {
                 
-                if (stats.energia >= comp.energyCost) {
-                    // 1. Dar item
-                    addItem(comp.itemId, comp.quantity);
-                    // 2. Costar energía
-                    stats.energia -= comp.energyCost;
-                    // 3. Eliminar la entidad del mundo
-                    recordDeltaFromEntity(targetEntity, { type: 'REMOVE_ENTITY', uid: targetEntity.uid });
+                // Comprobar ambos tipos de componente de recurso
+                const resourceComp = targetEntity.components.InteractableResource;
+                const filteredComp = targetEntity.components.InteractableFilteredResource; // <-- NUEVO
+                const comp = filteredComp || resourceComp; // <-- Dar prioridad al filtrado
+
+                if (comp) {
+                    // Si es filtrado, ya hemos comprobado el tag al *iniciar* la acción.
                     
-                    const itemDef = ITEM_DEFINITIONS[comp.itemId];
-                    message = `¡Has conseguido ${comp.quantity} de ${itemDef.name}!`;
-                } else {
-                    message = "No tienes suficiente energía.";
+                    if (stats.energia >= comp.energyCost) {
+                        // 1. Dar item
+                        addItem(comp.itemId, comp.quantity);
+                        // 2. Costar energía
+                        stats.energia -= comp.energyCost;
+                        // 3. Eliminar la entidad del mundo
+                        recordDeltaFromEntity(targetEntity, { type: 'REMOVE_ENTITY', uid: targetEntity.uid });
+                        
+                        const itemDef = ITEM_DEFINITIONS[comp.itemId];
+                        message = `¡Has conseguido ${comp.quantity} de ${itemDef.name}!`;
+                    } else {
+                        message = "No tienes suficiente energía."; // La acción falla
+                    }
                 }
+            // --- FIN DE LA MODIFICACIÓN! --- (El 'else' de abajo ya existía) ---
             } else {
                 // El objetivo desapareció o era inválido
-                if (player.actionTarget) { // Evitar spam si solo fue una animación sin objetivo
+                if (player.actionTarget) { 
                     message = "El objetivo ya no está.";
                 }
             }
@@ -274,6 +284,7 @@ export function updatePlayer(deltaTime, input) {
                                      entity.components.InteractableDialogue ||
                                      entity.components.InteractableMenu ||
                                      entity.components.InteractableVehicle ||
+                                     entity.components.InteractableFilteredResource || // <-- ¡NUEVO!
                                      entity.components.InteractableLevelChange;
 
                 if (isInteractable) {
@@ -535,6 +546,7 @@ export function playerInteract(targetEntity = null) {
                     !entity.components.InteractableDialogue &&
                     !entity.components.InteractableMenu &&
                     !entity.components.InteractableVehicle &&
+                    !entity.components.InteractableFilteredResource && // <-- ¡NUEVO!
                     !entity.components.InteractableLevelChange) { 
                     continue; 
                 }
@@ -588,7 +600,42 @@ export function playerInteract(targetEntity = null) {
             return { message: `Te has montado en: ${entityDef.name}.` };
         }
 
-        // C. ¿Es un Recurso? (¡INICIA ANIMACIÓN!)
+        // --- ¡INICIO DE LA MODIFICACIÓN! ---
+
+        // C. ¿Es un Recurso FILTRADO? (¡NUEVO!)
+        if (comps.InteractableFilteredResource) {
+            const comp = comps.InteractableFilteredResource;
+
+            // 1. Obtener el item equipado
+            const inventory = getInventory();
+            const activeItem = inventory[player.activeHotbarSlot];
+            const itemDef = activeItem ? ITEM_DEFINITIONS[activeItem.itemId] : null;
+
+            // 2. Buscar el componente Tag en el item y obtener sus etiquetas
+            const tagComponent = itemDef?.components?.find(c => c.type === 'Tag');
+            // Instanciamos la clase para usar su lógica de parseo de string
+            const itemTags = tagComponent ? new TagComponent(...tagComponent.args).tags : [];
+
+            // 3. Comprobar si el item tiene el tag requerido
+            if (!itemTags.includes(comp.requiredTag)) {
+                return { message: `Necesitas una herramienta con la etiqueta "${comp.requiredTag}".` };
+            }
+
+            // 4. ¡Tiene la herramienta! Comprobar energía
+            if (stats.energia < comp.energyCost) {
+                return { message: "No tienes suficiente energía." };
+            }
+
+            // 5. Iniciar animación
+            let anim = (comp.requiredTag === 'TAJO') ? 'chop' : 'pickup'; // Animación basada en el tag
+            player.currentAction = anim;
+            player.actionTimer = (anim === 'chop') ? CHOP_DURATION : PICKUP_DURATION;
+            player.actionTarget = entityToInteract.uid;
+            
+            return { message: (anim === 'chop') ? "Talando..." : "Recolectando..." };
+        }
+
+        // D. ¿Es un Recurso Normal? (Era la C, ahora es la D)
         if (comps.InteractableResource) {
             
             // --- ¡NUEVA LÓGICA DE ANIMACIÓN! ---
@@ -617,7 +664,7 @@ export function playerInteract(targetEntity = null) {
             // --- FIN DE NUEVA LÓGICA ---
         }
         
-        // D. ¿Es un Menú? (Instantáneo)
+        // E. ¿Es un Menú? (Instantáneo)
         if (comps.InteractableMenu) {
             const comp = comps.InteractableMenu;
             openMenuCallback(comp.menuId); 
@@ -625,7 +672,7 @@ export function playerInteract(targetEntity = null) {
             return { message: `Abriendo ${entityDef.name}...` };
         }
 
-        // E. ¿Es un Diálogo? (Instantáneo)
+        // F. ¿Es un Diálogo? (Instantáneo)
         if (comps.InteractableDialogue) {
             const comp = comps.InteractableDialogue;
             if (Array.isArray(comp.message)) {
@@ -633,6 +680,7 @@ export function playerInteract(targetEntity = null) {
             }
             return { message: comp.message };
         }
+        // --- FIN DE LA MODIFICACIÓN ---
     }
 
     return { message: "No hay nada con qué interactuar ahí." };
